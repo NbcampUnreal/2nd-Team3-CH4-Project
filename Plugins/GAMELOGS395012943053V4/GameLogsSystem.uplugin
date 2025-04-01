@@ -1,0 +1,38 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.11",
+	"FriendlyName": "Advanced logging (GLS)",
+	"Description": "The Game Logs System (GLS) is an advanced logging system. Its intelligent filtering, numerous configuration options, and ease of use will help you with development, testing, and debugging.",
+	"Category": "Runtime",
+	"CreatedBy": "Terro Fergius",
+	"CreatedByURL": "",
+	"DocsURL": "https://dev.epicgames.com/community/learning/tutorials/m36v/unreal-engine-fab-game-logs-system-gls-real-time-log-management-for-shipping-builds-on-mobile-and-console-platforms",
+	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/368bbb09622040d9817c5f01e8ef3557",
+	"SupportURL": "mailto:gamelogssystem@gmail.com",
+	"EngineVersion": "5.5.0",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "GLS",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64",
+				"Linux",
+				"Android"
+			]
+		},
+		{
+			"Name": "GLSEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64",
+				"Linux"
+			]
+		}
+	]
+}
