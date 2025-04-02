@@ -40,7 +40,7 @@ void AItemBase::OnPickup_Implementation(ACharacter* Character)
 	// 아이템 획득 사운드 재생
 	if (PickupSound)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
+		// UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
 	}
 }
 
