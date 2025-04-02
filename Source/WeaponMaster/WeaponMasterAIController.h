@@ -19,14 +19,16 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	// Perception
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	UBehaviorTree* BehaviorTreeAsset;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	UAIPerceptionComponent* AIPerception;
 
 	UPROPERTY()
 	UAISenseConfig_Sight* SightConfig;
 
-	//타겟 감지 이벤트
+	//타겟 감지
 	UFUNCTION()
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 };

@@ -27,10 +27,21 @@ AWeaponMasterAIController::AWeaponMasterAIController()
 void AWeaponMasterAIController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (BehaviorTreeAsset)
+	{
+		RunBehaviorTree(BehaviorTreeAsset);
+		UE_LOG(LogTemp, Warning, TEXT("Behavior Tree started"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("BehaviorTreeAsset is NULL!"));
+	}
 }
 
 void AWeaponMasterAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
+	UE_LOG(LogTemp, Warning, TEXT("OKOK"))
 	if (Stimulus.WasSuccessfullySensed())
 	{
 		GetBlackboardComponent()->SetValueAsObject(TEXT("TargetActor"), Actor);
