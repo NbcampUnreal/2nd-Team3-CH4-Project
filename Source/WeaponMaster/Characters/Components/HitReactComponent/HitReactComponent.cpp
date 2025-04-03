@@ -1,36 +1,50 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "HitReactComponent.h"
 
 
-// Sets default values for this component's properties
 UHitReactComponent::UHitReactComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
-// Called when the game starts
 void UHitReactComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
 	
 }
 
 
-// Called every frame
 void UHitReactComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                        FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
 }
 
+
+void UHitReactComponent::OnGetDamage()
+{
+	AActor* Owner = GetOwner();
+	if (!Owner) return;
+	/*
+	AWeaponMasterCharacter Character = Cast<ACharacterBase>(Owner);
+	if(Character)
+	{
+		체력 계산
+		if(사망 시)
+		{
+			상대 점수 1점 획득
+			체력 0
+			사망상태로 변경
+		}
+		else
+		{
+		체력감소
+		상태변화
+		}
+	
+	}
+	*/ 
+	
+}
