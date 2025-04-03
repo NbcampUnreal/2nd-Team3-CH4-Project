@@ -7,6 +7,7 @@
 #include "MainMenuHUD.generated.h"
 
 class UMainMenuWidget;
+class UChoiceWidget;
 
 UCLASS()
 class WEAPONMASTER_API AMainMenuHUD : public AHUD
@@ -34,6 +35,17 @@ public:
 	UFUNCTION()
 	void HandleExitClicked();
 
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowChoiceMenu();
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void HideChoiceMenu();
+
+	UFUNCTION()
+	void HandleNextClicked();
+
+	UFUNCTION()
+	void HandlePrevClicked();
 
 protected:
 	void LogMessage(const FString& Message);
@@ -44,4 +56,13 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "UI")
 	TObjectPtr<UMainMenuWidget> MainMenuWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UChoiceWidget> ChoiceWidgetClass;
+
+	UPROPERTY(VisibleAnywhere, Category = "UI")
+	TObjectPtr<UChoiceWidget> ChoiceWidget;
+
+	
+
 };

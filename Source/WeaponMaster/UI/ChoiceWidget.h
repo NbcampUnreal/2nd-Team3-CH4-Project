@@ -12,7 +12,7 @@ class UButton;
 * 위젯 호출되는 순서 : 
 * 캐릭터 선택 화면 -> 무기 선택 화면 
 */
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChoiceAction);
 UENUM(BlueprintType)
 enum class EWidgetState : uint8
 {
@@ -27,6 +27,10 @@ class WEAPONMASTER_API UChoiceWidget : public UUserWidget
 	GENERATED_BODY()
 public:
 	virtual void NativeConstruct() override;
+
+	FOnChoiceAction NextButtonClicked;
+	FOnChoiceAction PrevButtonClicked;
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> ButtonBack;
@@ -46,4 +50,12 @@ protected:
 	void UpdateChoiceWidget();
 
 	void LogMessage(const FString& Message);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	TObjectPtr<USoundBase> MoveSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	TObjectPtr<USoundBase> SelectSound;
+
+	void PlaySound(TObjectPtr<USoundBase> Sound);
 };

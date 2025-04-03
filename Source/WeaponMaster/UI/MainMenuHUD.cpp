@@ -3,6 +3,7 @@
 
 #include "MainMenuHUD.h"
 #include "MainMenuWidget.h"
+#include "ChoiceWidget.h"
 #include "Engine/Engine.h"
 
 void AMainMenuHUD::BeginPlay()
@@ -49,11 +50,18 @@ void AMainMenuHUD::ShowMainMenu()
 
 void AMainMenuHUD::HideMainMenu()
 {
+    if (MainMenuWidget)
+    {
+        MainMenuWidget->RemoveFromViewport();
+        MainMenuWidget = nullptr;
+    }
+    //여기에서 다시 pc의 입력모드를 전환시켜야할까? 안해도 될것같은데 
 }
 
 void AMainMenuHUD::HandleSingleClicked()
 {
-    LogMessage("In Hud HandleSingleClicked");
+    HideMainMenu();
+    ShowChoiceMenu();
 }
 
 void AMainMenuHUD::HandleCoopClicked()
@@ -74,4 +82,50 @@ void AMainMenuHUD::HandleShopClicked()
 void AMainMenuHUD::HandleExitClicked()
 {
     LogMessage("In Hud HandleExitClicked");
+}
+
+void AMainMenuHUD::ShowChoiceMenu()
+{
+    if (!ensure(ChoiceWidgetClass))
+    {
+        return;
+    }
+    if (ChoiceWidgetClass)
+    {
+        ChoiceWidget = CreateWidget<UChoiceWidget>(GetWorld(), ChoiceWidgetClass);
+        if (ChoiceWidget)
+        {
+            ChoiceWidget->AddToViewport();
+            ChoiceWidget->NextButtonClicked.AddDynamic(this, &AMainMenuHUD::HandleNextClicked);
+            ChoiceWidget->PrevButtonClicked.AddDynamic(this, &AMainMenuHUD::HandlePrevClicked);
+            if (APlayerController* PC = GetOwningPlayerController())
+            {
+                FInputModeUIOnly InputMode;
+                InputMode.SetWidgetToFocus(ChoiceWidget->TakeWidget());
+                PC->SetInputMode(InputMode);
+                PC->bShowMouseCursor = true;
+            }
+        }
+    }
+}
+
+void AMainMenuHUD::HideChoiceMenu()
+{
+    if (ChoiceWidget)
+    {
+        ChoiceWidget->RemoveFromViewport();
+        ChoiceWidget = nullptr;
+    }
+}
+
+void AMainMenuHUD::HandleNextClicked()
+{
+    //HideChoiceMenu();
+    LogMessage("아직 미구현");
+}
+
+void AMainMenuHUD::HandlePrevClicked()
+{
+    HideChoiceMenu();
+    ShowMainMenu();
 }
