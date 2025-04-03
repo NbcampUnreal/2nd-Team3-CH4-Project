@@ -213,24 +213,29 @@ void UMainMenuWidget::NativeOnFocusLost(const FFocusEvent& InFocusEvent)
 void UMainMenuWidget::OnSingleButtonClicked()
 {
     LogMessage("SingleButtonClicked");
+    OnSingleClicked.Broadcast();
 }
 
 void UMainMenuWidget::OnCoopButtonClicked()
 {
     LogMessage("CoopButtonClicked");
+    OnCoopClicked.Broadcast();
 }
 
 void UMainMenuWidget::OnVsButtonClicked()
 {
     LogMessage("VsButtonClicked");
+    OnVsClicked.Broadcast();
 }
 
 void UMainMenuWidget::OnShopButtonClicked()
 {
     LogMessage("ShopButtonClicked");
+    OnShopClicked.Broadcast();
 }
 
 void UMainMenuWidget::OnExitButtonClicked()
 {
     LogMessage("ExitButtonClicked");
+    OnExitClicked.Broadcast();
 } 

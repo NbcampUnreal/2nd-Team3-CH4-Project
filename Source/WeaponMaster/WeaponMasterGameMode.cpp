@@ -3,6 +3,7 @@
 #include "WeaponMasterGameMode.h"
 #include "Characters/WeaponMasterCharacter.h"
 #include "UObject/ConstructorHelpers.h"
+#include "GameFramework/HUD.h"
 
 AWeaponMasterGameMode::AWeaponMasterGameMode()
 {
@@ -11,5 +12,10 @@ AWeaponMasterGameMode::AWeaponMasterGameMode()
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
+	}
+	static ConstructorHelpers::FClassFinder<AHUD> HUDBPClass(TEXT("/Game/WeaponMaster/Dev_Bong/BP_MainMenuHUD"));
+	if (HUDBPClass.Class != nullptr)
+	{
+		HUDClass = HUDBPClass.Class;
 	}
 }

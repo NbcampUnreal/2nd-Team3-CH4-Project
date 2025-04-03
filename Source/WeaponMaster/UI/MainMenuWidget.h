@@ -10,6 +10,8 @@ class UButton;
 class UTextBlock;
 class USoundBase;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMainMenuAction);
+
 UCLASS()
 class WEAPONMASTER_API UMainMenuWidget : public UUserWidget
 {
@@ -38,7 +40,23 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> GoldText;
 
+public:
+    UPROPERTY(BlueprintAssignable)
+    FOnMainMenuAction OnSingleClicked;
 
+    UPROPERTY(BlueprintAssignable)
+    FOnMainMenuAction OnCoopClicked;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnMainMenuAction OnVsClicked;
+    
+    UPROPERTY(BlueprintAssignable)
+    FOnMainMenuAction OnShopClicked;
+    
+    UPROPERTY(BlueprintAssignable)
+    FOnMainMenuAction OnExitClicked;
+
+protected:
     TArray<TObjectPtr<UButton>> MenuButtons;
 
     int32 CurrentButtonIndex;
