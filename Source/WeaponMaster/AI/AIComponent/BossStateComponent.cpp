@@ -2,19 +2,30 @@
 
 UBossStateComponent::UBossStateComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
+	CurrentPhase = EBossPhase::Phase1; // 기본값
 }
-
 
 void UBossStateComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-
-void UBossStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UBossStateComponent::UpdatePhase(float CurrentHP, float MaxHP)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
+	float Ratio = CurrentHP / MaxHP;
+	EBossPhase NewPhase = CurrentPhase;
 
+	if (Ratio > 0.7f)
+		NewPhase = EBossPhase::Phase1;
+	else if (Ratio > 0.3f)
+		NewPhase = EBossPhase::Phase2;
+	else
+		NewPhase = EBossPhase::Phase3;
+
+	if (NewPhase != CurrentPhase)
+	{
+		CurrentPhase = NewPhase;
+		OnPhaseChanged.Broadcast(NewPhase);
+	}
+}
