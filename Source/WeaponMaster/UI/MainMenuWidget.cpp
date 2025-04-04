@@ -196,15 +196,15 @@ void UMainMenuWidget::NativeOnFocusLost(const FFocusEvent& InFocusEvent)
 {
     Super::NativeOnFocusLost(InFocusEvent);
 
-    if (APlayerController* PC = GetOwningPlayer())
-    {
-        FInputModeUIOnly InputMode;
-        InputMode.SetWidgetToFocus(this->TakeWidget());
-        PC->SetInputMode(InputMode);
-        //테스트용
-        PC->bShowMouseCursor = true;
-    }
-    LogMessage("Focus Reset");
+    //if (APlayerController* PC = GetOwningPlayer())
+    //{
+    //    FInputModeUIOnly InputMode;
+    //    InputMode.SetWidgetToFocus(this->TakeWidget());
+    //    PC->SetInputMode(InputMode);
+    //    //테스트용
+    //    PC->bShowMouseCursor = true;
+    //}
+    //LogMessage("Focus Reset");
 }
 //////////////////////
 /// 버튼이 클릭되면,
@@ -239,3 +239,18 @@ void UMainMenuWidget::OnExitButtonClicked()
     LogMessage("ExitButtonClicked");
     OnExitClicked.Broadcast();
 } 
+void UMainMenuWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+    Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
+
+    if (APlayerController* PC = GetOwningPlayer())
+   {
+       FInputModeUIOnly InputMode;
+       InputMode.SetWidgetToFocus(this->TakeWidget());
+       PC->SetInputMode(InputMode);
+       //테스트용
+       PC->bShowMouseCursor = true;
+   }
+   LogMessage("Focus Reset");
+   
+}

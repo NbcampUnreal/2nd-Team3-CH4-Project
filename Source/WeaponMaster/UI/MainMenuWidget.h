@@ -99,4 +99,6 @@ protected:
     virtual void NativeOnFocusLost(const FFocusEvent& InFocusEvent) override;
 
     FButtonStyle SavedStyle;
+
+    virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 };

@@ -11,7 +11,8 @@
 			"AdditionalDependencies": [
 				"AIModule",
 				"Engine",
-				"UMG"
+				"UMG",
+				"CoreUObject"
 			]
 		}
 	],
@@ -22,6 +23,11 @@
 			"TargetAllowList": [
 				"Editor"
 			]
+		},
+		{
+			"Name": "GameLogsSystem",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/368bbb09622040d9817c5f01e8ef3557"
 		}
 	]
 }

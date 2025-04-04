@@ -98,13 +98,13 @@ void AMainMenuHUD::ShowChoiceMenu()
             ChoiceWidget->AddToViewport();
             ChoiceWidget->NextButtonClicked.AddDynamic(this, &AMainMenuHUD::HandleNextClicked);
             ChoiceWidget->PrevButtonClicked.AddDynamic(this, &AMainMenuHUD::HandlePrevClicked);
-            if (APlayerController* PC = GetOwningPlayerController())
+           /* if (APlayerController* PC = GetOwningPlayerController())
             {
                 FInputModeUIOnly InputMode;
                 InputMode.SetWidgetToFocus(ChoiceWidget->TakeWidget());
                 PC->SetInputMode(InputMode);
                 PC->bShowMouseCursor = true;
-            }
+            }*/
         }
     }
 }
@@ -128,4 +128,20 @@ void AMainMenuHUD::HandlePrevClicked()
 {
     HideChoiceMenu();
     ShowMainMenu();
+}
+
+void AMainMenuHUD::ShowTestMenu()
+{
+    if (!ensure(TestWidgetClass))
+    {
+        return;
+    }
+    if (TestWidgetClass)
+    {
+        TestWidget = CreateWidget<UUserWidget>(GetWorld(), TestWidgetClass);
+        if (TestWidget)
+        {
+            TestWidget->AddToViewport();
+        }
+    }
 }

@@ -8,6 +8,7 @@
 
 class UMainMenuWidget;
 class UChoiceWidget;
+class UUserWidget;
 
 UCLASS()
 class WEAPONMASTER_API AMainMenuHUD : public AHUD
@@ -47,6 +48,9 @@ public:
 	UFUNCTION()
 	void HandlePrevClicked();
 
+	UFUNCTION()
+	void ShowTestMenu();
+
 protected:
 	void LogMessage(const FString& Message);
 	virtual void BeginPlay() override;
@@ -63,6 +67,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "UI")
 	TObjectPtr<UChoiceWidget> ChoiceWidget;
 
-	
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> TestWidgetClass;
+
+	UPROPERTY(VisibleAnywhere, Category = "UI")
+	TObjectPtr<UUserWidget> TestWidget;
 
 };
