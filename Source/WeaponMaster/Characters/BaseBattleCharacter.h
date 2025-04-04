@@ -3,17 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "SSTCharacter.h"
 #include "BaseBattleCharacter.generated.h"
 
 UCLASS()
-class WEAPONMASTER_API ABaseBattleCharacter : public ACharacter
+class WEAPONMASTER_API ABaseBattleCharacter : public ASSTCharacter
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	ABaseBattleCharacter();
+	ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	// Called when the game starts or when spawned
