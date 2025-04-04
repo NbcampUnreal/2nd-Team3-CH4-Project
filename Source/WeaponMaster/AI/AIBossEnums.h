@@ -16,11 +16,15 @@ UENUM(BlueprintType)
 enum class EBossPattern : uint8
 {
 	None UMETA(DisplayName = "None"),
-	BasicAttack UMETA(DisplayName = "기본공격"),
-	Throw UMETA(DisplayName = "던지기"),
-	BackCharge UMETA(DisplayName = "뒤로가서 돌진"),
-	Stomp UMETA(DisplayName = "범위기"),
-	RushBump UMETA(DisplayName = "몸통박치기"),
-	Meteor UMETA(DisplayName = "무기 낙하"),
-	RunAttack UMETA(DisplayName = "경로 돌진")
+
+	MeleeBasic        UMETA(DisplayName = "기본 근접 공격"),
+	BackTurnCharge    UMETA(DisplayName = "뒤돌기 후 돌진"),
+	ThrowObject       UMETA(DisplayName = "무언가 던지기"),
+
+	MeleeHeavy        UMETA(DisplayName = "강한 근접 공격"),
+	AOEStomp          UMETA(DisplayName = "전조 범위기"),
+	RushHit           UMETA(DisplayName = "몸통박치기"),
+
+	MeteorSmash       UMETA(DisplayName = "무기 낙하 공격"),
+	RunThroughAttack  UMETA(DisplayName = "경로 돌진")
 };

@@ -42,9 +42,37 @@ void AWeaponMasterAIController::BeginPlay()
 void AWeaponMasterAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
 	UE_LOG(LogTemp, Warning, TEXT("OKOK"))
-	if (Stimulus.WasSuccessfullySensed())
+	EvaluateTargetPriority();
+}
+
+void AWeaponMasterAIController::EvaluateTargetPriority()
+{
+	TArray<AActor*> PerceivedActors;
+	AIPerception->GetCurrentlyPerceivedActors(UAISense_Sight::StaticClass(), PerceivedActors);
+
+	AActor* BestTarget = nullptr;
+	float ClosestDist = FLT_MAX;
+
+	if (APawn* MyPawn = GetPawn())
 	{
-		GetBlackboardComponent()->SetValueAsObject(TEXT("TargetActor"), Actor);
+		const FVector MyLocation = MyPawn->GetActorLocation();
+
+		for (AActor* Target : PerceivedActors)
+		{
+			if (!IsValid(Target)) continue;
+
+			const float Dist = FVector::Dist(MyLocation, Target->GetActorLocation());
+			if (Dist < ClosestDist)
+			{
+				BestTarget = Target;
+				ClosestDist = Dist;
+			}
+		}
+	}
+
+	if (BestTarget)
+	{
+		GetBlackboardComponent()->SetValueAsObject(TEXT("TargetActor"), BestTarget);
 	}
 	else
 	{
