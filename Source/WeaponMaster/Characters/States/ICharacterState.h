@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "IState.generated.h"
+#include "ICharacterState.generated.h"
 
 /**
  *  // Walking, Idle, ... , UseSkill, 피격
  */
 UINTERFACE(BlueprintType)
-class WEAPONMASTER_API UState : public UInterface
+class WEAPONMASTER_API UCharacterState : public UInterface
 {
 	GENERATED_BODY()
 };
 
-class WEAPONMASTER_API IState
+class WEAPONMASTER_API ICharacterState
 {
 	GENERATED_BODY()
 
