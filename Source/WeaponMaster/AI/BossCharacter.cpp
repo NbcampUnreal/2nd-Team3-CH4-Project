@@ -40,31 +40,6 @@ void ABossCharacter::OnPhaseChanged(EBossPhase NewPhase)
 	}
 }
 
-void ABossCharacter::PerformBasicAttack()
-{
-	if (BasicAttackMontage)
-	{
-		PlayAnimMontage(BasicAttackMontage);
-		//타격 타이밍?
-	}
-	ApplyBasicCombo();
-}
-
-void ABossCharacter::ApplyBasicCombo()
-{
-	PerformComboAttack1();
-
-	GetWorldTimerManager().SetTimerForNextTick([this]()
-	{
-		FTimerHandle Handle2;
-		GetWorldTimerManager().SetTimer(Handle2, this, &ABossCharacter::PerformComboAttack2, 0.7f, false);
-	});
-
-	FTimerHandle Handle3;
-	GetWorldTimerManager().SetTimer(Handle3, this, &ABossCharacter::PerformComboAttack3, 1.4f, false);
-}
-
-
 void ABossCharacter::CalculateAttackBox(int32 ComboStep, FVector& OutCenter, FVector& OutExtent)
 {
 	FVector Forward = GetActorForwardVector();
@@ -107,8 +82,51 @@ void ABossCharacter::DamageActorsInBox(const FVector& Center, const FVector& Ext
 	}
 }
 
+void ABossCharacter::Multicast_PlayMontage_Implementation(UAnimMontage* Montage)
+{
+	if (Montage)
+	{
+		PlayAnimMontage(Montage);
+	}
+}
+
+void ABossCharacter::ApplyBasicCombo()
+{
+	if (HasAuthority())
+	{
+		StartBasicCombo();
+	}
+	else
+	{
+		Server_ApplyBasicCombo();
+	}
+}
+
+
+void ABossCharacter::Server_ApplyBasicCombo_Implementation()
+{
+	StartBasicCombo();
+}
+
+
+void ABossCharacter::StartBasicCombo()
+{
+	PerformComboAttack1();
+
+	FTimerHandle Handle2;
+	GetWorldTimerManager().SetTimer(Handle2, this, &ABossCharacter::PerformComboAttack2, 0.7f, false);
+
+	FTimerHandle Handle3;
+	GetWorldTimerManager().SetTimer(Handle3, this, &ABossCharacter::PerformComboAttack3, 1.4f, false);
+}
+
 void ABossCharacter::PerformComboAttack1()
 {
+	if (ComboMontage1)
+	{
+		Multicast_PlayMontage(ComboMontage1);
+	}
+
 	FVector Center, Extent;
 	CalculateAttackBox(1, Center, Extent);
 	DamageActorsInBox(Center, Extent);
@@ -116,6 +134,10 @@ void ABossCharacter::PerformComboAttack1()
 
 void ABossCharacter::PerformComboAttack2()
 {
+	if (ComboMontage2)
+	{
+		Multicast_PlayMontage(ComboMontage2);
+	}
 	FVector Center, Extent;
 	CalculateAttackBox(2, Center, Extent);
 	DamageActorsInBox(Center, Extent);
@@ -123,6 +145,10 @@ void ABossCharacter::PerformComboAttack2()
 
 void ABossCharacter::PerformComboAttack3()
 {
+	if (ComboMontage3)
+	{
+		Multicast_PlayMontage(ComboMontage3);
+	}
 	FVector Center, Extent;
 	CalculateAttackBox(3, Center, Extent);  // 꼭 필요!
 	DamageActorsInBox(Center, Extent);

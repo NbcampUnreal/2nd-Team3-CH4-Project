@@ -34,25 +34,35 @@ public:
 
 ///보스 공격 패턴
 public:
-	UFUNCTION(BlueprintCallable)
-	void PerformBasicAttack();
+	//공격 범위
+	void CalculateAttackBox(int32 ComboStep, FVector& OutCenter, FVector& OutExtent);
+	void DamageActorsInBox(const FVector& Center, const FVector& Extent);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayMontage(UAnimMontage* Montage);
+
+	//////기본 공격//////
+	UPROPERTY(EditAnywhere, Category = "Combat|Montage")
+	UAnimMontage* ComboMontage1;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Montage")
+	UAnimMontage* ComboMontage2;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Montage")
+	UAnimMontage* ComboMontage3;
+
 
 	UFUNCTION(BlueprintCallable)
-	void ApplyBasicCombo(); // 타격 타이밍에 호출됨
+	void ApplyBasicCombo();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	UAnimMontage* BasicAttackMontage;
+	UFUNCTION(BlueprintCallable)
+	void StartBasicCombo(); // 타격 타이밍에 호출됨
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	float AttackRange;
+	UFUNCTION(Server, Reliable)
+	void Server_ApplyBasicCombo();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	float AttackDamage;
-
+	//1,2,3타
 	void PerformComboAttack1();
 	void PerformComboAttack2();
 	void PerformComboAttack3();
-
-	void CalculateAttackBox(int32 ComboStep, FVector& OutCenter, FVector& OutExtent);
-	void DamageActorsInBox(const FVector& Center, const FVector& Extent);
 };
