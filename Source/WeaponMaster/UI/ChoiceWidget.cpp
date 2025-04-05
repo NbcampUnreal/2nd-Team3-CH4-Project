@@ -36,7 +36,6 @@ void UChoiceWidget::NativeConstruct()
 			UUniformGridSlot* GridSlot = Cast<UUniformGridSlot>(SelectWidgetGridPanel->AddChild(NewWidget));
 			if (GridSlot)
 			{
-				
 				GridSlot->SetColumn(Index % Columns);
 				GridSlot->SetRow(Index / Columns);
 			}
@@ -99,19 +98,8 @@ void UChoiceWidget::OnBackClicked()
 		}
 	}
 }
-//해야할것이 . 1. 포커스 맞추기
-//2. 키보드 입력  
-//3. 판넬에 초반에 담아버리기 - 완료
-//4. 판넬 안으로 들어오면 마우스 포커스 가져오기 
-//5. 키보드 입력은 현재의 상태에 따라서 달라진다. -  이거 아닐듯
-//6. 마우스 키보드 입력 동시에 받게할수는 없나? 
-// 
-// 마우스 탐지는 블루프린트로
-//만약에 탐지가되면 모든 인덱스에 대해서 블루프린트 상에서 하이라이트를 풀어버리자 
-
-//1. 포커스설정 0순위
 //2 .그다음에 DA나 DT 활용해서 이미지파일 집어넣자 
-
+//버그 수정 및 이미지파일 변경해놓고 유아틱 이미지파일 제거하기 
 void UChoiceWidget::LogMessage(const FString& Message)
 {
 	if (GEngine)
