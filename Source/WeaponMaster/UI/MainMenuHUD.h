@@ -48,8 +48,6 @@ public:
 	UFUNCTION()
 	void HandlePrevClicked();
 
-	UFUNCTION()
-	void ShowTestMenu();
 
 protected:
 	void LogMessage(const FString& Message);
@@ -66,11 +64,4 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "UI")
 	TObjectPtr<UChoiceWidget> ChoiceWidget;
-
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UUserWidget> TestWidgetClass;
-
-	UPROPERTY(VisibleAnywhere, Category = "UI")
-	TObjectPtr<UUserWidget> TestWidget;
-
 };

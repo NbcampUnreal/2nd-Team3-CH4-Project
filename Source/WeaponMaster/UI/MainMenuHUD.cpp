@@ -4,6 +4,7 @@
 #include "MainMenuHUD.h"
 #include "MainMenuWidget.h"
 #include "ChoiceWidget.h"
+#include "SelectWidget.h"
 #include "Engine/Engine.h"
 
 void AMainMenuHUD::BeginPlay()
@@ -113,6 +114,13 @@ void AMainMenuHUD::HideChoiceMenu()
 {
     if (ChoiceWidget)
     {
+        //가비지 컬렉터에 의해 사라지지만 혹시몰라서 강제로 들어가서 삭제 
+        TArray<TObjectPtr<USelectWidget>> TempWidgets = ChoiceWidget->GetSelectWidgets();
+        for (USelectWidget* Widget : TempWidgets)
+        {
+            Widget->RemoveFromViewport();
+        }
+
         ChoiceWidget->RemoveFromViewport();
         ChoiceWidget = nullptr;
     }
@@ -130,18 +138,3 @@ void AMainMenuHUD::HandlePrevClicked()
     ShowMainMenu();
 }
 
-void AMainMenuHUD::ShowTestMenu()
-{
-    if (!ensure(TestWidgetClass))
-    {
-        return;
-    }
-    if (TestWidgetClass)
-    {
-        TestWidget = CreateWidget<UUserWidget>(GetWorld(), TestWidgetClass);
-        if (TestWidget)
-        {
-            TestWidget->AddToViewport();
-        }
-    }
-}

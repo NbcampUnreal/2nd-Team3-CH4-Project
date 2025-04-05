@@ -6,12 +6,16 @@
 #include "UObject/NoExportTypes.h"
 #include "WidgetStateData.generated.h"
 
-/**
- * 
- */
-UCLASS()
-class WEAPONMASTER_API UWidgetStateData : public UObject
+UENUM(BlueprintType)
+enum class EWidgetState : uint8
 {
-	GENERATED_BODY()
-	
+	CharacterChoice UMETA(DisplayName = "Character Choice"),
+	WeaponChoice    UMETA(DisplayName = "Weapon Choice")
 };
+
+//UCLASS()
+//class WEAPONMASTER_API UWidgetStateData : public UObject
+//{
+//	GENERATED_BODY()
+//	
+//};
