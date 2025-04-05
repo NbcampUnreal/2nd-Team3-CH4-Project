@@ -14,7 +14,6 @@
 #include "Components/ItemComponent/ItemComponent.h"
 #include "Engine/DamageEvents.h"
 #include "Net/UnrealNetwork.h"
-#include "WeaponMaster/Data/SkillTypes.h"
 #include "WeaponMaster/Items/InteractionComponent/InteractionComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTestCharacter); // Changed Log Category Name
@@ -151,71 +150,6 @@ void ATestCharacter::ExecuteSkill(int32 SkillIndex) // Renamed class method
         ItemComponent->ExecuteSkill(SkillIndex);
     }
 }
-
-/**
- * 현재 장착된 아이템에서 사용 가능한 스킬의 수를 반환합니다.
- *
- * @return 사용 가능한 스킬의 수
- */
-int32 ATestCharacter::GetAvailableSkillCount() const // Renamed class method
-{
-    if (ItemComponent)
-    {
-        return ItemComponent->GetAvailableSkillCount();
-    }
-    return 0;
-}
-
-/**
- * 인덱스로 스킬 데이터를 가져옵니다.
- *
- * @param SkillIndex 가져올 스킬의 인덱스
- * @return 스킬 데이터, 유효하지 않은 인덱스인 경우 기본 스킬 데이터 반환
- */
-FSkillData ATestCharacter::GetSkillData(int32 SkillIndex) const // Renamed class method
-{
-    if (ItemComponent)
-    {
-        return ItemComponent->GetSkillData(SkillIndex);
-    }
-
-    FSkillData DefaultData;
-    DefaultData.SkillType = ESkillType::None;
-    DefaultData.SkillName = TEXT("No Item Equipped");
-    return DefaultData;
-}
-
-/**
- * 인덱스로 스킬이 쿨다운 중인지 확인합니다.
- *
- * @param SkillIndex 확인할 스킬의 인덱스
- * @return 해당 스킬이 쿨다운 중이면 true, 아니면 false
- */
-bool ATestCharacter::IsSkillOnCooldown(int32 SkillIndex) const // Renamed class method
-{
-    if (ItemComponent)
-    {
-        return ItemComponent->IsSkillOnCooldown(SkillIndex);
-    }
-    return false;
-}
-
-/**
- * 인덱스로 스킬의 남은 쿨다운 시간을 가져옵니다.
- *
- * @param SkillIndex 확인할 스킬의 인덱스
- * @return 해당 스킬의 남은 쿨다운 시간 (초 단위)
- */
-float ATestCharacter::GetSkillCooldownRemaining(int32 SkillIndex) const // Renamed class method
-{
-    if (ItemComponent)
-    {
-        return ItemComponent->GetSkillCooldownRemaining(SkillIndex);
-    }
-    return 0.0f;
-}
-
-
 
 // Enhanced Input Move 함수
 void ATestCharacter::EnhancedMove(const FInputActionValue& Value) // Renamed class method

@@ -5,7 +5,6 @@
 #include "UObject/NoExportTypes.h"
 #include "ItemDataAsset.h"
 #include "Engine/AssetManager.h"
-#include "SkillTypes.h"
 #include "GameDataManager.generated.h"
 
 /**
@@ -34,15 +33,7 @@ public:
 	// 아이템 데이터 목록 가져오기
 	UFUNCTION(BlueprintCallable, Category = "Game Data")
 	TArray<UItemDataAsset*> GetAllItemData();
-
-	// 스킬 데이터 가져오기
-	UFUNCTION(BlueprintCallable, Category = "Game Data")
-	FSkillData GetSkillData(ESkillType SkillType);
-
-	// 스킬 데이터 목록 가져오기
-	UFUNCTION(BlueprintCallable, Category = "Game Data")
-	TArray<FSkillData> GetAllSkillData();
-
+	
 	// 게임 콘텐츠 경로 설정
 	UFUNCTION(BlueprintCallable, Category = "Game Data")
 	void SetContentPath(const FString& Path);
@@ -64,27 +55,16 @@ protected:
 	UFUNCTION()
 	void LoadItemsFromPath(const FString& Path);
 
-	// 특정 경로의 모든 스킬 데이터 로드
-	UFUNCTION()
-	void LoadSkillsFromPath(const FString& Path);
-
 	// 아이템 캐시 업데이트
 	UFUNCTION()
 	void UpdateItemCache(UItemDataAsset* ItemData);
 
-	// 스킬 캐시 업데이트
-	UFUNCTION()
-	void UpdateSkillCache(const FSkillData& SkillData);
 
 private:
 
 	// 아이템 데이터 캐시
 	UPROPERTY()
 	TMap<FName, UItemDataAsset*> ItemDataCache;
-
-	// 스킬 데이터 캐시
-	UPROPERTY()
-	TMap<ESkillType, FSkillData> SkillDataCache;
 
 	// 콘텐츠 기본 경로
 	UPROPERTY()

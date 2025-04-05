@@ -115,31 +115,6 @@ TArray<UItemDataAsset*> UGameDataManager::GetAllItemData()
     return AllItems;
 }
 
-FSkillData UGameDataManager::GetSkillData(ESkillType SkillType)
-{
-    // 캐시에서 스킬 찾기
-    FSkillData* FoundSkill = SkillDataCache.Find(SkillType);
-    if (FoundSkill)
-    {
-        return *FoundSkill;
-    }
-
-    // 기본 스킬 데이터 반환
-    FSkillData DefaultSkillData;
-    DefaultSkillData.SkillType = SkillType;
-    DefaultSkillData.SkillName = FString::Printf(TEXT("Unknown Skill (%d)"), static_cast<int32>(SkillType));
-
-    UE_LOG(LogGameData, Warning, TEXT("Failed to find skill data for type: %d"), static_cast<int32>(SkillType));
-    return DefaultSkillData;
-}
-
-TArray<FSkillData> UGameDataManager::GetAllSkillData()
-{
-    TArray<FSkillData> AllSkills;
-    SkillDataCache.GenerateValueArray(AllSkills);
-    return AllSkills;
-}
-
 void UGameDataManager::SetContentPath(const FString& Path)
 {
     ContentBasePath = Path;
@@ -160,9 +135,6 @@ void UGameDataManager::ClearCache()
     // 아이템 캐시 정리
     ItemDataCache.Empty();
 
-    // 스킬 캐시 정리
-    SkillDataCache.Empty();
-
     // 로드 요청 정리
     for (auto& Request : LoadRequests)
     {
@@ -176,10 +148,7 @@ void UGameDataManager::LoadAllGameData()
     // 아이템 데이터 로드
     LoadItemsFromPath(ContentBasePath + TEXT("/Items"));
 
-    // 스킬 데이터 로드
-    LoadSkillsFromPath(ContentBasePath + TEXT("/Skills"));
-
-    UE_LOG(LogGameData, Log, TEXT("Loaded %d items and %d skills"), ItemDataCache.Num(), SkillDataCache.Num());
+    UE_LOG(LogGameData, Log, TEXT("Loaded %d items"), ItemDataCache.Num());
 }
 
 void UGameDataManager::LoadItemsFromPath(const FString& Path)
@@ -210,26 +179,6 @@ void UGameDataManager::LoadItemsFromPath(const FString& Path)
     }
 }
 
-void UGameDataManager::LoadSkillsFromPath(const FString& Path)
-{
-    // 스킬 데이터는 데이터 테이블이나 다른 형태로 구현될 수 있음
-    // 여기서는 예시로 모든 아이템에서 스킬 정보를 추출하는 방식 사용
-
-    for (const auto& ItemPair : ItemDataCache)
-    {
-        UItemDataAsset* ItemData = ItemPair.Value;
-        if (ItemData)
-        {
-            for (const FSkillData& SkillData : ItemData->SkillSet)
-            {
-                UpdateSkillCache(SkillData);
-            }
-        }
-    }
-
-    // 기본 스킬 데이터 추가
-    // 이 부분은 실제 구현에 따라 다르게 할 수 있음
-}
 
 void UGameDataManager::UpdateItemCache(UItemDataAsset* ItemData)
 {
@@ -240,23 +189,7 @@ void UGameDataManager::UpdateItemCache(UItemDataAsset* ItemData)
 
     // 캐시에 아이템 추가/업데이트
     ItemDataCache.Add(ItemData->ItemID, ItemData);
-
-    // 아이템의 스킬 정보도 함께 캐싱
-    for (const FSkillData& SkillData : ItemData->SkillSet)
-    {
-        UpdateSkillCache(SkillData);
-    }
-}
-
-void UGameDataManager::UpdateSkillCache(const FSkillData& SkillData)
-{
-    if (SkillData.SkillType == ESkillType::None)
-    {
-        return;
-    }
-
-    // 캐시에 스킬 추가/업데이트
-    SkillDataCache.Add(SkillData.SkillType, SkillData);
+    
 }
 
 void UGameDataManager::OnItemDataLoaded(FName ItemID, UItemDataAsset* LoadedItem, FName CallbackFunctionName, UObject* CallbackTarget)

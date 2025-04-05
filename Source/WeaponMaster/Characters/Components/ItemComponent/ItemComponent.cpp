@@ -7,7 +7,6 @@
 #include "WeaponMaster/Data/GameDataManager.h"
 #include "WeaponMaster/Data/ItemDataAsset.h"
 #include "WeaponMaster/Data/WeaponMasterLib.h"
-#include "WeaponMaster/Skills/SkillManager.h"
 
 
 UItemComponent::UItemComponent()
@@ -26,8 +25,6 @@ void UItemComponent::BeginPlay()
 {
     Super::BeginPlay();
     
-    // 스킬 매니저 생성
-    SkillManager = NewObject<USkillManager>(this);
     
     // 소유자 캐릭터 가져오기
     ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
@@ -101,7 +98,6 @@ bool UItemComponent::EquipItem(FName ItemID)
         // 메시가 없는 경우 바로 장착 완료
         EquippedItem = NewItem;
         AttachItemToSocket(NewItem);
-        UpdateAvailableSkills();
         OnItemEquipped.Broadcast(NewItem);
         
         // 클라이언트에게 알림
@@ -139,8 +135,6 @@ void UItemComponent::UnequipItem()
     // 무기 충돌 비활성화
     SetWeaponCollisionEnabled(false);
     
-    // 스킬 세트 초기화
-    AvailableSkills.Empty();
     
     // 장착 해제 이벤트 발생
     OnItemUnequipped.Broadcast();
@@ -166,7 +160,7 @@ UItemDataAsset* UItemComponent::GetEquippedItem() const
  */
 void UItemComponent::ExecuteSkill(int32 SkillIndex)
 {
-    if (!EquippedItem || !SkillManager)
+    if (!EquippedItem)
     {
         return;
     }
@@ -178,15 +172,6 @@ void UItemComponent::ExecuteSkill(int32 SkillIndex)
         return;
     }
     
-    // 인덱스 범위 검사
-    if (SkillIndex < 0 || SkillIndex >= AvailableSkills.Num())
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Invalid skill index: %d"), SkillIndex);
-        return;
-    }
-    
-    // 인덱스 기반 스킬 실행
-    SkillManager->ExecuteSkill(SkillIndex, OwnerCharacter);
 }
 
 /**
@@ -268,8 +253,6 @@ void UItemComponent::OnMeshLoadCompleted()
         // 아이템 소켓에 부착
         AttachItemToSocket(EquippedItem);
         
-        // 사용 가능한 스킬 업데이트
-        UpdateAvailableSkills();
         
         // 이벤트 발생
         OnItemEquipped.Broadcast(EquippedItem);
@@ -344,32 +327,6 @@ void UItemComponent::HandleItemVisualEffects(UItemDataAsset* Item, bool bEquippi
 }
 
 /**
- * 현재 장착된 아이템의 스킬 세트를 업데이트합니다.
- *
- * 이 메서드는 다음과 같은 작업을 수행합니다:
- * - 장착된 아이템이 없거나 스킬 매니저가 없는 경우 스킬 리스트 초기화
- * - 아이템에서 가져온 스킬 세트를 사용하여 사용 가능한 스킬 목록 업데이트
- * - 스킬 매니저에 새 스킬들을 등록
- */
-void UItemComponent::UpdateAvailableSkills()
-{
-    if (!EquippedItem || !SkillManager)
-    {
-        AvailableSkills.Empty();
-        return;
-    }
-    
-    // 아이템에서 스킬 세트 가져오기
-    AvailableSkills = EquippedItem->SkillSet;
-    
-    // 스킬 매니저에 스킬 등록
-    for (const FSkillData& Skill : AvailableSkills)
-    {
-        SkillManager->RegisterSkill(Skill);
-    }
-}
-
-/**
  * 무기 충돌을 처리합니다.
  *
  * 이 메소드는 무기의 충돌 이벤트 발생 시 호출됩니다. 충돌 대상이 자기 자신일 경우 처리를 무시하며,
@@ -390,11 +347,6 @@ void UItemComponent::HandleWeaponCollision(UPrimitiveComponent* OverlappedCompon
         return;
     }
     
-    // SkillManager를 통해 충돌 처리
-    if (SkillManager)
-    {
-        SkillManager->ProcessWeaponCollision(OverlappedComponent, OtherActor, SweepResult);
-    }
 }
 
 /**
@@ -453,67 +405,7 @@ void UItemComponent::SetWeaponCollisionEnabled(bool bEnabled)
     }
 }
 
-/**
- * 현재 장착된 아이템에서 사용 가능한 스킬의 수를 반환합니다.
- *
- * @return 사용 가능한 스킬의 수
- */
-int32 UItemComponent::GetAvailableSkillCount() const
-{
-    return AvailableSkills.Num();
-}
 
-/**
- * 인덱스로 스킬 데이터를 가져옵니다.
- * 
- * @param SkillIndex 가져올 스킬의 인덱스
- * @return 스킬 데이터, 유효하지 않은 인덱스인 경우 기본 스킬 데이터 반환
- */
-FSkillData UItemComponent::GetSkillData(int32 SkillIndex) const
-{
-    if (SkillIndex >= 0 && SkillIndex < AvailableSkills.Num())
-    {
-        return AvailableSkills[SkillIndex];
-    }
-    
-    // 유효하지 않은 인덱스인 경우 기본 스킬 데이터 반환
-    FSkillData DefaultData;
-    DefaultData.SkillType = ESkillType::None;
-    DefaultData.SkillName = TEXT("Invalid Skill");
-    return DefaultData;
-}
-
-/**
- * 인덱스로 스킬이 쿨다운 중인지 확인합니다.
- *
- * @param SkillIndex 확인할 스킬의 인덱스
- * @return 해당 스킬이 쿨다운 중이면 true, 아니면 false
- */
-bool UItemComponent::IsSkillOnCooldown(int32 SkillIndex) const
-{
-    if (!SkillManager || SkillIndex < 0 || SkillIndex >= AvailableSkills.Num())
-    {
-        return false;
-    }
-    
-    return SkillManager->IsSkillOnCooldown(SkillIndex);
-}
-
-/**
- * 인덱스로 스킬의 남은 쿨다운 시간을 가져옵니다.
- *
- * @param SkillIndex 확인할 스킬의 인덱스
- * @return 해당 스킬의 남은 쿨다운 시간 (초 단위)
- */
-float UItemComponent::GetSkillCooldownRemaining(int32 SkillIndex) const
-{
-    if (!SkillManager || SkillIndex < 0 || SkillIndex >= AvailableSkills.Num())
-    {
-        return 0.0f;
-    }
-    
-    return SkillManager->GetCooldownRemaining(SkillIndex);
-}
 
 /**
  * 서버에서 아이템을 장착합니다.
@@ -551,7 +443,6 @@ void UItemComponent::Client_OnItemEquipped_Implementation(UItemDataAsset* NewIte
     {
         EquippedItem = NewItem;
         AttachItemToSocket(NewItem);
-        UpdateAvailableSkills();
         OnItemEquipped.Broadcast(NewItem);
     }
 }

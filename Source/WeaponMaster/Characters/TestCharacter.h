@@ -35,22 +35,6 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Skills")
     void ExecuteSkill(int32 SkillIndex);
 
-    /** 사용 가능한 스킬 개수 반환 */
-    UFUNCTION(BlueprintPure, Category = "Skills")
-    int32 GetAvailableSkillCount() const;
-
-    /** 인덱스로 스킬 데이터 가져오기 */
-    UFUNCTION(BlueprintPure, Category = "Skills")
-    FSkillData GetSkillData(int32 SkillIndex) const;
-
-    /** 인덱스로 스킬이 쿨다운 중인지 확인 */
-    UFUNCTION(BlueprintPure, Category = "Skills")
-    bool IsSkillOnCooldown(int32 SkillIndex) const;
-
-    /** 인덱스로 스킬의 남은 쿨다운 시간 가져오기 */
-    UFUNCTION(BlueprintPure, Category = "Skills")
-    float GetSkillCooldownRemaining(int32 SkillIndex) const;
-
     /** 입력 처리: 이동 (Enhanced Input) */
     void EnhancedMove(const FInputActionValue& Value); // Enhanced Input 함수
 

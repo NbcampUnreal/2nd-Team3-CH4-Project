@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SkillTypes.h"
 #include "Engine/DataAsset.h"
 #include "ItemDataAsset.generated.h"
 
@@ -18,7 +17,7 @@ class WEAPONMASTER_API UItemDataAsset : public UPrimaryDataAsset
 
 public:
 	UItemDataAsset();
-    
+	
 	// 아이템 기본 정보
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Info")
 	FName ItemID;
@@ -44,10 +43,6 @@ public:
 	// 아이템 스케일
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attachment")
 	FVector Scale;
-    
-	// 아이템 스킬셋
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skills")
-	TArray<FSkillData> SkillSet;
     
 	// 기본 공격력
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
