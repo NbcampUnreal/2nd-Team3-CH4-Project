@@ -31,4 +31,28 @@ public:
 
 	UFUNCTION()
 	void OnPhaseChanged(EBossPhase NewPhase);
+
+///보스 공격 패턴
+public:
+	UFUNCTION(BlueprintCallable)
+	void PerformBasicAttack();
+
+	UFUNCTION(BlueprintCallable)
+	void ApplyBasicCombo(); // 타격 타이밍에 호출됨
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	UAnimMontage* BasicAttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	float AttackRange;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	float AttackDamage;
+
+	void PerformComboAttack1();
+	void PerformComboAttack2();
+	void PerformComboAttack3();
+
+	void CalculateAttackBox(int32 ComboStep, FVector& OutCenter, FVector& OutExtent);
+	void DamageActorsInBox(const FVector& Center, const FVector& Extent);
 };
