@@ -12,7 +12,7 @@ AWeaponMasterAIController::AWeaponMasterAIController()
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
 	SightConfig->SightRadius = 1000.f;
 	SightConfig->LoseSightRadius = 1200.f;
-	SightConfig->PeripheralVisionAngleDegrees = 90.f;
+	SightConfig->PeripheralVisionAngleDegrees = 360.f;
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
