@@ -60,7 +60,7 @@ void UChoiceWidget::OnNextClicked()
 		{
 			UnHighlightSelectWidget();
 			PlaySound(SelectSound);
-			SelectWidgets[WidgetIndex]->SetWidgetState(EWidgetState::WeaponChoice);
+			ChangeSelectWidgetState(EWidgetState::WeaponChoice);
 			CurrentState = EWidgetState::WeaponChoice;
 			WidgetIndex = 0;
 			HighlightSelectWidget();
@@ -86,7 +86,7 @@ void UChoiceWidget::OnBackClicked()
 			UnHighlightSelectWidget();
 			PlaySound(SelectSound);
 			CurrentState = EWidgetState::CharacterChoice;
-			SelectWidgets[WidgetIndex]->SetWidgetState(EWidgetState::CharacterChoice);
+			ChangeSelectWidgetState(EWidgetState::CharacterChoice);
 			WidgetIndex = 0;
 			HighlightSelectWidget();
 		}
@@ -124,6 +124,13 @@ void UChoiceWidget::HighlightSelectWidget()
 void UChoiceWidget::UnHighlightSelectWidget()
 {
 	SelectWidgets[WidgetIndex]->UpdateHighlight(false);
+}
+void UChoiceWidget::ChangeSelectWidgetState(EWidgetState ChangedState)
+{
+	for (USelectWidget* Temp : SelectWidgets)
+	{
+		Temp->SetWidgetState(ChangedState);
+	}
 }
 TArray<TObjectPtr<USelectWidget>> UChoiceWidget::GetSelectWidgets()
 {

@@ -73,8 +73,7 @@ protected:
 
 	void HighlightSelectWidget();
 	void UnHighlightSelectWidget();
-
-	
+	void ChangeSelectWidgetState(EWidgetState ChangedState);
 
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 };
