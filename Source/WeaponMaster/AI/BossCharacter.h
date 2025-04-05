@@ -41,7 +41,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_PlayMontage(UAnimMontage* Montage);
 
-	//////기본 공격//////
+	//////1페이즈//////
+	//기본 공격 
 	UPROPERTY(EditAnywhere, Category = "Combat|Montage")
 	UAnimMontage* ComboMontage1;
 
@@ -65,4 +66,30 @@ public:
 	void PerformComboAttack1();
 	void PerformComboAttack2();
 	void PerformComboAttack3();
+
+
+	//뒤로 대쉬
+
+	UPROPERTY(EditAnywhere, Category = "Boss|Movement")
+	float DashPower = 1200.f;
+
+	UPROPERTY(EditAnywhere, Category = "Boss|Movement")
+	float JumpBoost = 200.f;
+
+	UPROPERTY(EditAnywhere, Category = "Boss|Montage")
+	UAnimMontage* BackStepMontage;
+
+
+	UFUNCTION(BlueprintCallable)
+	void PerformBackStep();
+
+	//앞으로 돌진 공격
+	UFUNCTION(BlueprintCallable)
+	void ExecuteForwardCharge();
+
+	//////2페이즈//////
+	UFUNCTION(BlueprintCallable)
+	void StartAreaSkill();
+
+	void ExecuteAreaSkill();
 };

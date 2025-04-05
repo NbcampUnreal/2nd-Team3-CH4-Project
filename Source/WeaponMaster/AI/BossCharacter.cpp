@@ -153,3 +153,85 @@ void ABossCharacter::PerformComboAttack3()
 	CalculateAttackBox(3, Center, Extent);  // 꼭 필요!
 	DamageActorsInBox(Center, Extent);
 }
+
+void ABossCharacter::PerformBackStep()
+{
+	if (!HasAuthority()) return;
+
+	//Multicast_PlayMontage(BackStepMontage); // 연출용 애니메이션
+
+	FVector BackDir = -GetActorForwardVector();
+	//FVector NewLoc = GetActorLocation() + BackDir * 600.f;
+
+	//SetActorLocation(NewLoc); // 또는 LaunchCharacter()
+
+	FVector LaunchVelocity = BackDir * DashPower + FVector(0, 0, JumpBoost);
+
+	LaunchCharacter(LaunchVelocity, true, true);
+}
+
+void ABossCharacter::ExecuteForwardCharge()
+{
+	if (!HasAuthority()) return;
+
+	// 돌진 애니메이션 재생 (멀티캐스트)
+	// Multicast_PlayMontage(ChargeMontage);
+
+	// 돌진 방향 = 현재 보스 정면
+	FVector ChargeDir = GetActorForwardVector();
+	FVector LaunchVelocity = ChargeDir * 4000.f + FVector(0, 0, 100.f);
+
+	LaunchCharacter(LaunchVelocity, true, true);
+
+	// 충돌 타이밍을 고려해 약간 딜레이 후 판정 실행
+	//FTimerHandle HitCheckTimer;
+	//GetWorldTimerManager().SetTimer(HitCheckTimer, this, &ABossCharacter::ChargeHitCheck, 0.3f, false);
+}
+
+void ABossCharacter::StartAreaSkill()
+{
+	// 1. 방향 돌리기
+	SetActorRotation(GetActorRotation() + FRotator(0, 90.f, 0));
+
+	// 2. 기모으기 애니메이션
+	//Multicast_PlayMontage(Phase2ChargeMontage);
+
+	// 3. 타이머로 실제 시전
+	FTimerHandle Timer;
+	GetWorldTimerManager().SetTimer(Timer, this, &ABossCharacter::ExecuteAreaSkill, 2.0f, false);
+}
+
+void ABossCharacter::ExecuteAreaSkill()
+{
+	const float Radius = 600.f;
+	const FVector MyLocation = GetActorLocation();
+
+	DrawDebugSphere(
+		GetWorld(),
+		MyLocation,
+		Radius,
+		24,
+		FColor::Purple,
+		false,
+		2.0f,
+		0,
+		3.0f
+	);
+
+	TArray<AActor*> AllEnemies;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWeaponMasterCharacter::StaticClass(), AllEnemies);
+
+	for (AActor* Enemy : AllEnemies)
+	{
+		if (!Enemy || Enemy == this) continue;
+
+		const float Dist = FVector::Dist(Enemy->GetActorLocation(), MyLocation);
+
+		if (Dist <= Radius)
+		{
+			// 나중에 OnTakeBossDamage 등으로 연결해도 좋음
+			UGameplayStatics::ApplyDamage(Enemy, 100.f, GetController(), this, nullptr);
+			UE_LOG(LogTemp, Warning, TEXT("범위기에 맞은 액터: %s"), *Enemy->GetName());
+		}
+	}
+}
