@@ -99,7 +99,7 @@ void UChoiceWidget::OnBackClicked()
 	}
 }
 //2 .그다음에 DA나 DT 활용해서 이미지파일 집어넣자 
-//버그 수정 및 이미지파일 변경해놓고 유아틱 이미지파일 제거하기 
+
 void UChoiceWidget::LogMessage(const FString& Message)
 {
 	if (GEngine)
