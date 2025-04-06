@@ -24,7 +24,7 @@ class WEAPONMASTER_API UChoiceWidget : public UUserWidget
 	GENERATED_BODY()
 public:
 	virtual void NativeConstruct() override;
-
+	
 	FOnChoiceAction NextButtonClicked;
 	FOnChoiceAction PrevButtonClicked;
 	TArray<TObjectPtr<USelectWidget>> GetSelectWidgets();
