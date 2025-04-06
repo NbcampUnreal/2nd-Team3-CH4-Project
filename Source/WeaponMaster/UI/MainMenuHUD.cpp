@@ -6,6 +6,7 @@
 #include "ChoiceWidget.h"
 #include "SelectWidget.h"
 #include "Engine/Engine.h"
+#include "Kismet/GameplayStatics.h"
 
 void AMainMenuHUD::BeginPlay()
 {
@@ -68,11 +69,13 @@ void AMainMenuHUD::HandleSingleClicked()
 void AMainMenuHUD::HandleCoopClicked()
 {
     LogMessage("In Hud HandleCoopClicked");
+    UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_CoopLobby")));
 }
 
 void AMainMenuHUD::HandleVsClicked()
 {
     LogMessage("In Hud HandleVsClicked");
+    UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_VSLobby")));
 }
 
 void AMainMenuHUD::HandleShopClicked()
@@ -129,7 +132,7 @@ void AMainMenuHUD::HideChoiceMenu()
 void AMainMenuHUD::HandleNextClicked()
 {
     //HideChoiceMenu();
-    LogMessage("아직 미구현");
+    UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_TravelBong")));
 }
 
 void AMainMenuHUD::HandlePrevClicked()
