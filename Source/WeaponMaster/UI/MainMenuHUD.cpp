@@ -85,7 +85,11 @@ void AMainMenuHUD::HandleShopClicked()
 
 void AMainMenuHUD::HandleExitClicked()
 {
-    LogMessage("In Hud HandleExitClicked");
+    APlayerController* PC = GetOwningPlayerController();
+    if (PC)
+    {
+        PC->ConsoleCommand("quit");
+    }
 }
 
 void AMainMenuHUD::ShowChoiceMenu()
@@ -131,7 +135,7 @@ void AMainMenuHUD::HideChoiceMenu()
 
 void AMainMenuHUD::HandleNextClicked()
 {
-    //HideChoiceMenu();
+    PlaySound(SelectSound);
     UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_TravelBong")));
 }
 
@@ -140,4 +144,11 @@ void AMainMenuHUD::HandlePrevClicked()
     HideChoiceMenu();
     ShowMainMenu();
 }
-
+void AMainMenuHUD::PlaySound(TObjectPtr<USoundBase> Sound)
+{
+    if (!ensure(Sound))
+    {
+        return;
+    }
+    UGameplayStatics::PlaySound2D(this, Sound);
+}

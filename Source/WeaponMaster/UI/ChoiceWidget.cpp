@@ -52,8 +52,6 @@ void UChoiceWidget::NativeConstruct()
 
 void UChoiceWidget::OnNextClicked()
 {
-	FString test1 = FString::Printf(TEXT("%d"), static_cast<int32>(CurrentState));
-	LogMessage(test1);
 	if (!SelectWidgets.IsEmpty())
 	{
 		if (CurrentState == EWidgetState::CharacterChoice)
@@ -67,14 +65,20 @@ void UChoiceWidget::OnNextClicked()
 		}
 		else
 		{
+			PlaySound(SelectSound);
 			LogMessage("State END Go to Next Level");
-			NextButtonClicked.Broadcast();
+			FTimerHandle TimerHandle;
+			FTimerDelegate TimerDelegate = FTimerDelegate::CreateLambda([this]()
+				{
+					NextButtonClicked.Broadcast();
+				});
+			if (GetWorld())
+			{
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 0.5f, false);
+			}
+			//NextButtonClicked.Broadcast();
 		}
 	}
-	LogMessage("????????????????");
-	FString test = FString::Printf(TEXT("%d"), static_cast<int32>(CurrentState));
-	LogMessage(test);
-
 }
 
 void UChoiceWidget::OnBackClicked()
