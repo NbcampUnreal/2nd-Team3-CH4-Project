@@ -6,8 +6,23 @@ public class WeaponMaster : ModuleRules
 {
 	public WeaponMaster(ReadOnlyTargetRules Target) : base(Target)
 	{
-		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "SST" });
-	}
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore", 
+			"EnhancedInput", 
+			"UMG", 
+			"Slate", 
+			"SlateCore",
+			"SST",
+			"Niagara",
+			"OnlineSubsystem",
+			"OnlineSubsystemEOS",
+			"OnlineSubsystemUtils",
+		});
+		
+		PrivateIncludePaths.Add("WeaponMaster");
+    }
 }
