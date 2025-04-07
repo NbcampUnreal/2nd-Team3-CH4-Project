@@ -3,6 +3,7 @@
 #include "Session/EOSGameSession.h"
 #include "WeaponMaster/PlayerControllers/EOSPlayerController.h"
 
+// 세션 로비 게임모드
 
 AEOSGameMode::AEOSGameMode()
 {
