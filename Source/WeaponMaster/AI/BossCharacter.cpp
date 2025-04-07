@@ -111,16 +111,10 @@ void ABossCharacter::Server_ApplyBasicCombo_Implementation()
 
 void ABossCharacter::StartBasicCombo()
 {
-	PerformComboAttack1();
-
-	FTimerHandle Handle2;
-	GetWorldTimerManager().SetTimer(Handle2, this, &ABossCharacter::PerformComboAttack2, 0.7f, false);
-
-	FTimerHandle Handle3;
-	GetWorldTimerManager().SetTimer(Handle3, this, &ABossCharacter::PerformComboAttack3, 1.4f, false);
+	PerformComboAttack();
 }
 
-void ABossCharacter::PerformComboAttack1()
+void ABossCharacter::PerformComboAttack()
 {
 	if (ComboMontage1)
 	{
@@ -129,28 +123,6 @@ void ABossCharacter::PerformComboAttack1()
 
 	FVector Center, Extent;
 	CalculateAttackBox(1, Center, Extent);
-	DamageActorsInBox(Center, Extent);
-}
-
-void ABossCharacter::PerformComboAttack2()
-{
-	if (ComboMontage2)
-	{
-		Multicast_PlayMontage(ComboMontage2);
-	}
-	FVector Center, Extent;
-	CalculateAttackBox(2, Center, Extent);
-	DamageActorsInBox(Center, Extent);
-}
-
-void ABossCharacter::PerformComboAttack3()
-{
-	if (ComboMontage3)
-	{
-		Multicast_PlayMontage(ComboMontage3);
-	}
-	FVector Center, Extent;
-	CalculateAttackBox(3, Center, Extent);  // 꼭 필요!
 	DamageActorsInBox(Center, Extent);
 }
 

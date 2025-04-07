@@ -46,13 +46,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Combat|Montage")
 	UAnimMontage* ComboMontage1;
 
-	UPROPERTY(EditAnywhere, Category = "Combat|Montage")
-	UAnimMontage* ComboMontage2;
-
-	UPROPERTY(EditAnywhere, Category = "Combat|Montage")
-	UAnimMontage* ComboMontage3;
-
-
 	UFUNCTION(BlueprintCallable)
 	void ApplyBasicCombo();
 
@@ -63,9 +56,7 @@ public:
 	void Server_ApplyBasicCombo();
 
 	//1,2,3타
-	void PerformComboAttack1();
-	void PerformComboAttack2();
-	void PerformComboAttack3();
+	void PerformComboAttack();
 
 
 	//뒤로 대쉬
