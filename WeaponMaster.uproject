@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "5.5",
+	"EngineAssociation": "{E407D674-4996-FF86-0493-1A87B7C7ED18}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -32,6 +32,10 @@
 			"Name": "SST",
 			"Enabled": true,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/92a8824c461141ce95f77e454d0c1ba5"
+		},
+		{
+			"Name": "OnlineSubsystemEOS",
+			"Enabled": true
 		}
 	]
 }

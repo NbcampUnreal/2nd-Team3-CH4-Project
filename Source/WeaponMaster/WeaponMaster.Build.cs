@@ -6,9 +6,6 @@ public class WeaponMaster : ModuleRules
 {
 	public WeaponMaster(ReadOnlyTargetRules Target) : base(Target)
 	{
-		PrivateDependencyModuleNames.AddRange(new string[] { });
-		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core", 
@@ -16,12 +13,16 @@ public class WeaponMaster : ModuleRules
 			"Engine", 
 			"InputCore", 
 			"EnhancedInput", 
-			"UMG",
-			"AnimGraphRuntime",
-			"Niagara",
-			 "Slate", 
+			"UMG", 
+			"Slate", 
 			"SlateCore",
-			"SST"
-        });
-	}
+			"SST",
+			"Niagara",
+			"OnlineSubsystem",
+			"OnlineSubsystemEOS",
+			"OnlineSubsystemUtils",
+		});
+		
+		PrivateIncludePaths.Add("WeaponMaster");
+    }
 }
