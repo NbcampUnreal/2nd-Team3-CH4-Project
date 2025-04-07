@@ -49,64 +49,151 @@ void ABaseBattleCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 	UE_LOG(LogTemp, Display, TEXT("SetupPlayerInputComponent: Call"));
 	
-	if (!WeaponMasterController)
+	if (!IsValid(WeaponMasterController))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : Controller Casting Failed."))
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : Controller Casting Failed."));
 		return;
 	}
 		
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-	if (!EnhancedInputComponent)
+	if (!IsValid(EnhancedInputComponent))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : EnhancedInputComponent Casting Failed."))
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : EnhancedInputComponent Casting Failed."));
 		return;
 	}
 	
-	//Jumping
+	// Jumping
 	if (WeaponMasterController->JumpAction)
 	{
-		EnhancedInputComponent->BindAction(WeaponMasterController->JumpAction, ETriggerEvent::Triggered, Cast<ASSTCharacter>(this), &ASSTCharacter::JumpOrDrop);
-		EnhancedInputComponent->BindAction(WeaponMasterController->JumpAction, ETriggerEvent::Completed, this, &ASSTCharacter::ReleaseJump);
+		EnhancedInputComponent->BindAction(WeaponMasterController->JumpAction, ETriggerEvent::Triggered, this, &ABaseBattleCharacter::JumpOrDrop);
+		EnhancedInputComponent->BindAction(WeaponMasterController->JumpAction, ETriggerEvent::Completed, this, &ABaseBattleCharacter::ReleaseJump);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->JumpAction"))
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->JumpAction"));
 	}
 
-	//Crouching/Dropping
+	// Crouching/Dropping
 	if (WeaponMasterController->CrouchDropAction)
 	{
-		EnhancedInputComponent->BindAction(WeaponMasterController->CrouchDropAction, ETriggerEvent::Triggered, this, &ASSTCharacter::CrouchDrop);
-		EnhancedInputComponent->BindAction(WeaponMasterController->CrouchDropAction, ETriggerEvent::Completed, this, &ASSTCharacter::StopCrouchDrop);
+		EnhancedInputComponent->BindAction(WeaponMasterController->CrouchDropAction, ETriggerEvent::Triggered, this, &ABaseBattleCharacter::CrouchDrop);
+		EnhancedInputComponent->BindAction(WeaponMasterController->CrouchDropAction, ETriggerEvent::Completed, this, &ABaseBattleCharacter::StopCrouchDrop);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->JumpAction"))
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->CrouchDropAction"));
 	}
 	
-	//Moving
+	// Moving
 	if (WeaponMasterController->MoveAction)
 	{
-		EnhancedInputComponent->BindAction(WeaponMasterController->MoveAction, ETriggerEvent::Triggered, this, &ABaseBattleCharacter::Move1);
+		EnhancedInputComponent->BindAction(WeaponMasterController->MoveAction, ETriggerEvent::Triggered, this, &ABaseBattleCharacter::Move);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->JumpAction"))
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->MoveAction"));
 	}
 
-	//Dashing
+	// Dashing
 	if (WeaponMasterController->DashAction)
 	{
-		EnhancedInputComponent->BindAction(WeaponMasterController->DashAction, ETriggerEvent::Started, this, &ASSTCharacter::Dash);
+		EnhancedInputComponent->BindAction(WeaponMasterController->DashAction, ETriggerEvent::Started, this, &ABaseBattleCharacter::Dash);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->JumpAction"))
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->DashAction"));
 	}
+
+	// WeakAttack
+	if (WeaponMasterController->WeakAttackAction)
+	{
+		EnhancedInputComponent->BindAction(WeaponMasterController->WeakAttackAction, ETriggerEvent::Started, this, &ABaseBattleCharacter::WeakAttack);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->WeakAttackAction"));
+	}
+
+	// StrongAttack
+	if (WeaponMasterController->StrongAttackAction)
+	{
+		EnhancedInputComponent->BindAction(WeaponMasterController->StrongAttackAction, ETriggerEvent::Started, this, &ABaseBattleCharacter::StrongAttack);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->WeakAttackAction"));
+	}
+
+	// Identity
+	if (WeaponMasterController->IdentityAction)
+	{
+		EnhancedInputComponent->BindAction(WeaponMasterController->IdentityAction, ETriggerEvent::Started, this, &ABaseBattleCharacter::Identity);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->WeakAttackAction"));
+	}
+
+	// Defence
+	if (WeaponMasterController->DefenceAction)
+	{
+		EnhancedInputComponent->BindAction(WeaponMasterController->DefenceAction, ETriggerEvent::Started, this, &ABaseBattleCharacter::Defence);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->WeakAttackAction"));
+	}
+
+	// PickingItem
+	if (WeaponMasterController->PickingItemAction)
+	{
+		EnhancedInputComponent->BindAction(WeaponMasterController->PickingItemAction, ETriggerEvent::Started, this, &ABaseBattleCharacter::PickingItem);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->WeakAttackAction"));
+	}
+
+	// MenuOnOff
+	if (WeaponMasterController->MenuOnOffAction)
+	{
+		EnhancedInputComponent->BindAction(WeaponMasterController->MenuOnOffAction, ETriggerEvent::Started, this, &ABaseBattleCharacter::MenuOnOff);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->WeakAttackAction"));
+	}
+
+	
 }
 
-void ABaseBattleCharacter::Move1(const FInputActionValue& Value)
+void ABaseBattleCharacter::WeakAttack(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Move"));
+	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::WeakAttack !"));
+}
+
+void ABaseBattleCharacter::StrongAttack(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::StrongAttack !"));
+}
+
+void ABaseBattleCharacter::Identity(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Identity !"));
+}
+
+void ABaseBattleCharacter::Defence(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Defence !"));
+}
+
+void ABaseBattleCharacter::PickingItem(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::PickingItem !"));
+}
+
+void ABaseBattleCharacter::MenuOnOff(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::MenuOnOff !"));
 }
 

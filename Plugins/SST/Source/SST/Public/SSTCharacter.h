@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ISSTCharacterBindingFunctions.h"
 #include "GameFramework/Character.h"
 #include "SSTCharacter.generated.h"
 
@@ -16,7 +15,7 @@
  * USSTCharacterMovementComponent should remain the sole authority on movement for this character. 
  */
 UCLASS(config=Game)
-class SST_API ASSTCharacter : public ACharacter, public ISSTCharacterBindingFunctions
+class SST_API ASSTCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -27,26 +26,6 @@ class SST_API ASSTCharacter : public ACharacter, public ISSTCharacterBindingFunc
 	/** Camera Component */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UFollowCameraComponent> FollowCamera;
-	
-	// /** MappingContext */
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	// TObjectPtr<class UInputMappingContext> DefaultMappingContext;
-	//
-	// /** Jump Input Action */
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	// TObjectPtr<class UInputAction> JumpAction;
-	//
-	// /** Crouch/Drop Input Action */
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	// TObjectPtr<class UInputAction> CrouchDropAction;
-	//
-	// /** Move Input Action */
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	// TObjectPtr<class UInputAction> MoveAction;
-	//
-	// /** Jump Input Action */
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	// TObjectPtr<class UInputAction> DashAction;
 
 	/** Time in seconds after dropping through a platform before the button becomes usable for jump input */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -58,7 +37,7 @@ private:
 public:
 	ASSTCharacter(const FObjectInitializer& ObjectInitializer);
 
-// protected:
+protected:
 	/** Called for movement input */
 	virtual void Move(const struct FInputActionValue& Value);
 	
@@ -82,11 +61,12 @@ protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
-	// To add mapping context
 	virtual void BeginPlay();
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Movement")
+	UFUNCTION(BlueprintCallable, Category =
+
+	"Movement")
 	FORCEINLINE class USSTCharacterMovementComponent* GetSSTCharacterMovement() const { return SSTCharacterMovementComponent; }
 
 	/** Can override in blueprint for custom dash checking on this character */

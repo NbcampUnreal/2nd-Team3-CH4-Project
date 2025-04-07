@@ -35,7 +35,7 @@ public:
 	
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* MoveAction;
+	TObjectPtr<UInputAction> MoveAction;
 	
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -43,7 +43,7 @@ public:
 	
 	// Additional Input Actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<UInputAction> SpecialAction;
+	TObjectPtr<UInputAction> IdentityAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> DefenceAction;
@@ -62,12 +62,5 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
-	// // Additional Input Binding Functions
-	// void WeakAttack(const FInputActionValue& Value);
-	// void StrongAttack(const FInputActionValue& Value);
-	// void SpecialAttack(const FInputActionValue& Value);
-	// void Defence(const FInputActionValue& Value);
-	// void PickingItem(const FInputActionValue& Value);
-	// void MenuOnOff(const FInputActionValue& Value);
+	
 };
