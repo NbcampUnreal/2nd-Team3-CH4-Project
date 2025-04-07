@@ -147,6 +147,22 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Skill")
     virtual int32 ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage);
     
+    /**
+     * 아이템의 기본 데미지를 안전하게 가져오는 함수
+     * ItemData가 없으면 기본값 반환
+     * @return 아이템 기본 데미지 또는 기본값
+     */
+    UFUNCTION(BlueprintPure, Category = "Skill")
+    float GetItemBaseDamage() const;
+    
+    /**
+     * 아이템의 공격 속도를 안전하게 가져오는 함수
+     * ItemData가 없으면 기본값 반환
+     * @return 아이템 공격 속도 또는 기본값
+     */
+    UFUNCTION(BlueprintPure, Category = "Skill")
+    float GetItemAttackSpeed() const;
+    
 protected:
     // 스킬 ID
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Info")
@@ -223,4 +239,12 @@ protected:
     // 내부 타이머 (지속 시간 등 처리)
     UPROPERTY(Transient)
     float SkillTimer;
+    
+    // 기본 공격 속도 (ItemData가 없을 때 사용)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Defaults")
+    float DefaultAttackSpeed;
+    
+    // 기본 데미지 (ItemData가 없을 때 사용)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Defaults")
+    float DefaultBaseDamage;
 };

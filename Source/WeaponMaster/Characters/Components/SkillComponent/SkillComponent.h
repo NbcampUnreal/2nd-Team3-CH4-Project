@@ -140,6 +140,13 @@ protected:
      */
     UFUNCTION(Server, Reliable)
     void Server_InitializeSkills(UItemDataAsset* NewItem);
+
+    /**
+     * 스킬 데이터 애셋에서 초기화 관련 서버 RPC
+     * @param NewSkill 새로 설정할 스킬 데이터 애셋
+     */
+    UFUNCTION(Server, Reliable)
+    void Server_InitializeSkillsFromDataAsset(USkillDataAsset* NewSkill);
     
     /**
      * 스킬 실행 서버 RPC
@@ -154,6 +161,7 @@ protected:
      */
     UFUNCTION(Client, Reliable)
     void Client_UpdateSkills(const TArray<UBaseSkill*>& UpdatedSkills);
+
     
     /**
      * 그룹 내에서 다음 사용할 스킬 인덱스를 결정

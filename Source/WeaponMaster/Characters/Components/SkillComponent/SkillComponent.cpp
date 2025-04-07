@@ -5,6 +5,7 @@
 #include "Engine/ActorChannel.h"
 #include "TimerManager.h"
 #include "WeaponMaster/Characters/Components/ItemComponent/ItemComponent.h"
+#include "WeaponMaster/Data/SkillDataAsset.h"
 #include "WeaponMaster/Skills/BaseSkill.h"
 
 USkillComponent::USkillComponent()
@@ -159,6 +160,8 @@ UBaseSkill* USkillComponent::CreateSkill(TSubclassOf<UBaseSkill> SkillClass, UIt
     
     return NewSkill;
 }
+
+
 
 bool USkillComponent::ExecuteSkill(int32 GroupIndex)
 {
@@ -476,10 +479,10 @@ void USkillComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 void USkillComponent::InitializeSkills(USkillDataAsset* NewSkill)
 {
-       // 클라이언트에서 호출되면 서버로 요청
+    // 클라이언트에서 호출되면 서버로 요청
     if (GetOwnerRole() < ROLE_Authority)
     {
-        Server_InitializeSkills(NewItem);
+        Server_InitializeSkillsFromDataAsset(NewSkill);
         return;
     }
     
@@ -502,22 +505,23 @@ void USkillComponent::InitializeSkills(USkillDataAsset* NewSkill)
     // 캐싱된 스킬 그룹 배열 초기화
     CachedSkillGroups.Empty();
 
-    //기회시간 초기화
+    // 기회시간 초기화
     OpportunityTimers.Empty();
     IsInOpportunityWindow.Empty();
-    // 아이템 데이터 캐싱
-    CachedItemData = NewItem;
     
-    // 아이템이 없으면 스킬 초기화만 하고 리턴
-    if (!NewItem)
+    // 아이템 데이터는 null로 설정 (스킬만 사용하므로)
+    CachedItemData = nullptr;
+    
+    // 스킬 데이터가 없으면 스킬 초기화만 하고 리턴
+    if (!NewSkill)
     {
         OnSkillsUpdated.Broadcast(Skills);
         Client_UpdateSkills(Skills);
         return;
     }
     
-    // 아이템의 스킬 그룹 캐싱
-    CachedSkillGroups = NewItem->SkillGroups;
+    // 스킬의 그룹 캐싱
+    CachedSkillGroups = NewSkill->SkillGroups;
     
     // 각 스킬 그룹 처리
     int32 CurrentSkillOffset = 0;
@@ -540,10 +544,10 @@ void USkillComponent::InitializeSkills(USkillDataAsset* NewSkill)
         {
             if (SkillClass)
             {
-                UBaseSkill* NewSkill = CreateSkill(SkillClass, NewItem);
-                if (NewSkill)
+                UBaseSkill* NewSkillObj = CreateSkill(SkillClass, nullptr);
+                if (NewSkillObj)
                 {
-                    Skills.Add(NewSkill);
+                    Skills.Add(NewSkillObj);
                     CurrentSkillOffset++;
                 }
             }
@@ -555,4 +559,10 @@ void USkillComponent::InitializeSkills(USkillDataAsset* NewSkill)
     
     // 클라이언트에게 전송
     Client_UpdateSkills(Skills);
+}
+
+// 스킬 데이터 애셋으로 초기화하는 서버 RPC
+void USkillComponent::Server_InitializeSkillsFromDataAsset_Implementation(USkillDataAsset* NewSkill)
+{
+    InitializeSkills(NewSkill);
 }

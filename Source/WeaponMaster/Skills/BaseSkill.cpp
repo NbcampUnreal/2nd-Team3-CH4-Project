@@ -22,6 +22,10 @@ UBaseSkill::UBaseSkill()
     RemainingCooldown = 0.0f;
     bIsActive = false;
     SkillTimer = 0.0f;
+    
+    // 기본 공격 속도 및 데미지 추가
+    DefaultAttackSpeed = 1.0f;
+    DefaultBaseDamage = 0.0f;
 }
 
 void UBaseSkill::Initialize(ATestCharacter* Owner, UItemDataAsset* OwnerItem)
@@ -79,6 +83,11 @@ bool UBaseSkill::ActivateSkill()
                 {
                     // 아이템의 AttackSpeed를 몽타주 재생 속도에 적용
                     PlayRate = ItemData->AttackSpeed;
+                }
+                else
+                {
+                    // ItemData가 없으면 기본 공격 속도 사용
+                    PlayRate = DefaultAttackSpeed;
                 }
                 
                 // 애니메이션 몽타주 재생 (PlayRate 적용)
@@ -142,6 +151,11 @@ void UBaseSkill::UpdateCooldown(float DeltaTime)
         // 아이템의 AttackSpeed를 쿨다운 감소 속도에 적용
         CooldownRate = ItemData->AttackSpeed;
     }
+    else
+    {
+        // ItemData가 없으면 기본 공격 속도 사용
+        CooldownRate = DefaultAttackSpeed;
+    }
     
     // 쿨다운 업데이트 (공격 속도에 따라 가속)
     if (RemainingCooldown > 0.0f)
@@ -171,6 +185,26 @@ float UBaseSkill::GetCooldownProgress() const
     }
     
     return 1.0f - (RemainingCooldown / CooldownTime);
+}
+
+// 아이템에서 기본 데미지 가져오는 헬퍼 함수 추가
+float UBaseSkill::GetItemBaseDamage() const
+{
+    if (ItemData)
+    {
+        return ItemData->BaseDamage;
+    }
+    return DefaultBaseDamage;
+}
+
+// 아이템에서 공격 속도 가져오는 헬퍼 함수 추가
+float UBaseSkill::GetItemAttackSpeed() const
+{
+    if (ItemData)
+    {
+        return ItemData->AttackSpeed;
+    }
+    return DefaultAttackSpeed;
 }
 
 int32 UBaseSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage)
