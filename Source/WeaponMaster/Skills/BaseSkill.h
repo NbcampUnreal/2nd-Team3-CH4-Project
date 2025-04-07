@@ -145,7 +145,7 @@ public:
      * @return 성공적으로 처리된 액터 수
      */
     UFUNCTION(BlueprintCallable, Category = "Skill")
-    virtual int32 ProcessTargetActors(const TArray<AActor*>& TargetActors);
+    virtual int32 ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage);
     
 protected:
     // 스킬 ID

@@ -79,6 +79,18 @@ void APickupableItem::LoadItemData()
                 MeshComponent->SetRelativeScale3D(ItemData->Scale);
             }
         }
+    }else if (ItemData)
+    {
+        // 아이템 데이터가 있으면 메시 설정
+        if (!ItemData->ItemMesh.IsNull())
+        {
+            UStaticMesh* Mesh = ItemData->ItemMesh.LoadSynchronous();
+            if (Mesh)
+            {
+                MeshComponent->SetStaticMesh(Mesh);
+                MeshComponent->SetRelativeScale3D(ItemData->Scale);
+            }
+        }
     }
 }
 
