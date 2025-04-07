@@ -34,14 +34,14 @@ void ASSTCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
+	// //Add Input Mapping Context
+	// if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	// {
+	// 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+	// 	{
+	// 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
+	// 	}
+	// }
 
 	// Inform movement component of our initial orientation
 	SSTCharacterMovementComponent->SetFacingRight(GetActorForwardVector().X > 0);
@@ -49,36 +49,23 @@ void ASSTCharacter::BeginPlay()
 
 void ASSTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
-
-		//Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASSTCharacter::JumpOrDrop);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ASSTCharacter::ReleaseJump);
-
-		//Crouching/Dropping
-		EnhancedInputComponent->BindAction(CrouchDropAction, ETriggerEvent::Triggered, this, &ASSTCharacter::CrouchDrop);
-		EnhancedInputComponent->BindAction(CrouchDropAction, ETriggerEvent::Completed, this, &ASSTCharacter::StopCrouchDrop);
-
-		//Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASSTCharacter::Move);
-
-		//Dashing
-		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Started, this, &ASSTCharacter::Dash);
-	}
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
 void ASSTCharacter::Move(const FInputActionValue& Value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("ASSTCharacter::Move: Call"));
 	if (Controller && SSTCharacterMovementComponent)
 	{
 		float MovementValue = Value.Get<float>();
 		SSTCharacterMovementComponent->AddInputVector(FVector::ForwardVector * MovementValue);
+		UE_LOG(LogTemp, Warning, TEXT("ASSTCharacter::Move: %f"), MovementValue);
 	}
 }
 
 void ASSTCharacter::JumpOrDrop_Implementation()
 {
+	UE_LOG(LogTemp, Warning, TEXT("ASSTCharacgter::JumpOrDrop : Call"))
 	if (bIsCrouched) // attempt to drop through platform, if any
 	{
 		SSTCharacterMovementComponent->WantsToPlatformDrop = true;

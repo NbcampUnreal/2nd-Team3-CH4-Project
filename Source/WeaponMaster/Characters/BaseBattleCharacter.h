@@ -3,8 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ISSTCharacterBindingFunctions.h"
 #include "SSTCharacter.h"
 #include "BaseBattleCharacter.generated.h"
+
+struct FInputActionValue;
 
 UCLASS()
 class WEAPONMASTER_API ABaseBattleCharacter : public ASSTCharacter
@@ -25,4 +28,6 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void Move1(const FInputActionValue& Value);
 };

@@ -12,6 +12,7 @@
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
 #include "InputActionValue.h"
+#include "WeaponMaster/PlayerControllers/WeaponMasterController.h"
 
 // Sets default values
 ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer)
@@ -44,5 +45,68 @@ void ABaseBattleCharacter::Tick(float DeltaTime)
 void ABaseBattleCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	AWeaponMasterController* WeaponMasterController = Cast<AWeaponMasterController>(GetController());
+
+	UE_LOG(LogTemp, Display, TEXT("SetupPlayerInputComponent: Call"));
+	
+	if (!WeaponMasterController)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : Controller Casting Failed."))
+		return;
+	}
+		
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (!EnhancedInputComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : EnhancedInputComponent Casting Failed."))
+		return;
+	}
+	
+	//Jumping
+	if (WeaponMasterController->JumpAction)
+	{
+		EnhancedInputComponent->BindAction(WeaponMasterController->JumpAction, ETriggerEvent::Triggered, Cast<ASSTCharacter>(this), &ASSTCharacter::JumpOrDrop);
+		EnhancedInputComponent->BindAction(WeaponMasterController->JumpAction, ETriggerEvent::Completed, this, &ASSTCharacter::ReleaseJump);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->JumpAction"))
+	}
+
+	//Crouching/Dropping
+	if (WeaponMasterController->CrouchDropAction)
+	{
+		EnhancedInputComponent->BindAction(WeaponMasterController->CrouchDropAction, ETriggerEvent::Triggered, this, &ASSTCharacter::CrouchDrop);
+		EnhancedInputComponent->BindAction(WeaponMasterController->CrouchDropAction, ETriggerEvent::Completed, this, &ASSTCharacter::StopCrouchDrop);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->JumpAction"))
+	}
+	
+	//Moving
+	if (WeaponMasterController->MoveAction)
+	{
+		EnhancedInputComponent->BindAction(WeaponMasterController->MoveAction, ETriggerEvent::Triggered, this, &ABaseBattleCharacter::Move1);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->JumpAction"))
+	}
+
+	//Dashing
+	if (WeaponMasterController->DashAction)
+	{
+		EnhancedInputComponent->BindAction(WeaponMasterController->DashAction, ETriggerEvent::Started, this, &ASSTCharacter::Dash);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::SetupPlayerInputComponent : No WeaponMasterController->JumpAction"))
+	}
+}
+
+void ABaseBattleCharacter::Move1(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Move"));
 }
 

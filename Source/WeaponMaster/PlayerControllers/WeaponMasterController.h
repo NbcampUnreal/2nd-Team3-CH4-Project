@@ -21,25 +21,25 @@ public:
 	AWeaponMasterController();
 
 	// Battle IMC
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputMappingContext> DefaultMappingContext;
 
 	// Template Input Actions
 	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> JumpAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> JumpAction;
 	
 	/** Crouch/Drop Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> CrouchDropAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> CrouchDropAction;
 	
 	/** Move Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> MoveAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* MoveAction;
 	
 	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> DashAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> DashAction;
 	
 	// Additional Input Actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -63,31 +63,11 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	// // Template Input Binding Functions
-	// /** Called for movement input */
-	// void Move(const struct FInputActionValue& Value);
-	//
-	// /** Called for crouch/drop input */
-	// UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Input")
-	// void CrouchDrop();
-	//
-	// /** Called when releasing crouch/drop input */
-	// UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Input")
-	// void StopCrouchDrop();
-	//
-	// /** Called when jump pressed, which could also be a drop-down command */
-	// UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Input")
-	// void JumpOrDrop();
-	//
-	// /** Called for dash input */
-	// UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Input")
-	// void Dash();
-	//
-	// Additional Input Binding Functions
-	void WeakAttack(const FInputActionValue& Value);
-	void StrongAttack(const FInputActionValue& Value);
-	void SpecialAttack(const FInputActionValue& Value);
-	void Defence(const FInputActionValue& Value);
-	void PickingItem(const FInputActionValue& Value);
-	void MenuOnOff(const FInputActionValue& Value);
+	// // Additional Input Binding Functions
+	// void WeakAttack(const FInputActionValue& Value);
+	// void StrongAttack(const FInputActionValue& Value);
+	// void SpecialAttack(const FInputActionValue& Value);
+	// void Defence(const FInputActionValue& Value);
+	// void PickingItem(const FInputActionValue& Value);
+	// void MenuOnOff(const FInputActionValue& Value);
 };
