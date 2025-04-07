@@ -18,7 +18,10 @@ public class WeaponMaster : ModuleRules
 			"EnhancedInput", 
 			"UMG",
 			"AnimGraphRuntime",
-			"Niagara"
-		});
+			"Niagara",
+			 "Slate", 
+			"SlateCore",
+			"SST"
+        });
 	}
 }
