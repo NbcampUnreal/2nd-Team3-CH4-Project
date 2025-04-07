@@ -3,13 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "IBaseBattleInputBindFunctions.h"
 #include "SSTCharacter.h"
 #include "BaseBattleCharacter.generated.h"
 
 struct FInputActionValue;
 
 UCLASS()
-class WEAPONMASTER_API ABaseBattleCharacter : public ASSTCharacter
+class WEAPONMASTER_API ABaseBattleCharacter : public ASSTCharacter, public IBaseBattleInputBindFunctions
 {
 	GENERATED_BODY()
 
@@ -22,12 +23,12 @@ protected:
 	virtual void BeginPlay() override;
 
 	// Additional Input Binding Functions
-	void WeakAttack(const FInputActionValue& Value);
-	void StrongAttack(const FInputActionValue& Value);
-	void Identity(const FInputActionValue& Value);
-	void Defence(const FInputActionValue& Value);
-	void PickingItem(const FInputActionValue& Value);
-	void MenuOnOff(const FInputActionValue& Value);
+	virtual void WeakAttack(const FInputActionValue& Value) override;
+	virtual void StrongAttack(const FInputActionValue& Value) override;
+	virtual void Identity(const FInputActionValue& Value) override;
+	virtual void Defence(const FInputActionValue& Value) override;
+	virtual void PickingItem(const FInputActionValue& Value) override;
+	virtual void MenuOnOff(const FInputActionValue& Value) override;
 
 public:
 	// Called every frame

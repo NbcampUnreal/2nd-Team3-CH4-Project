@@ -53,7 +53,7 @@ void ASSTCharacter::Move(const FInputActionValue& Value)
 	}
 }
 
-void ASSTCharacter::JumpOrDrop_Implementation()
+void ASSTCharacter::JumpOrDrop()
 {
 	if (bIsCrouched) // attempt to drop through platform, if any
 	{
@@ -65,7 +65,7 @@ void ASSTCharacter::JumpOrDrop_Implementation()
 	}
 }
 
-void ASSTCharacter::CrouchDrop_Implementation()
+void ASSTCharacter::CrouchDrop()
 {
 	if (CanCrouch())
 	{
@@ -73,7 +73,7 @@ void ASSTCharacter::CrouchDrop_Implementation()
 	}
 }
 
-void ASSTCharacter::StopCrouchDrop_Implementation()
+void ASSTCharacter::StopCrouchDrop()
 {
 	UnCrouch();
 }
@@ -86,12 +86,12 @@ bool ASSTCharacter::CanDash_Implementation() const
 	return true;
 }
 
-void ASSTCharacter::Dash_Implementation()
+void ASSTCharacter::Dash()
 {
 	SSTCharacterMovementComponent->WantsToDash = true;
 }
 
-void ASSTCharacter::ReleaseJump_Implementation()
+void ASSTCharacter::ReleaseJump()
 {
 	StopJumping();
 }
