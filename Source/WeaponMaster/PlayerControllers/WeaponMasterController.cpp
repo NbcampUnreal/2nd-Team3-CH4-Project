@@ -7,9 +7,9 @@
 
 AWeaponMasterController::AWeaponMasterController()
 {
-	BattleMappingContext = nullptr;
-	HorizontalInputAction = nullptr;
-	VerticalInputAction = nullptr;
+	DefaultMappingContext = nullptr;
+	MoveAction = nullptr;
+	CrouchDropAction= nullptr;
 	WeakAttackAction = nullptr;
 	StrongAttackAction = nullptr;
 	SpecialAction = nullptr;
@@ -25,18 +25,8 @@ void AWeaponMasterController::BeginPlay()
 
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
-		Subsystem->AddMappingContext(BattleMappingContext, 0);
+		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
-}
-
-void AWeaponMasterController::HorizontalInput(const FInputActionValue& Value)
-{
-	UE_LOG(LogTemp, Display, TEXT("AWeaponMasterController::HorizontalInput Binding Function"));
-}
-
-void AWeaponMasterController::VerticalInput(const FInputActionValue& Value)
-{
-	UE_LOG(LogTemp, Display, TEXT("AWeaponMasterController::VerticalInput Binding Function"));
 }
 
 void AWeaponMasterController::WeakAttack(const FInputActionValue& Value)
@@ -57,11 +47,6 @@ void AWeaponMasterController::SpecialAttack(const FInputActionValue& Value)
 void AWeaponMasterController::Defence(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("AWeaponMasterController::Defence Binding Function"));
-}
-
-void AWeaponMasterController::Dash(const FInputActionValue& Value)
-{
-	UE_LOG(LogTemp, Display, TEXT("AWeaponMasterController::Dash Binding Function"));
 }
 
 void AWeaponMasterController::PickingItem(const FInputActionValue& Value)

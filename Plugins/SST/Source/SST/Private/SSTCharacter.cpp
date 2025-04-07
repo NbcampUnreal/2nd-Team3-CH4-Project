@@ -66,7 +66,6 @@ void ASSTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		//Dashing
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Started, this, &ASSTCharacter::Dash);
 	}
-
 }
 
 void ASSTCharacter::Move(const FInputActionValue& Value)
@@ -132,7 +131,7 @@ bool ASSTCharacter::CanCrouch() const
 
 void ASSTCharacter::StopJumping()
 {
-	IsJumpStale = false;
+	IsJumpState = false;
 	Super::StopJumping();
 }
 
@@ -168,9 +167,9 @@ void ASSTCharacter::CheckJumpInput(float DeltaTime)
 
 	if (SSTCharacterMovementComponent)
 	{
-		if (bPressedJump && (IsJumpProvidingForce() || !IsJumpStale))
+		if (bPressedJump && (IsJumpProvidingForce() || !IsJumpState))
 		{
-			IsJumpStale = true;
+			IsJumpState = true;
 
 			if (GetWorld()->GetTimeSeconds() - SSTCharacterMovementComponent->GetLastDropThroughPlatformTime() > DropThroughPlatformJumpLockout)
 			{
