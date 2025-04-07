@@ -161,9 +161,6 @@ void ABossCharacter::ApplyBackStep()
 	//Multicast_PlayMontage(BackStepMontage); // 연출용 애니메이션
 
 	FVector BackDir = -GetActorForwardVector();
-	//FVector NewLoc = GetActorLocation() + BackDir * 600.f;
-
-	//SetActorLocation(NewLoc); // 또는 LaunchCharacter()
 
 	FVector LaunchVelocity = BackDir * DashPower + FVector(0, 0, JumpBoost);
 

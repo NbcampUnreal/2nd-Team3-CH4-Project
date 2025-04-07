@@ -10,8 +10,8 @@ AWeaponMasterAIController::AWeaponMasterAIController()
 
 	// 시야 감각 구성
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
-	SightConfig->SightRadius = 1000.f;
-	SightConfig->LoseSightRadius = 1200.f;
+	SightConfig->SightRadius = 10000.f;
+	SightConfig->LoseSightRadius = 12000.f;
 	SightConfig->PeripheralVisionAngleDegrees = 360.f;
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
