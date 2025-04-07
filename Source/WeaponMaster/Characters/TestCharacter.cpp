@@ -262,6 +262,43 @@ void ATestCharacter::SetInteractableActor(AActor* NewInteractableActor) // Renam
     InteractableActor = NewInteractableActor;
 }
 
+void ATestCharacter::InterruptActiveSkill()
+{
+    // SkillComponent가 없으면 리턴
+    if (!SkillComponent)
+    {
+        return;
+    }
+
+    // 현재 활성화된 스킬 배열 가져오기
+    TArray<UBaseSkill*> CurrentSkills = SkillComponent->GetSkills();
+    
+    // 활성화된 스킬이 있는지 확인하고 중단
+    for (UBaseSkill* Skill : CurrentSkills)
+    {
+        if (Skill && Skill->IsSkillActive())
+        {
+            // 애니메이션 몽타주 중단
+            UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+            if (AnimInstance)
+            {
+                UAnimMontage* CurrentMontage = AnimInstance->GetCurrentActiveMontage();
+                if (CurrentMontage)
+                {
+                    AnimInstance->Montage_Stop(0.25f, CurrentMontage);
+                }
+            }
+            
+            // 스킬 강제 종료
+            Skill->EndSkill();
+            
+            // 디버그 로그
+            UE_LOG(LogTestCharacter, Display, TEXT("Skill %s was interrupted due to damage"), *Skill->GetSkillName());
+            break;
+        }
+    }
+}
+
 void ATestCharacter::EnforceMovementLimits() // Renamed class method
 {
     FVector CurrentLocation = GetActorLocation();

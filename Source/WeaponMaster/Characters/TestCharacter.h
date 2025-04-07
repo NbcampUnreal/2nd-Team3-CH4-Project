@@ -71,11 +71,14 @@ public:
     /** 상호작용 가능한 액터 설정 */
     UFUNCTION(BlueprintCallable, Category = "Interaction")
     void SetInteractableActor(AActor* NewInteractableActor);
-
+    
     /** 현재 상호작용 가능한 액터 가져오기 */
     UFUNCTION(BlueprintPure, Category = "Interaction")
     AActor* GetInteractableActor() const { return InteractableActor; }
 
+    UFUNCTION(BlueprintCallable, Category = "Skills")
+    void InterruptActiveSkill();
+    
     /** 서버에 데미지 적용 RPC */
     UFUNCTION(Server, Reliable)
     void Server_ApplyDamage(AActor* Target, float Damage, TSubclassOf<UDamageType> DamageType);
