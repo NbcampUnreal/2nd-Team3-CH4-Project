@@ -12,6 +12,7 @@
 #include "InputActionValue.h"
 
 #include "Components/ItemComponent/ItemComponent.h"
+#include "Components/SkillComponent/SkillComponent.h"
 #include "Engine/DamageEvents.h"
 #include "Net/UnrealNetwork.h"
 #include "WeaponMaster/Items/InteractionComponent/InteractionComponent.h"
@@ -24,7 +25,7 @@ ATestCharacter::ATestCharacter() // Renamed constructor
 
     // 컴포넌트 생성
     ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
-
+    SkillComponent = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComponent"));
     // 기본값 설정
     MaxHealth = 100.0f;
     CurrentHealth = MaxHealth;
@@ -41,9 +42,13 @@ void ATestCharacter::BeginPlay() // Renamed class method
 {
     Super::BeginPlay();
 
-    // 캐릭터 상태 기계 초기화
-    SetupCharacterStateMachine();
-
+    if (ItemComponent && SkillComponent)
+    {
+        // 아이템 장착 이벤트 바인딩
+        ItemComponent->OnItemEquipped.AddDynamic(this, &ATestCharacter::OnItemEquipped);
+        ItemComponent->OnItemUnequipped.AddDynamic(this, &ATestCharacter::OnItemUnequipped);
+    }
+    
     // Enhanced Input 활성화 (BeginPlay에서 하는 것이 일반적)
     if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
     {
@@ -138,6 +143,24 @@ bool ATestCharacter::EquipItem(FName ItemID) // Renamed class method
     return false;
 }
 
+void ATestCharacter::OnItemEquipped(UItemDataAsset* EquippedItem)
+{
+    if (SkillComponent && EquippedItem)
+    {
+        // 스킬 초기화
+        SkillComponent->InitializeSkillsFromItem(EquippedItem);
+    }
+}
+
+void ATestCharacter::OnItemUnequipped()
+{
+    if (SkillComponent)
+    {
+        // 스킬 초기화 (null 전달하여 스킬 제거)
+        SkillComponent->InitializeSkillsFromItem(nullptr);
+    }
+}
+
 /**
  * 인덱스 기반으로 스킬을 실행합니다.
  *
@@ -145,9 +168,9 @@ bool ATestCharacter::EquipItem(FName ItemID) // Renamed class method
  */
 void ATestCharacter::ExecuteSkill(int32 SkillIndex) // Renamed class method
 {
-    if (ItemComponent)
+    if (SkillComponent)
     {
-        ItemComponent->ExecuteSkill(SkillIndex);
+        SkillComponent->ExecuteSkill(SkillIndex);
     }
 }
 
@@ -251,10 +274,7 @@ void ATestCharacter::EnforceMovementLimits() // Renamed class method
     }
 }
 
-void ATestCharacter::SetupCharacterStateMachine() // Renamed class method
-{
-    // 상태 기계 초기화 - 구현은 실제 ICharacterState 인터페이스를 사용해 구현
-}
+
 
 void ATestCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const // Renamed class method
 {

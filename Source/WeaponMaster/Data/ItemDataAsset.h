@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "WeaponMaster/Skills/BaseSkill.h"
 #include "ItemDataAsset.generated.h"
 
 
@@ -63,7 +64,10 @@ public:
 	// 장착 효과음
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Audio")
 	TSoftObjectPtr<USoundBase> EquipSound;
-    
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skills")
+	TArray<TSubclassOf<UBaseSkill>> SkillClasses;
+	
 	// DataAsset 타입 오버라이드
 	virtual FPrimaryAssetId GetPrimaryAssetId() const override;
 };

@@ -154,27 +154,6 @@ UItemDataAsset* UItemComponent::GetEquippedItem() const
 }
 
 /**
- * 스킬을 실행합니다 (인덱스 기반).
- *
- * @param SkillIndex 실행할 스킬의 인덱스
- */
-void UItemComponent::ExecuteSkill(int32 SkillIndex)
-{
-    if (!EquippedItem)
-    {
-        return;
-    }
-    
-    // 소유자 확인
-    ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
-    if (!OwnerCharacter)
-    {
-        return;
-    }
-    
-}
-
-/**
  * 지정된 ItemID를 사용하여 아이템 데이터를 비동기로 로드합니다.
  *
  * @param ItemID 로드할 아이템의 고유 식별자 이름입니다.
@@ -253,7 +232,6 @@ void UItemComponent::OnMeshLoadCompleted()
         // 아이템 소켓에 부착
         AttachItemToSocket(EquippedItem);
         
-        
         // 이벤트 발생
         OnItemEquipped.Broadcast(EquippedItem);
     }
@@ -314,7 +292,7 @@ void UItemComponent::AttachItemToSocket(UItemDataAsset* Item)
     // 아이템 시각 효과 처리
     HandleItemVisualEffects(Item, true);
     
-    // 무기 충돌 이벤트 등록  
+    // 무기 충돌 이벤트 등록  // 사용위치 확인 필요
     WeaponMeshComp->OnComponentBeginOverlap.AddDynamic(this, &UItemComponent::HandleWeaponCollision);
     
     // 기본적으로 충돌 비활성화 (스킬 사용시에만 활성화)
@@ -346,7 +324,8 @@ void UItemComponent::HandleWeaponCollision(UPrimitiveComponent* OverlappedCompon
     {
         return;
     }
-    
+
+    UE_LOG(LogTemp, Warning, TEXT("[UItemComponent::HandleWeaponCollision]에서 오버랩됨"));
 }
 
 /**

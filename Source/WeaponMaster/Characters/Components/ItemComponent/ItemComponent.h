@@ -39,11 +39,6 @@ public:
     /** 현재 장착된 아이템 반환 */
     UFUNCTION(BlueprintPure, Category = "Items")
     UItemDataAsset* GetEquippedItem() const;
-    
-    /** 스킬 실행 (인덱스 기반) */
-    UFUNCTION(BlueprintCallable, Category = "Skills")
-    void ExecuteSkill(int32 SkillIndex);
-	
 	
     /** 아이템 장착 완료 이벤트 */
     UPROPERTY(BlueprintAssignable, Category = "Events")

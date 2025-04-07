@@ -1,0 +1,226 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "UObject/NoExportTypes.h"
+#include "GameFramework/DamageType.h"
+#include "BaseSkill.generated.h"
+
+class UNiagaraSystem;
+enum class ECCSkillCategory : uint8;
+class ATestCharacter;
+class UItemDataAsset;
+
+/**
+ * 스킬 타입 열거형
+ */
+UENUM(BlueprintType)
+enum class ESkillType : uint8
+{
+    Melee       UMETA(DisplayName = "근접 공격"),
+    Ranged      UMETA(DisplayName = "원거리 공격"),
+    Area        UMETA(DisplayName = "범위 공격"),
+    Buff        UMETA(DisplayName = "버프"),
+    Movement    UMETA(DisplayName = "이동 기술"),
+    Special     UMETA(DisplayName = "특수 기술")
+};
+
+/**
+ * 스킬 기본 클래스 - 모든 스킬의 부모 클래스
+ */
+UCLASS(Blueprintable, Abstract)
+class WEAPONMASTER_API UBaseSkill : public UObject
+{
+    GENERATED_BODY()
+
+public:
+    UBaseSkill();
+    
+    /**
+     * 스킬 초기화 함수
+     * @param Owner 스킬을 소유한 캐릭터
+     * @param OwnerItem 스킬을 제공하는 아이템 데이터
+     */
+    UFUNCTION(BlueprintCallable, Category = "Skill")
+    virtual void Initialize(ATestCharacter* Owner, UItemDataAsset* OwnerItem);
+    
+    /**
+     * 스킬 활성화 시도
+     * @return 스킬 활성화 성공 여부
+     */
+    UFUNCTION(BlueprintCallable, Category = "Skill")
+    virtual bool ActivateSkill();
+    
+    /**
+     * 스킬 실행 함수 (자식 클래스에서 실제 스킬 로직 구현)
+     */
+    UFUNCTION(BlueprintCallable, Category = "Skill")
+    virtual void ExecuteSkill();
+    
+    /**
+     * 스킬 종료 함수
+     */
+    UFUNCTION(BlueprintCallable, Category = "Skill")
+    virtual void EndSkill();
+
+
+    /**
+     * 몽타주 종료 시 호출되는 함수
+     */
+    UFUNCTION()
+    virtual void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+    
+    /**
+     * 스킬 재사용 가능 여부 확인
+     * @return 스킬 재사용 가능 여부
+     */
+    UFUNCTION(BlueprintPure, Category = "Skill")
+    bool IsSkillReady() const;
+    
+    /**
+     * 스킬 사용 중인지 확인
+     * @return 스킬 사용 중 여부
+     */
+    UFUNCTION(BlueprintPure, Category = "Skill")
+    bool IsSkillActive() const;
+    
+    /**
+     * 스킬 쿨다운 업데이트
+     * @param DeltaTime 시간 간격
+     */
+    UFUNCTION(BlueprintCallable, Category = "Skill")
+    void UpdateCooldown(float DeltaTime);
+    
+    /**
+     * 스킬 ID 반환
+     * @return 스킬 ID
+     */
+    UFUNCTION(BlueprintPure, Category = "Skill")
+    FName GetSkillID() const { return SkillID; }
+    
+    /**
+     * 스킬 이름 반환
+     * @return 스킬 이름
+     */
+    UFUNCTION(BlueprintPure, Category = "Skill")
+    FString GetSkillName() const { return SkillName; }
+    
+    /**
+     * 스킬 타입 반환
+     * @return 스킬 타입
+     */
+    UFUNCTION(BlueprintPure, Category = "Skill")
+    ESkillType GetSkillType() const { return SkillType; }
+    
+    /**
+     * 스킬 쿨다운 시간 반환
+     * @return 스킬 쿨다운 시간
+     */
+    UFUNCTION(BlueprintPure, Category = "Skill")
+    float GetCooldownTime() const { return CooldownTime; }
+    
+    /**
+     * 현재 쿨다운 남은 시간 반환
+     * @return 현재 쿨다운 남은 시간
+     */
+    UFUNCTION(BlueprintPure, Category = "Skill")
+    float GetRemainingCooldown() const { return RemainingCooldown; }
+    
+    /**
+     * 쿨다운 진행률 반환 (0.0-1.0)
+     * @return 쿨다운 진행률
+     */
+    UFUNCTION(BlueprintPure, Category = "Skill")
+    float GetCooldownProgress() const;
+    
+    /**
+     * 스킬 아이콘 반환
+     * @return 스킬 아이콘 텍스처
+     */
+    UFUNCTION(BlueprintPure, Category = "Skill")
+    TSoftObjectPtr<UTexture2D> GetSkillIcon() const { return SkillIcon; }
+
+    /**
+     * 액터 오브젝트 배열을 받아 처리하는 함수
+     * @param TargetActors 스킬이 적용될 대상 액터들의 배열
+     * @return 성공적으로 처리된 액터 수
+     */
+    UFUNCTION(BlueprintCallable, Category = "Skill")
+    virtual int32 ProcessTargetActors(const TArray<AActor*>& TargetActors);
+    
+protected:
+    // 스킬 ID
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Info")
+    FName SkillID;
+    
+    // 스킬 이름
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Info")
+    FString SkillName;
+    
+    // 스킬 설명
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Info", meta = (MultiLine=true))
+    FString Description;
+    
+    // 스킬 타입
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Info")
+    ESkillType SkillType;
+    
+    // 스킬 쿨다운 시간
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Timing")
+    float CooldownTime;
+    
+    // 스킬 지속 시간
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Timing")
+    float SkillDuration;
+    
+    // 스킬 데미지
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Combat")
+    float SkillDamage;
+    
+    // 스킬 데미지 타입
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Combat")
+    TSubclassOf<UDamageType> DamageType;
+    
+    // CC 효과 타입
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Combat")
+    ECCSkillCategory CCEffect;
+    
+    // CC 효과 지속 시간
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Combat")
+    float CCDuration;
+    
+    // 스킬 몽타주
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Animation")
+    TSoftObjectPtr<UAnimMontage> SkillMontage;
+    
+    // 스킬 이펙트
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|VFX")
+    TSoftObjectPtr<UNiagaraSystem> SkillEffect;
+    
+    // 스킬 사운드
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Audio")
+    TSoftObjectPtr<USoundBase> SkillSound;
+    
+    // 스킬 아이콘
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|UI")
+    TSoftObjectPtr<UTexture2D> SkillIcon;
+    
+    // 소유자 캐릭터
+    UPROPERTY(Transient)
+    ATestCharacter* OwnerCharacter;
+    
+    // 소유 아이템
+    UPROPERTY(Transient)
+    UItemDataAsset* ItemData;
+    
+    // 현재 쿨다운 남은 시간
+    UPROPERTY(Transient)
+    float RemainingCooldown;
+    
+    // 스킬 활성화 상태
+    UPROPERTY(Transient)
+    bool bIsActive;
+    
+    // 내부 타이머 (지속 시간 등 처리)
+    UPROPERTY(Transient)
+    float SkillTimer;
+};

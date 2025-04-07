@@ -3,8 +3,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "WeaponMaster/Data/ItemDataAsset.h"
 #include "TestCharacter.generated.h" // Changed include and class name in generated include
 
+class USkillComponent;
 struct FInputActionValue;
 enum class EInputActionType : uint8;
 class UItemComponent;
@@ -30,6 +32,12 @@ public:
     /** 아이템 장착 함수 */
     UFUNCTION(BlueprintCallable, Category = "Items")
     bool EquipItem(FName ItemID);
+
+    UFUNCTION(BlueprintCallable, Category = "Items")
+    void OnItemEquipped(UItemDataAsset* EquippedItem);
+
+    UFUNCTION(BlueprintCallable, Category = "Items")
+    void OnItemUnequipped();
 
     /** 스킬 실행 함수 (인덱스 기반) */
     UFUNCTION(BlueprintCallable, Category = "Skills")
@@ -72,11 +80,23 @@ public:
     UFUNCTION(Server, Reliable)
     void Server_ApplyDamage(AActor* Target, float Damage, TSubclassOf<UDamageType> DamageType);
 
+    /** 아이템 컴포넌트 가져오기 */
+    UFUNCTION(BlueprintCallable, Category = "Components")
+    UItemComponent* GetItemComponent() const { return ItemComponent; }
+
+    /** 스킬 컴포넌트 가져오기 */
+    UFUNCTION(BlueprintCallable, Category = "Components")
+    USkillComponent* GetSkillComponent() const { return SkillComponent; }
+    
 protected:
     /** 아이템 컴포넌트 */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     UItemComponent* ItemComponent;
 
+    /** 스킬 컴포넌트 */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    USkillComponent* SkillComponent;
+    
     /** 캐릭터 체력 */
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stats")
     float MaxHealth;
@@ -96,9 +116,6 @@ protected:
     /** 상호작용 가능한 액터 */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
     AActor* InteractableActor;
-
-    /** 캐릭터 상태 기계 설정 */
-    void SetupCharacterStateMachine();
 
     /** 캐릭터 이동 제한 처리 */
     void EnforceMovementLimits();
