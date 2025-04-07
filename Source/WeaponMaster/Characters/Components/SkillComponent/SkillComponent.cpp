@@ -90,6 +90,21 @@ void USkillComponent::InitializeSkillsFromItem(UItemDataAsset* NewItem)
     Client_UpdateSkills(Skills);
 }
 
+UBaseSkill* USkillComponent::GetActiveSkill() const
+{
+    // 모든 스킬을 순회하며 활성화된 스킬 찾기
+    for (UBaseSkill* Skill : Skills)
+    {
+        if (Skill && Skill->IsSkillActive())
+        {
+            return Skill;
+        }
+    }
+    
+    // 활성화된 스킬이 없으면 nullptr 반환
+    return nullptr;
+}
+
 UBaseSkill* USkillComponent::CreateSkill(TSubclassOf<UBaseSkill> SkillClass, UItemDataAsset* OwnerItem)
 {
     if (!SkillClass || !OwnerCharacter)

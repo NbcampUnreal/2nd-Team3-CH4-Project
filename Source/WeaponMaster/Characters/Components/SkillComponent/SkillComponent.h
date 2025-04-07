@@ -111,6 +111,13 @@ public:
     UPROPERTY(BlueprintAssignable, Category = "Skills|Events")
     FOnSkillsUpdated OnSkillsUpdated;
 
+    /**
+     * 현재 활성화된 스킬을 반환합니다.
+     * @return 현재 활성화된 스킬 객체. 없으면 nullptr 반환
+     */
+    UFUNCTION(BlueprintPure, Category = "Skills")
+    UBaseSkill* GetActiveSkill() const;
+    
 protected:
     /**
      * 스킬 생성 및 초기화
