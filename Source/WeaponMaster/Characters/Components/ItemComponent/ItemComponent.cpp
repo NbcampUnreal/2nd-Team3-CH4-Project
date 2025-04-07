@@ -7,6 +7,7 @@
 #include "WeaponMaster/Data/GameDataManager.h"
 #include "WeaponMaster/Data/ItemDataAsset.h"
 #include "WeaponMaster/Data/WeaponMasterLib.h"
+#include "WeaponMaster/Items/PickupableItem.h"
 
 
 UItemComponent::UItemComponent()
@@ -47,39 +48,80 @@ bool UItemComponent::EquipItem(FName ItemID)
     // 클라이언트에서 호출되었으면 서버에 요청
     if (GetOwnerRole() < ROLE_Authority)
     {
+        UE_LOG(LogTemp, Warning, TEXT("[CLIENT] Requesting server to equip item: %s"), *ItemID.ToString());
         Server_EquipItem(ItemID);
         return true; // 클라이언트는 서버 응답을 기다림
     }
     
+    UE_LOG(LogTemp, Warning, TEXT("[SERVER] Equipping item: %s"), *ItemID.ToString());
+    
     // 현재 아이템과 동일하면 무시
     if (EquippedItem && EquippedItem->ItemID == ItemID)
     {
+        UE_LOG(LogTemp, Warning, TEXT("[SERVER] Item already equipped: %s"), *ItemID.ToString());
         return true;
     }
     
-    // 이전 아이템 장착 해제
+    // 이전 아이템 추적
+    UItemDataAsset* PreviousItem = nullptr;
     if (EquippedItem)
     {
-        UnequipItem();
+        UE_LOG(LogTemp, Warning, TEXT("[SERVER] Previous item found, will unequip: %s"), *EquippedItem->ItemName);
+        PreviousItem = EquippedItem;
     }
     
-    // GameDataManager에서 아이템 정보 가져오기
+    // GameDataManager에서 새 아이템 정보 가져오기
     UGameDataManager* GameDataManager = UWeaponMasterLib::GetGameDataManager(GetWorld());
     if (!GameDataManager)
     {
+        UE_LOG(LogTemp, Error, TEXT("[SERVER] GameDataManager not found"));
         return false;
     }
     
     UItemDataAsset* NewItem = GameDataManager->GetItemData(ItemID);
     if (!NewItem)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Item with ID %s not found"), *ItemID.ToString());
+        UE_LOG(LogTemp, Warning, TEXT("[SERVER] Item with ID %s not found"), *ItemID.ToString());
         return false;
     }
+    
+    // 이전 아이템 처리 - 아이템 스폰 등
+    if (PreviousItem)
+    {
+        // 무기 컴포넌트 찾기 및 제거
+        ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+        if (OwnerCharacter)
+        {
+            TArray<USceneComponent*> ChildComponents;
+            OwnerCharacter->GetMesh()->GetChildrenComponents(true, ChildComponents);
+            
+            for (USceneComponent* ChildComp : ChildComponents)
+            {
+                UStaticMeshComponent* StaticMeshComp = Cast<UStaticMeshComponent>(ChildComp);
+                if (StaticMeshComp && StaticMeshComp->GetName().Contains(PreviousItem->ItemID.ToString()))
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("[SERVER] Found weapon mesh component, will destroy: %s"), *StaticMeshComp->GetName());
+                    StaticMeshComp->DestroyComponent();
+                    break;
+                }
+            }
+        }
+        
+        // 이전 아이템 스폰
+        SpawnPickupItem(PreviousItem);
+        
+        // 이벤트 발생
+        OnItemUnequipped.Broadcast();
+    }
+    
+    // 이제 새 아이템 설정
+    EquippedItem = NewItem;
     
     // 아이템 메시 비동기 로드
     if (!NewItem->EquippedMesh.IsNull())
     {
+        UE_LOG(LogTemp, Warning, TEXT("[SERVER] Loading mesh asynchronously for item: %s"), *NewItem->ItemName);
+        
         // 비동기 로드 시작
         UAssetManager& AssetManager = UAssetManager::Get();
         FStreamableManager& StreamableManager = AssetManager.GetStreamableManager();
@@ -89,14 +131,13 @@ bool UItemComponent::EquipItem(FName ItemID)
             FStreamableDelegate::CreateUObject(this, &UItemComponent::OnMeshLoadCompleted)
         );
         
-        // 로드 중 임시 상태 설정
-        EquippedItem = NewItem;
         return true;
     }
     else
     {
+        UE_LOG(LogTemp, Warning, TEXT("[SERVER] No mesh to load for item: %s"), *NewItem->ItemName);
+        
         // 메시가 없는 경우 바로 장착 완료
-        EquippedItem = NewItem;
         AttachItemToSocket(NewItem);
         OnItemEquipped.Broadcast(NewItem);
         
@@ -127,20 +168,121 @@ void UItemComponent::UnequipItem()
     {
         return;
     }
-    // 장착 해제한 아이템 드롭 로직 추가해야함
     
-    // 아이템 시각 효과 처리
+    // 로그 추가
+    UE_LOG(LogTemp, Warning, TEXT("Unequipping item: %s"), *EquippedItem->ItemName);
+    
+    // Store reference to the item being unequipped
+    UItemDataAsset* ItemToSpawn = EquippedItem;
+    
+    // Handle visual effects for unequipping
     HandleItemVisualEffects(EquippedItem, false);
     
-    // 무기 충돌 비활성화
+    // Disable weapon collision
     SetWeaponCollisionEnabled(false);
     
+    // 클라이언트에서 호출된 경우 서버에 요청
+    if (GetOwnerRole() < ROLE_Authority)
+    {
+        Server_UnequipItem(ItemToSpawn->ItemID);
+    }
+    else
+    {
+        // 서버에서는 아이템 스폰 직접 처리
+        SpawnPickupItem(ItemToSpawn);
+    }
     
-    // 장착 해제 이벤트 발생
+    // Broadcast unequip event
     OnItemUnequipped.Broadcast();
     
-    // 아이템 참조 해제
+    // Clear item reference
     EquippedItem = nullptr;
+}
+
+
+void UItemComponent::SpawnPickupItem(UItemDataAsset* ItemData)
+{
+    if (!ItemData)
+    {
+        UE_LOG(LogTemp, Error, TEXT("[SERVER] Cannot spawn pickup: ItemData is null"));
+        return;
+    }
+    
+    UE_LOG(LogTemp, Warning, TEXT("[SERVER] Attempting to spawn pickup item: %s"), *ItemData->ItemName);
+    
+    // Get owner character
+    ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+    if (!OwnerCharacter)
+    {
+        UE_LOG(LogTemp, Error, TEXT("[SERVER] Cannot spawn pickup: Owner character is invalid"));
+        return;
+    }
+    
+    // Get the world
+    UWorld* World = GetWorld();
+    if (!World)
+    {
+        UE_LOG(LogTemp, Error, TEXT("[SERVER] Cannot spawn pickup: World is invalid"));
+        return;
+    }
+    
+    // Calculate spawn location (in front of the character)
+    FVector CharacterLocation = OwnerCharacter->GetActorLocation();
+    FVector CharacterForward = OwnerCharacter->GetActorForwardVector();
+    FVector SpawnLocation = CharacterLocation + (CharacterForward * 100.0f); // 100 units in front of character
+    
+    // Add a small random offset
+    SpawnLocation.X += FMath::RandRange(-20.0f, 20.0f);
+    SpawnLocation.Y += FMath::RandRange(-20.0f, 20.0f);
+    SpawnLocation.Z += 50.0f; // Spawn a bit above ground level
+    
+    // Prepare spawn parameters
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+    SpawnParams.Owner = OwnerCharacter;
+    
+    // Spawn the pickup item actor
+    APickupableItem* PickupItem = World->SpawnActor<APickupableItem>(APickupableItem::StaticClass(), SpawnLocation, FRotator::ZeroRotator, SpawnParams);
+    
+    if (PickupItem)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[SERVER] Successfully spawned pickup item: %s"), *ItemData->ItemName);
+        
+        // Set the item ID and data
+        PickupItem->ItemID = ItemData->ItemID;
+        PickupItem->ItemData = ItemData;
+        
+        // Load the mesh
+        PickupItem->LoadItemData();
+        
+        // Add impulse for a bit of physical movement
+        if (PickupItem->MeshComponent && PickupItem->MeshComponent->IsSimulatingPhysics())
+        {
+            FVector RandomImpulse = FVector(FMath::RandRange(-100.0f, 100.0f), FMath::RandRange(-100.0f, 100.0f), FMath::RandRange(50.0f, 150.0f));
+            PickupItem->MeshComponent->AddImpulse(RandomImpulse);
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("[SERVER] Failed to spawn pickup item"));
+    }
+}
+
+// 서버 RPC 함수 구현
+void UItemComponent::Server_UnequipItem_Implementation(FName ItemID)
+{
+    UE_LOG(LogTemp, Warning, TEXT("Server RPC: Unequipping item %s"), *ItemID.ToString());
+    
+    // 아이템 ID로 데이터 가져오기
+    UGameDataManager* GameDataManager = UWeaponMasterLib::GetGameDataManager(GetWorld());
+    if (GameDataManager)
+    {
+        UItemDataAsset* ItemToSpawn = GameDataManager->GetItemData(ItemID);
+        if (ItemToSpawn)
+        {
+            SpawnPickupItem(ItemToSpawn);
+        }
+    }
 }
 
 /**
@@ -226,6 +368,8 @@ void UItemComponent::OnItemLoaded(FName ItemID)
  */
 void UItemComponent::OnMeshLoadCompleted()
 {
+    UE_LOG(LogTemp, Warning, TEXT("[SERVER] Mesh load completed for item: %s"), EquippedItem ? *EquippedItem->ItemName : TEXT("Unknown"));
+    
     // 로드 완료 후 처리
     if (EquippedItem)
     {
@@ -234,6 +378,13 @@ void UItemComponent::OnMeshLoadCompleted()
         
         // 이벤트 발생
         OnItemEquipped.Broadcast(EquippedItem);
+        
+        // 클라이언트에게 알림
+        ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+        if (OwnerCharacter && OwnerCharacter->GetLocalRole() == ROLE_Authority)
+        {
+            Client_OnItemEquipped(EquippedItem);
+        }
     }
     
     // 로드 핸들 정리
@@ -400,7 +551,7 @@ void UItemComponent::SetWeaponCollisionEnabled(bool bEnabled)
  */
 void UItemComponent::Server_EquipItem_Implementation(FName ItemID)
 {
-    // 서버에서 아이템 장착 처리
+    UE_LOG(LogTemp, Warning, TEXT("[SERVER] RPC received to equip item: %s"), *ItemID.ToString());
     EquipItem(ItemID);
 }
 
@@ -417,11 +568,48 @@ void UItemComponent::Server_EquipItem_Implementation(FName ItemID)
  */
 void UItemComponent::Client_OnItemEquipped_Implementation(UItemDataAsset* NewItem)
 {
-    // 클라이언트에서 아이템 장착 결과 처리
-    if (NewItem != EquippedItem)
+    if (!NewItem)
     {
-        EquippedItem = NewItem;
-        AttachItemToSocket(NewItem);
-        OnItemEquipped.Broadcast(NewItem);
+        UE_LOG(LogTemp, Error, TEXT("[CLIENT] Received null item in Client_OnItemEquipped"));
+        return;
     }
+    
+    UE_LOG(LogTemp, Warning, TEXT("[CLIENT] Equipping item: %s"), *NewItem->ItemName);
+    
+    // 이전 아이템 정리 (클라이언트 측)
+    if (EquippedItem && EquippedItem != NewItem)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[CLIENT] Clearing previous item: %s"), *EquippedItem->ItemName);
+        
+        // 무기 컴포넌트 찾기 및 제거
+        ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+        if (OwnerCharacter)
+        {
+            TArray<USceneComponent*> ChildComponents;
+            OwnerCharacter->GetMesh()->GetChildrenComponents(true, ChildComponents);
+            
+            for (USceneComponent* ChildComp : ChildComponents)
+            {
+                UStaticMeshComponent* StaticMeshComp = Cast<UStaticMeshComponent>(ChildComp);
+                if (StaticMeshComp && StaticMeshComp->GetName().Contains(EquippedItem->ItemID.ToString()))
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("[CLIENT] Found weapon mesh component, will destroy: %s"), *StaticMeshComp->GetName());
+                    StaticMeshComp->DestroyComponent();
+                    break;
+                }
+            }
+        }
+        
+        // 이벤트 발생
+        OnItemUnequipped.Broadcast();
+    }
+    
+    // 새 아이템 설정
+    EquippedItem = NewItem;
+    
+    // 아이템을 소켓에 부착
+    AttachItemToSocket(NewItem);
+    
+    // 이벤트 발생
+    OnItemEquipped.Broadcast(NewItem);
 }

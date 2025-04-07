@@ -42,10 +42,11 @@ public:
 	// 아이템 획득 처리
 	UFUNCTION()
 	void OnPickup(AActor* Interactor);
-    
-protected:
+
 	// 아이템 데이터 로드
+	UFUNCTION()
 	void LoadItemData();
+protected:
     
 	// 오버랩 시작 이벤트
 	UFUNCTION()

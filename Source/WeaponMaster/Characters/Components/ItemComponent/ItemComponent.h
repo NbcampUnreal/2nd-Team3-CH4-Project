@@ -53,10 +53,6 @@ public:
     void SetWeaponCollisionEnabled(bool bEnabled);
  
 protected:
-    /** 아이템 데이터 맵 (캐시) */
-    UPROPERTY(VisibleAnywhere, Category = "Items")
-    TMap<FName, UItemDataAsset*> ItemDataMap;
-    
     /** 현재 장착된 아이템 */
     UPROPERTY(VisibleAnywhere, Category = "Items")
     UItemDataAsset* EquippedItem;
@@ -72,11 +68,17 @@ protected:
     
     /** 아이템 시각 효과 처리 */
     void HandleItemVisualEffects(UItemDataAsset* Item, bool bEquipping);
-	
     
     /** 메시 비동기 로드 완료 핸들러 */
     void OnMeshLoadCompleted();
 
+	/** 아이템 픽업 스폰 함수 */
+	UFUNCTION()
+	void SpawnPickupItem(UItemDataAsset* ItemData);
+
+	/** 서버에 아이템 장착 해제 요청 */
+	UFUNCTION(Server, Reliable)
+	void Server_UnequipItem(FName ItemID);
 private:
     /** 비동기 로드 요청 핸들 */
     TSharedPtr<FStreamableHandle> LoadHandle;
