@@ -136,7 +136,13 @@ void AMainMenuHUD::HideChoiceMenu()
 void AMainMenuHUD::HandleNextClicked()
 {
     PlaySound(SelectSound);
-    UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_TravelBong")));
+    /**플레이어 단일만 한 맵으로 */
+    if (APlayerController* PC = GetOwningPlayerController())
+    {
+        PC->ClientTravel(TEXT("Test_TravelBong"), ETravelType::TRAVEL_Absolute);
+    }
+    /**플레이어 모두를 한 맵으로 */
+    //UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_TravelBong")));
 }
 
 void AMainMenuHUD::HandlePrevClicked()
