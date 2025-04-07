@@ -52,8 +52,6 @@ void UChoiceWidget::NativeConstruct()
 
 void UChoiceWidget::OnNextClicked()
 {
-	FString test1 = FString::Printf(TEXT("%d"), static_cast<int32>(CurrentState));
-	LogMessage(test1);
 	if (!SelectWidgets.IsEmpty())
 	{
 		if (CurrentState == EWidgetState::CharacterChoice)
@@ -67,14 +65,20 @@ void UChoiceWidget::OnNextClicked()
 		}
 		else
 		{
+			PlaySound(SelectSound);
 			LogMessage("State END Go to Next Level");
-			NextButtonClicked.Broadcast();
+			FTimerHandle TimerHandle;
+			FTimerDelegate TimerDelegate = FTimerDelegate::CreateLambda([this]()
+				{
+					NextButtonClicked.Broadcast();
+				});
+			if (GetWorld())
+			{
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 0.5f, false);
+			}
+			//NextButtonClicked.Broadcast();
 		}
 	}
-	LogMessage("????????????????");
-	FString test = FString::Printf(TEXT("%d"), static_cast<int32>(CurrentState));
-	LogMessage(test);
-
 }
 
 void UChoiceWidget::OnBackClicked()
@@ -99,7 +103,7 @@ void UChoiceWidget::OnBackClicked()
 	}
 }
 //2 .그다음에 DA나 DT 활용해서 이미지파일 집어넣자 
-//버그 수정 및 이미지파일 변경해놓고 유아틱 이미지파일 제거하기 
+
 void UChoiceWidget::LogMessage(const FString& Message)
 {
 	if (GEngine)

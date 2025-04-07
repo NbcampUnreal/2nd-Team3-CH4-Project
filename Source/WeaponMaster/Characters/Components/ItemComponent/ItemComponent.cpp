@@ -2,6 +2,7 @@
 
 #include "ItemComponent.h"
 
+#include "Net/UnrealNetwork.h"
 #include "WeaponMaster/Characters/TestCharacter.h"
 #include "WeaponMaster/Characters/WeaponMasterCharacter.h"
 #include "WeaponMaster/Data/GameDataManager.h"
@@ -35,6 +36,14 @@ void UItemComponent::BeginPlay()
     }
 }
 
+void UItemComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(UItemComponent, EquippedItem);
+}
+
+
 void UItemComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -59,7 +68,7 @@ bool UItemComponent::EquipItem(FName ItemID)
     if (EquippedItem && EquippedItem->ItemID == ItemID)
     {
         UE_LOG(LogTemp, Warning, TEXT("[SERVER] Item already equipped: %s"), *ItemID.ToString());
-        return true;
+        return false;
     }
     
     // 이전 아이템 추적
@@ -250,7 +259,6 @@ void UItemComponent::SpawnPickupItem(UItemDataAsset* ItemData)
         
         // Set the item ID and data
         PickupItem->ItemID = ItemData->ItemID;
-        PickupItem->ItemData = ItemData;
         
         // Load the mesh
         PickupItem->LoadItemData();

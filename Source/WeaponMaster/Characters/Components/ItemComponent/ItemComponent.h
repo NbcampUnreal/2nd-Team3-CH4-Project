@@ -22,7 +22,8 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
@@ -54,7 +55,7 @@ public:
  
 protected:
     /** 현재 장착된 아이템 */
-    UPROPERTY(VisibleAnywhere, Category = "Items")
+    UPROPERTY(Replicated,VisibleAnywhere, Category = "Items")
     UItemDataAsset* EquippedItem;
 	
     /** 아이템 비동기 로딩 */
