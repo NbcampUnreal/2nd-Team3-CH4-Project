@@ -4,6 +4,8 @@
 #include "WeaponMaster/Characters/WeaponMAsterCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "WeaponMaster/Characters/Components/SkillComponent/SkillComponent.h"
 
 
 ABossCharacter::ABossCharacter()
@@ -12,6 +14,9 @@ ABossCharacter::ABossCharacter()
 	MaxHP = 1000.0f;
 
 	BossStateComponent = CreateDefaultSubobject<UBossStateComponent>(TEXT("BossStateComponent"));
+
+	GetCharacterMovement()->bConstrainToPlane = true;
+	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0.f, 1.f, 0.f));
 }
 
 void ABossCharacter::BeginPlay()
@@ -39,6 +44,22 @@ void ABossCharacter::OnPhaseChanged(EBossPhase NewPhase)
 		}
 	}
 }
+
+void ABossCharacter::LookAtTarget(const AActor* TargetActor)
+{
+	if (!TargetActor) return;
+
+	FVector ToTarget = TargetActor->GetActorLocation() - GetActorLocation();
+	ToTarget.Z = 0.f; // 수평 회전만
+
+	if (!ToTarget.IsNearlyZero())
+	{
+		FRotator LookAtRotation = ToTarget.Rotation();
+		SetActorRotation(LookAtRotation);
+	}
+}
+
+
 
 void ABossCharacter::CalculateAttackBox(int32 ComboStep, FVector& OutCenter, FVector& OutExtent)
 {
@@ -145,16 +166,17 @@ void ABossCharacter::ExecuteForwardCharge()
 
 	// 돌진 애니메이션 재생 (멀티캐스트)
 	// Multicast_PlayMontage(ChargeMontage);
-
 	// 돌진 방향 = 현재 보스 정면
+
 	FVector ChargeDir = GetActorForwardVector();
-	FVector LaunchVelocity = ChargeDir * 4000.f + FVector(0, 0, 100.f);
+	FVector LaunchVelocity = ChargeDir * 2000.f + FVector(0, 0, 150.f);
 
 	LaunchCharacter(LaunchVelocity, true, true);
 
 	// 충돌 타이밍을 고려해 약간 딜레이 후 판정 실행
 	//FTimerHandle HitCheckTimer;
 	//GetWorldTimerManager().SetTimer(HitCheckTimer, this, &ABossCharacter::ChargeHitCheck, 0.3f, false);
+
 }
 
 void ABossCharacter::ApplyAreaSkill()

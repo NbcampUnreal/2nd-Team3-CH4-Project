@@ -31,6 +31,16 @@ public:
 
 	UFUNCTION()
 	void OnPhaseChanged(EBossPhase NewPhase);
+/// 보스 뒤돌기
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void LookAtTarget(const AActor* TargetActor);
+
+private:
+	FRotator DesiredRotation;
+	bool bShouldRotate = false;
+	float RotationInterpSpeed = 5.f;
 
 ///보스 공격 패턴
 public:
