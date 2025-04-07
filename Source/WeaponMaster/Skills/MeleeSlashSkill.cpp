@@ -41,9 +41,9 @@ void UMeleeSlashSkill::ExecuteSkill()
 
 
 
-int32 UMeleeSlashSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors)
+int32 UMeleeSlashSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage)
 {
-    Super::ProcessTargetActors(TargetActors);
+    Super::ProcessTargetActors(TargetActors, Damage);
     // 기본 검증
     if (!OwnerCharacter || !OwnerCharacter->HasAuthority())
     {

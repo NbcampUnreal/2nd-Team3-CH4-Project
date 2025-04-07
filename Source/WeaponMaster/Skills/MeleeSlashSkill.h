@@ -18,7 +18,7 @@ public:
 	// BaseSkill 오버라이드
 	virtual void ExecuteSkill() override;
 
-	virtual int32 ProcessTargetActors(const TArray<AActor*>& TargetActors) override;
+	virtual int32 ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage) override;
 	
 protected:
 	// 넉백 파워

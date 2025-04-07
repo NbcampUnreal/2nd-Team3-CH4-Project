@@ -186,7 +186,7 @@ float UBaseSkill::GetCooldownProgress() const
     return 1.0f - (RemainingCooldown / CooldownTime);
 }
 
-int32 UBaseSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors)
+int32 UBaseSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage)
 {
     // 소유자 캐릭터 확인
     if (!OwnerCharacter)
