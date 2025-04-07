@@ -81,7 +81,7 @@ public:
 
 
 	UFUNCTION(BlueprintCallable)
-	void PerformBackStep();
+	void ApplyBackStep();
 
 	//앞으로 돌진 공격
 	UFUNCTION(BlueprintCallable)
@@ -89,7 +89,7 @@ public:
 
 	//////2페이즈//////
 	UFUNCTION(BlueprintCallable)
-	void StartAreaSkill();
+	void ApplyAreaSkill();
 
 	void ExecuteAreaSkill();
 };

@@ -154,7 +154,7 @@ void ABossCharacter::PerformComboAttack3()
 	DamageActorsInBox(Center, Extent);
 }
 
-void ABossCharacter::PerformBackStep()
+void ABossCharacter::ApplyBackStep()
 {
 	if (!HasAuthority()) return;
 
@@ -188,7 +188,7 @@ void ABossCharacter::ExecuteForwardCharge()
 	//GetWorldTimerManager().SetTimer(HitCheckTimer, this, &ABossCharacter::ChargeHitCheck, 0.3f, false);
 }
 
-void ABossCharacter::StartAreaSkill()
+void ABossCharacter::ApplyAreaSkill()
 {
 	// 1. 방향 돌리기
 	SetActorRotation(GetActorRotation() + FRotator(0, 90.f, 0));
