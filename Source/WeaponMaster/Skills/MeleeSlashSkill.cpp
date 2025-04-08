@@ -39,8 +39,6 @@ void UMeleeSlashSkill::ExecuteSkill()
     Super::ExecuteSkill();
 }
 
-
-
 int32 UMeleeSlashSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage)
 {
     Super::ProcessTargetActors(TargetActors, Damage);
@@ -65,10 +63,8 @@ int32 UMeleeSlashSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors,
         float FinalDamage = SkillDamage;
         
         // ItemData에서 추가 데미지 계산 (아이템 데미지 계수)
-        if (ItemData)
-        {
-            FinalDamage += ItemData->BaseDamage;
-        }
+        // 새로운 헬퍼 메서드 사용
+        FinalDamage += GetItemBaseDamage();
         
         // 데미지 타입 설정
         TSubclassOf<UDamageType> DamageTypeClass = DamageType;
