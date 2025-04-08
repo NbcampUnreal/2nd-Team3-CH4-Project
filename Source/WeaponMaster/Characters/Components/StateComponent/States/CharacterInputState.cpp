@@ -22,60 +22,144 @@ void UCharacterInputState::Tick(float DeltaTime)
 
 void UCharacterInputState::Move(const FInputActionValue& Value)
 {
-	Cast<ISSTInputBindFunctions>(OwnerCharacter)->Move(Value); 
+	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(OwnerCharacter))
+	{
+		CastedCharacter->Move(Value); 
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UCharacterInputState::Move : Cast Failed."));
+	}
 }
 
 void UCharacterInputState::CrouchDrop()
 {
-	Cast<ISSTInputBindFunctions>(OwnerCharacter)->CrouchDrop(); 
+	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(OwnerCharacter))
+	{
+		CastedCharacter->CrouchDrop(); 
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UCharacterInputState::CrouchDrop : Cast Failed."));
+	}
 }
 
 void UCharacterInputState::StopCrouchDrop()
 {
-	Cast<ISSTInputBindFunctions>(OwnerCharacter)->StopCrouchDrop(); 
+	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(OwnerCharacter))
+	{
+		CastedCharacter->StopCrouchDrop(); 
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UCharacterInputState::StopCrouchDrop : Cast Failed."));
+	}
 }
 
 void UCharacterInputState::JumpOrDrop()
 {
-	Cast<ISSTInputBindFunctions>(OwnerCharacter)->JumpOrDrop(); 
+	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(OwnerCharacter))
+	{
+		CastedCharacter->JumpOrDrop(); 
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UCharacterInputState::JumpOrDrop : Cast Failed."));
+	}
 }
 
 void UCharacterInputState::ReleaseJump()
 {
-	Cast<ISSTInputBindFunctions>(OwnerCharacter)->ReleaseJump(); 
+	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(OwnerCharacter))
+	{
+		CastedCharacter->ReleaseJump(); 
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UCharacterInputState::ReleaseJump : Cast Failed."));
+	}
 }
 
 void UCharacterInputState::Dash()
 {
-	Cast<ISSTInputBindFunctions>(OwnerCharacter)->Dash(); 
+	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(OwnerCharacter))
+	{
+		CastedCharacter->Dash(); 
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UCharacterInputState::Dash : Cast Failed."));
+	}
 }
 
 void UCharacterInputState::WeakAttack()
 {
-	Cast<IBaseBattleInputBindFunctions>(OwnerCharacter)->WeakAttack(); 
+	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(OwnerCharacter))
+	{
+		CastedCharacter->WeakAttack(); 
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UCharacterInputState::WeakAttack : Cast Failed."));
+	}
 }
 
 void UCharacterInputState::StrongAttack()
 {
-	Cast<IBaseBattleInputBindFunctions>(OwnerCharacter)->StrongAttack(); 
+	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(OwnerCharacter))
+	{
+		CastedCharacter->StrongAttack(); 
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UCharacterInputState::StrongAttack : Cast Failed."));
+	}
 }
 
 void UCharacterInputState::Identity()
 {
-	Cast<IBaseBattleInputBindFunctions>(OwnerCharacter)->Identity(); 
+	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(OwnerCharacter))
+	{
+		CastedCharacter->Identity(); 
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UCharacterInputState::Identity : Cast Failed."));
+	}
 }
 
 void UCharacterInputState::Defence()
 {
-	Cast<IBaseBattleInputBindFunctions>(OwnerCharacter)->Defence(); 
+	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(OwnerCharacter))
+	{
+		CastedCharacter->Defence(); 
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UCharacterInputState::Defence : Cast Failed."));
+	}
 }
 
 void UCharacterInputState::PickingItem()
 {
-	Cast<IBaseBattleInputBindFunctions>(OwnerCharacter)->PickingItem(); 
+	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(OwnerCharacter))
+	{
+		CastedCharacter->PickingItem(); 
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UCharacterInputState::PickingItem : Cast Failed."));
+	}
 }
 
 void UCharacterInputState::MenuOnOff()
 {
-	Cast<IBaseBattleInputBindFunctions>(OwnerCharacter)->MenuOnOff(); 
+	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(OwnerCharacter))
+	{
+		CastedCharacter->MenuOnOff(); 
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UCharacterInputState::MenuOnOff : Cast Failed."));
+	}
 }

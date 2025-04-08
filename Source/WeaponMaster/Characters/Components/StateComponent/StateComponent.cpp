@@ -20,11 +20,30 @@ void UStateComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InputState = NewObject<UCharacterInputState>(this);
-	InputState->Initialize(Cast<ACharacter>(GetOuter()));
+	// Create Input State
+	CharacterInputState = NewObject<UCharacterInputState>(this);
+	if (!CharacterInputState)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : InputState Create Failed."));
+		return;
+	}
+
+	auto OuterCharacter = Cast<ACharacter>(GetOuter());
+	if (!OuterCharacter)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : OuterCharacter Cast Failed."));
+		return;
+	}
+
+	UE_LOG(LogTemp, Display, TEXT("OuterCharacter DisplayName : %s"), *OuterCharacter->GetName());
+
+	// Initialize Input State
+	CharacterInputState->Initialize(OuterCharacter);
+
+	// Execute Binding Function
+	OnStateComponentReady.Execute();
 
 	// ...
-	
 }
 
 
@@ -34,5 +53,10 @@ void UStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+UCharacterInputState* UStateComponent::GetInputState()
+{
+	return CharacterInputState;
 }
 

@@ -31,6 +31,8 @@ protected:
 	virtual void PickingItem() override;
 	virtual void MenuOnOff() override;
 
+	void BindInputFunctions();
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

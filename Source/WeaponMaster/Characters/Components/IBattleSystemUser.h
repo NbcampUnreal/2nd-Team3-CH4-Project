@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "ISkillSystemUser.generated.h"
+#include "IBattleSystemUser.generated.h"
 
 /**
  * 
  */
 UINTERFACE(BlueprintType)
-class WEAPONMASTER_API USkillSystemUser : public UInterface
+class WEAPONMASTER_API UBattleSystemUser : public UInterface
 {
 	GENERATED_BODY()
 };
 
-class WEAPONMASTER_API ISkillSystemUser
+class WEAPONMASTER_API IBattleSystemUser
 {
 	GENERATED_BODY()
 

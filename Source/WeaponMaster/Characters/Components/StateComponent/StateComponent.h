@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "States/CharacterInputState.h"
 #include "StateComponent.generated.h"
 
+DECLARE_DELEGATE(FOnStateComponentReady);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class WEAPONMASTER_API UStateComponent : public UActorComponent
@@ -16,9 +18,11 @@ public:
 	// Sets default values for this component's properties
 	UStateComponent();
 
+	FOnStateComponentReady OnStateComponentReady;
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = "true"))
-	class UCharacterInputState* InputState;
+	TObjectPtr<UCharacterInputState> CharacterInputState;
 	
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -28,5 +32,5 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
-	FORCEINLINE class UCharacterInputState* GetInputState() { return InputState; }
+	UCharacterInputState* GetInputState();
 };
