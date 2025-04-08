@@ -21,6 +21,7 @@ void UPlayerStatusWidget::NativeConstruct()
     {
         HealthBar->SetPercent(1.0f);
     }
+    HideChatMessage();
     //Test End
 }
 
@@ -29,6 +30,34 @@ void UPlayerStatusWidget::UpdateHealth(float CurrentHealth, float MaxHealth)
     if (HealthBar)
     {
         HealthBar->SetPercent(CurrentHealth / MaxHealth);
+    }
+}
+
+void UPlayerStatusWidget::UpdateChat(const FString& NewMessage)
+{
+    if (!ChatText) return;
+    if (NewMessage.IsEmpty())
+    {
+        ChatText->SetVisibility(ESlateVisibility::Hidden);
+        ChatText->SetText(FText::GetEmpty());
+        return;
+    }
+
+    ChatText->SetText(FText::FromString(NewMessage));
+    ChatText->SetVisibility(ESlateVisibility::Visible);
+
+    if (GetWorld())
+    {
+        GetWorld()->GetTimerManager().ClearTimer(ChatHideTimerHandle);
+        GetWorld()->GetTimerManager().SetTimer(ChatHideTimerHandle, this, &UPlayerStatusWidget::HideChatMessage, 5.f, false);
+    }
+}
+
+void UPlayerStatusWidget::HideChatMessage()
+{
+    if (ChatText)
+    {
+        ChatText->SetVisibility(ESlateVisibility::Hidden);
     }
 }
 
@@ -47,3 +76,4 @@ void UPlayerStatusWidget::SetThumbnail(UTexture2D* Thumbnail)
         PlayerThumbnail->SetBrushFromTexture(Thumbnail);
     }
 }
+
