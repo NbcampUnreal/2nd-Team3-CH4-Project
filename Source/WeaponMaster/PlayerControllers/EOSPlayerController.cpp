@@ -21,20 +21,22 @@ void AEOSPlayerController::BeginPlay()
         MyGI->OnProcessReturnValue.AddUObject(this, &AEOSPlayerController::HandleProcessResult);
     }
 
-    if (!IsRunningDedicatedServer())
-    {
-        UWeaponMasterGameInstance* MyGI = Cast<UWeaponMasterGameInstance>(GetGameInstance());
-        check(MyGI);
-        MyGI->Login();
-    }
-
     if (SessionLobbyWidgetClass)
     {
         SessionLobbyWidget = CreateWidget<USessionLobbyWidget>(GetWorld(), SessionLobbyWidgetClass);
         if (SessionLobbyWidget)
         {
+            FInputModeGameAndUI InputMode;
+            InputMode.SetWidgetToFocus(SessionLobbyWidget->TakeWidget());
+            InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+            InputMode.SetHideCursorDuringCapture(false);
+
+            SetInputMode(InputMode);
+            bShowMouseCursor = true;
+            
             SessionLobbyWidget->AddToViewport();
             SessionLobbyWidget->OnStartSessionClicked.AddDynamic(this, &AEOSPlayerController::OnStartSessionButtonClicked);
+            SessionLobbyWidget->OnLoginClicked.AddDynamic(this, &AEOSPlayerController::OnLoginButtonClicked);
         }
     }
 }
@@ -43,6 +45,18 @@ void AEOSPlayerController::OnStartSessionButtonClicked()
 {
     UE_LOG(LogTemp, Warning, TEXT("StartSessionButton clicked!"));
     Server_StartSession();
+}
+
+void AEOSPlayerController::OnLoginButtonClicked()
+{
+    UE_LOG(LogTemp, Warning, TEXT("StartSessionButton clicked!"));
+
+    if (!IsRunningDedicatedServer())
+    {
+        UWeaponMasterGameInstance* MyGI = Cast<UWeaponMasterGameInstance>(GetGameInstance());
+        check(MyGI);
+        MyGI->Login();
+    }
 }
 
 void AEOSPlayerController::OnNetCleanup(class UNetConnection* Connection)

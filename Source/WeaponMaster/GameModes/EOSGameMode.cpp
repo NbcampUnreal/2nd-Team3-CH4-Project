@@ -39,6 +39,7 @@ APlayerController* AEOSGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole
 
 void AEOSGameMode::Logout(AController* Exiting)
 {
+	UE_LOG(LogTemp, Display, TEXT("Logout"));
 	Super::Logout(Exiting);
 
 	FUniqueNetIdRepl UniqueNetIdRepl;
@@ -137,7 +138,8 @@ void AEOSGameMode::TravelMap()
 
 void AEOSGameMode::StartSession()
 {
-	if (AEOSGameSession* EOSSession = Cast<AEOSGameSession>(GameSessionClass))
+	UE_LOG(LogTemp, Warning, TEXT("AEOSGameMode::StartSession"));
+	if (AEOSGameSession* EOSSession = GetEOSGameSession())
 	{
 		EOSSession->StartSession();
 	}

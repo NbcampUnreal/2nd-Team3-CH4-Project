@@ -10,9 +10,19 @@ void USessionLobbyWidget::NativeConstruct()
 	{
 		StartSessionButton->OnClicked.AddDynamic(this, &USessionLobbyWidget::HandleStartSessionButtonClicked);
 	}
+
+	if (LoginButton)
+	{
+		LoginButton->OnClicked.AddDynamic(this, &USessionLobbyWidget::HandleLoginButtonClicked);
+	}
 }
 
 void USessionLobbyWidget::HandleStartSessionButtonClicked()
 {
 	OnStartSessionClicked.Broadcast();
+}
+
+void USessionLobbyWidget::HandleLoginButtonClicked()
+{
+	OnLoginClicked.Broadcast();
 }

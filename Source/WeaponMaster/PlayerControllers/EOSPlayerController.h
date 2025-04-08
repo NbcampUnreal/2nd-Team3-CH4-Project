@@ -41,4 +41,7 @@ private:
 
 	UFUNCTION()
 	void OnStartSessionButtonClicked();
+
+	UFUNCTION()
+	void OnLoginButtonClicked();
 };
