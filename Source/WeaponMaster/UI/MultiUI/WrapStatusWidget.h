@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "WrapStatusWidget.generated.h"
 
-class UVerticalBox;
+class UHorizontalBox;
 class UPlayerStatusWidget;
 
 UCLASS()
@@ -20,19 +20,19 @@ public:
 	void InitializeDummyPlayerStatus(int32 TotalPlayers, int32 MyTeamNum);
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	UVerticalBox* GetLeftTeamContainer() const { return LeftTeamContainer; }
+	UHorizontalBox* GetLeftTeamContainer() const { return LeftTeamContainer; }
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	UVerticalBox* GetRightTeamContainer() const { return RightTeamContainer; }
+	UHorizontalBox* GetRightTeamContainer() const { return RightTeamContainer; }
 protected:
 	/*UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UHorizontalBox> PlayerContainer;*/
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UVerticalBox> LeftTeamContainer;
+	TObjectPtr<UHorizontalBox> LeftTeamContainer;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UVerticalBox> RightTeamContainer;
+	TObjectPtr<UHorizontalBox> RightTeamContainer;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UPlayerStatusWidget> PlayerStatusWidgetClass;

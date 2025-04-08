@@ -2,8 +2,8 @@
 
 
 #include "WrapStatusWidget.h"
-#include "Components/VerticalBox.h"
-#include "Components/VerticalBoxSlot.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
 #include "../CommonUI/PlayerStatusWidget.h"
 #include "GameFramework/GameStateBase.h"
 #include "Engine/World.h"
@@ -81,7 +81,7 @@ void UWrapStatusWidget::InitializeDummyPlayerStatus(int32 TotalPlayers, int32 My
     const int32 Team1Target = FMath::CeilToInt(TotalPlayers / 2.0f);
     const int32 Team2Target = TotalPlayers - Team1Target;
 
-    auto ApplySlotSettings = [this](UVerticalBoxSlot* BoxSlot)
+    auto ApplySlotSettings = [this](UHorizontalBoxSlot* BoxSlot)
         {
             if (BoxSlot)
             {
@@ -107,7 +107,7 @@ void UWrapStatusWidget::InitializeDummyPlayerStatus(int32 TotalPlayers, int32 My
             NewItem->SetID(i);
             NewItem->SetVisibility(ESlateVisibility::Visible);
 
-            if (UVerticalBoxSlot* BoxSlot = LeftTeamContainer->AddChildToVerticalBox(NewItem))
+            if (UHorizontalBoxSlot* BoxSlot = LeftTeamContainer->AddChildToHorizontalBox(NewItem))
             {
                 ApplySlotSettings(BoxSlot);
                 UE_LOG(LogTemp, Warning, TEXT("Dummy Player %d가 LeftTeamContainer에 추가됨"), i + 1);
@@ -126,7 +126,7 @@ void UWrapStatusWidget::InitializeDummyPlayerStatus(int32 TotalPlayers, int32 My
             NewItem->SetVisibility(ESlateVisibility::Visible);
             NewItem->UpdateHealth(10.f * i, 100.f);
             NewItem->SetID(i + 1 + Team1Target);
-            if (UVerticalBoxSlot* BoxSlot = RightTeamContainer->AddChildToVerticalBox(NewItem))
+            if (UHorizontalBoxSlot* BoxSlot = RightTeamContainer->AddChildToHorizontalBox(NewItem))
             {
                 ApplySlotSettings(BoxSlot);
                 UE_LOG(LogTemp, Warning, TEXT("Dummy Player %d가 RightTeamContainer에 추가됨"), i + 1 + Team1Target);
