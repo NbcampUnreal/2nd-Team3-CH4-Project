@@ -31,4 +31,8 @@ protected:
 	//타겟 감지
 	UFUNCTION()
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
+
+	//가장 가까운 적을 목표로 삼기
+	UFUNCTION()
+	void EvaluateTargetPriority();
 };

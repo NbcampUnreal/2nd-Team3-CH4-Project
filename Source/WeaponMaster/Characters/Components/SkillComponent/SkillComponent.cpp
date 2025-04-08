@@ -1,4 +1,4 @@
-﻿#include "SkillComponent.h"
+#include "SkillComponent.h"
 #include "WeaponMaster/Characters/TestCharacter.h"
 #include "WeaponMaster/Data/ItemDataAsset.h"
 #include "Net/UnrealNetwork.h"
@@ -22,7 +22,7 @@ void USkillComponent::BeginPlay()
     Super::BeginPlay();
     
     // 소유자 캐릭터 캐싱
-    OwnerCharacter = Cast<ATestCharacter>(GetOwner());
+    OwnerCharacter = Cast<ACharacter>(GetOwner());
     
     // 쿨다운 업데이트 타이머 설정 (0.1초마다)
     APawn* OwnerPawn = Cast<APawn>(GetOwner());

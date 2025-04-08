@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -177,7 +177,7 @@ protected:
     
     // 소유 캐릭터 캐싱
     UPROPERTY()
-    ATestCharacter* OwnerCharacter;
+    ACharacter* OwnerCharacter;
     
     // 현재 장착된 스킬 목록
     UPROPERTY(Replicated)

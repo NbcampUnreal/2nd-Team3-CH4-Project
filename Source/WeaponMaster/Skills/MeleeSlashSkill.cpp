@@ -103,7 +103,6 @@ int32 UMeleeSlashSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors,
                 );
             }
         }
-        
         ProcessedCount++;
     }
     
