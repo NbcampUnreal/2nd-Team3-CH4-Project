@@ -6,6 +6,7 @@
 #include "ChoiceWidget.h"
 #include "SelectWidget.h"
 #include "Engine/Engine.h"
+#include "Kismet/GameplayStatics.h"
 
 void AMainMenuHUD::BeginPlay()
 {
@@ -68,11 +69,13 @@ void AMainMenuHUD::HandleSingleClicked()
 void AMainMenuHUD::HandleCoopClicked()
 {
     LogMessage("In Hud HandleCoopClicked");
+    UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_CoopLobby")));
 }
 
 void AMainMenuHUD::HandleVsClicked()
 {
     LogMessage("In Hud HandleVsClicked");
+    UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_VSLobby")));
 }
 
 void AMainMenuHUD::HandleShopClicked()
@@ -82,7 +85,11 @@ void AMainMenuHUD::HandleShopClicked()
 
 void AMainMenuHUD::HandleExitClicked()
 {
-    LogMessage("In Hud HandleExitClicked");
+    APlayerController* PC = GetOwningPlayerController();
+    if (PC)
+    {
+        PC->ConsoleCommand("quit");
+    }
 }
 
 void AMainMenuHUD::ShowChoiceMenu()
@@ -128,8 +135,14 @@ void AMainMenuHUD::HideChoiceMenu()
 
 void AMainMenuHUD::HandleNextClicked()
 {
-    //HideChoiceMenu();
-    LogMessage("아직 미구현");
+    PlaySound(SelectSound);
+    /**플레이어 단일만 한 맵으로 */
+    if (APlayerController* PC = GetOwningPlayerController())
+    {
+        PC->ClientTravel(TEXT("Test_TravelBong"), ETravelType::TRAVEL_Absolute);
+    }
+    /**플레이어 모두를 한 맵으로 */
+    //UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_TravelBong")));
 }
 
 void AMainMenuHUD::HandlePrevClicked()
@@ -137,4 +150,11 @@ void AMainMenuHUD::HandlePrevClicked()
     HideChoiceMenu();
     ShowMainMenu();
 }
-
+void AMainMenuHUD::PlaySound(TObjectPtr<USoundBase> Sound)
+{
+    if (!ensure(Sound))
+    {
+        return;
+    }
+    UGameplayStatics::PlaySound2D(this, Sound);
+}

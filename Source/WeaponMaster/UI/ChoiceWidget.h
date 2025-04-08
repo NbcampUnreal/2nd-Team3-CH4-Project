@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "WidgetStateData.h"
+#include "../UIData/WidgetStateData.h"
 #include "ChoiceWidget.generated.h"
 
 class UButton;
@@ -24,7 +24,7 @@ class WEAPONMASTER_API UChoiceWidget : public UUserWidget
 	GENERATED_BODY()
 public:
 	virtual void NativeConstruct() override;
-
+	
 	FOnChoiceAction NextButtonClicked;
 	FOnChoiceAction PrevButtonClicked;
 	TArray<TObjectPtr<USelectWidget>> GetSelectWidgets();
