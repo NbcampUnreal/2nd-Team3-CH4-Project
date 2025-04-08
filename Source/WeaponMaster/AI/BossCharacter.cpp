@@ -193,7 +193,7 @@ void ABossCharacter::ExecuteForwardCharge()
 void ABossCharacter::ApplyAreaSkill()
 {
 	// 1. 방향 돌리기
-	SetActorRotation(GetActorRotation() + FRotator(0, 90.f, 0));
+	SetActorRotation(FRotator(0, 90.f, 0));
 
 	// 2. 기모으기 애니메이션
 	//Multicast_PlayMontage(Phase2ChargeMontage);
