@@ -21,10 +21,22 @@ public:
     void UpdateHealth(float CurrentHealth, float MaxHealth);
 
     UFUNCTION()
+    void UpdateChat(const FString& NewMessage);
+
+    UFUNCTION()
+    void HideChatMessage();
+
+    UFUNCTION()
     void SetPlayerName(const FString& Name);
 
     UFUNCTION()
     void SetThumbnail(UTexture2D* Thumbnail);
+
+    UFUNCTION(BlueprintCallable, Category = "PlayerStatus")
+    void SetID(int32 TestInt);
+
+    UFUNCTION(BlueprintCallable, Category = "PlayerStatus")
+    int32 GetCharacterID() const { return CharacterID; }
 
 protected:
     // UI 구성요소
@@ -32,8 +44,16 @@ protected:
     TObjectPtr<UTextBlock> PlayerNameText;
 
     UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> ChatText;
+
+    UPROPERTY(meta = (BindWidget))
     TObjectPtr<UProgressBar> HealthBar;
     
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UImage> PlayerThumbnail;
+
+    //Test
+    INT32 CharacterID;
+
+    FTimerHandle ChatHideTimerHandle;
 };
