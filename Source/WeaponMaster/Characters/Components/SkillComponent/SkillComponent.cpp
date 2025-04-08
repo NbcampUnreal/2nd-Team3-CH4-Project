@@ -1,9 +1,11 @@
-﻿#include "SkillComponent.h"
+#include "SkillComponent.h"
 #include "WeaponMaster/Characters/TestCharacter.h"
 #include "WeaponMaster/Data/ItemDataAsset.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"
 #include "TimerManager.h"
+#include "WeaponMaster/Characters/Components/ItemComponent/ItemComponent.h"
+#include "WeaponMaster/Data/SkillDataAsset.h"
 #include "WeaponMaster/Skills/BaseSkill.h"
 
 USkillComponent::USkillComponent()
@@ -11,6 +13,8 @@ USkillComponent::USkillComponent()
     PrimaryComponentTick.bCanEverTick = true;
     SetIsReplicatedByDefault(true);
     bWantsInitializeComponent = true;
+
+    OpportunityWindowDuration = 2.0f;
 }
 
 void USkillComponent::BeginPlay()
@@ -18,7 +22,7 @@ void USkillComponent::BeginPlay()
     Super::BeginPlay();
     
     // 소유자 캐릭터 캐싱
-    OwnerCharacter = Cast<ATestCharacter>(GetOwner());
+    OwnerCharacter = Cast<ACharacter>(GetOwner());
     
     // 쿨다운 업데이트 타이머 설정 (0.1초마다)
     APawn* OwnerPawn = Cast<APawn>(GetOwner());
@@ -60,6 +64,21 @@ void USkillComponent::InitializeSkillsFromItem(UItemDataAsset* NewItem)
     }
     Skills.Empty();
     
+    // 마지막으로 사용된 스킬 인덱스 배열 초기화
+    LastUsedSkillIndices.Empty();
+    // 그룹의 리셋 준비 상태 배열 초기화
+    GroupReadyToReset.Empty();
+    // 그룹 스킬 오프셋 배열 초기화
+    GroupSkillOffsets.Empty();
+    // 캐싱된 스킬 그룹 배열 초기화
+    CachedSkillGroups.Empty();
+
+    //기회시간 초기화
+    OpportunityTimers.Empty();
+    IsInOpportunityWindow.Empty();
+    // 아이템 데이터 캐싱
+    CachedItemData = NewItem;
+    
     // 아이템이 없으면 스킬 초기화만 하고 리턴
     if (!NewItem)
     {
@@ -68,17 +87,36 @@ void USkillComponent::InitializeSkillsFromItem(UItemDataAsset* NewItem)
         return;
     }
     
-    TArray<TSubclassOf<UBaseSkill>> SkillClasses = NewItem->SkillClasses;
+    // 아이템의 스킬 그룹 캐싱
+    CachedSkillGroups = NewItem->SkillGroups;
     
-    // 스킬 생성 및 초기화
-    for (TSubclassOf<UBaseSkill> SkillClass : SkillClasses)
+    // 각 스킬 그룹 처리
+    int32 CurrentSkillOffset = 0;
+    
+    for (int32 GroupIndex = 0; GroupIndex < CachedSkillGroups.Num(); ++GroupIndex)
     {
-        if (SkillClass)
+        const FSkillGroupArray& SkillGroup = CachedSkillGroups[GroupIndex];
+        
+        // 그룹의 시작 인덱스 저장
+        GroupSkillOffsets.Add(CurrentSkillOffset);
+        
+        // 상태 배열 초기화
+        LastUsedSkillIndices.Add(0);           // 각 그룹은 0번 인덱스부터 시작
+        GroupReadyToReset.Add(true);           // 초기 상태는 리셋 준비 완료
+        OpportunityTimers.Add(0.0f);           // 기회 시간 타이머 초기화
+        IsInOpportunityWindow.Add(false);      // 기본적으로 기회 시간 모드 비활성화
+        
+        // 그룹 내 각 스킬 클래스 처리
+        for (TSubclassOf<UBaseSkill> SkillClass : SkillGroup.SkillClasses)
         {
-            UBaseSkill* NewSkill = CreateSkill(SkillClass, NewItem);
-            if (NewSkill)
+            if (SkillClass)
             {
-                Skills.Add(NewSkill);
+                UBaseSkill* NewSkill = CreateSkill(SkillClass, NewItem);
+                if (NewSkill)
+                {
+                    Skills.Add(NewSkill);
+                    CurrentSkillOffset++;
+                }
             }
         }
     }
@@ -88,6 +126,21 @@ void USkillComponent::InitializeSkillsFromItem(UItemDataAsset* NewItem)
     
     // 클라이언트에게 전송
     Client_UpdateSkills(Skills);
+}
+
+UBaseSkill* USkillComponent::GetActiveSkill() const
+{
+    // 모든 스킬을 순회하며 활성화된 스킬 찾기
+    for (UBaseSkill* Skill : Skills)
+    {
+        if (Skill && Skill->IsSkillActive())
+        {
+            return Skill;
+        }
+    }
+    
+    // 활성화된 스킬이 없으면 nullptr 반환
+    return nullptr;
 }
 
 UBaseSkill* USkillComponent::CreateSkill(TSubclassOf<UBaseSkill> SkillClass, UItemDataAsset* OwnerItem)
@@ -108,23 +161,89 @@ UBaseSkill* USkillComponent::CreateSkill(TSubclassOf<UBaseSkill> SkillClass, UIt
     return NewSkill;
 }
 
-bool USkillComponent::ExecuteSkill(int32 SkillIndex)
+
+
+bool USkillComponent::ExecuteSkill(int32 GroupIndex)
 {
     // 클라이언트에서 호출되면 서버로 전달
     if (GetOwnerRole() < ROLE_Authority)
     {
-        Server_ExecuteSkill(SkillIndex);
+        Server_ExecuteSkill(GroupIndex);
         return true; // 클라이언트는 서버의 응답을 기다림
     }
     
+    // 그룹 인덱스 유효성 검사
+    if (!CachedSkillGroups.IsValidIndex(GroupIndex) || !GroupSkillOffsets.IsValidIndex(GroupIndex))
+    {
+        return false;
+    }
+    
+    const FSkillGroupArray& SkillGroup = CachedSkillGroups[GroupIndex];
+    
+    // 스킬 그룹이 비어있으면 실패
+    if (SkillGroup.SkillClasses.Num() == 0)
+    {
+        return false;
+    }
+    
+    int32 CurrentIndex = LastUsedSkillIndices[GroupIndex];
+    int32 NextIndex = CurrentIndex;
+    
+    // 현재 기회 시간 모드인지 확인
+    if (IsInOpportunityWindow[GroupIndex])
+    {
+        // 기회 시간 모드에서는 다음 스킬로 이동
+        NextIndex = (CurrentIndex + 1) % SkillGroup.SkillClasses.Num();
+    }
+    else
+    {
+        // 기회 시간 모드가 아니면 항상 0번 스킬 사용
+        NextIndex = 0;
+    }
+    
+    // 그룹 내 시작 오프셋 가져오기
+    int32 SkillOffset = GroupSkillOffsets[GroupIndex];
+    
+    // 실제 Skills 배열에서의 인덱스
+    int32 ActualSkillIndex = SkillOffset + NextIndex;
+    
     // 스킬 인덱스 유효성 검사
-    if (!Skills.IsValidIndex(SkillIndex) || !Skills[SkillIndex])
+    if (!Skills.IsValidIndex(ActualSkillIndex) || !Skills[ActualSkillIndex])
     {
         return false;
     }
     
     // 스킬 사용 시도
-    return Skills[SkillIndex]->ActivateSkill();
+    bool Success = Skills[ActualSkillIndex]->ActivateSkill();
+    
+    // 스킬 실행 성공 시 상태 업데이트
+    if (Success)
+    {
+        // 현재 인덱스 업데이트
+        LastUsedSkillIndices[GroupIndex] = NextIndex;
+        
+        // 다음 스킬이 있는지 확인 (마지막 스킬이 아닌 경우)
+        bool HasNextSkill = (NextIndex + 1) < SkillGroup.SkillClasses.Num();
+        
+        if (HasNextSkill)
+        {
+            // 기회 시간 시작
+            IsInOpportunityWindow[GroupIndex] = true;
+            OpportunityTimers[GroupIndex] = OpportunityWindowDuration;
+            UE_LOG(LogTemp, Log, TEXT("그룹 %d의 기회 시간 시작 (%f초), 다음 스킬 인덱스: %d"), 
+                GroupIndex, OpportunityWindowDuration, NextIndex + 1);
+        }
+        else
+        {
+            // 마지막 스킬이면 기회 시간 종료 및 리셋
+            IsInOpportunityWindow[GroupIndex] = false;
+            LastUsedSkillIndices[GroupIndex] = 0;
+            GroupReadyToReset[GroupIndex] = true;
+            UE_LOG(LogTemp, Log, TEXT("그룹 %d의 마지막 스킬 사용됨, 다음 사용 시 첫 번째 스킬부터 시작합니다."), GroupIndex);
+        }
+    }
+    
+    return Success;
 }
 
 /**
@@ -245,9 +364,9 @@ float USkillComponent::GetSkillRemainingCooldown(int32 SkillIndex) const
 // 쿨타운을 타이머로 계속 업데이트
 void USkillComponent::UpdateSkillCooldowns()
 {
-    // 모든 스킬의 쿨다운 업데이트
-    float DeltaTime = 0.1f; // 타이머 간격과 동일하게 설정
+    float DeltaTime = 0.1f;  // 타이머 간격
     
+    // 모든 스킬 쿨다운 업데이트
     for (UBaseSkill* Skill : Skills)
     {
         if (Skill)
@@ -255,6 +374,80 @@ void USkillComponent::UpdateSkillCooldowns()
             Skill->UpdateCooldown(DeltaTime);
         }
     }
+    
+    // 기회 시간 타이머 업데이트
+    for (int32 GroupIndex = 0; GroupIndex < OpportunityTimers.Num(); ++GroupIndex)
+    {
+        // 이 그룹이 기회 시간 모드인 경우
+        if (IsInOpportunityWindow[GroupIndex])
+        {
+            // 타이머 감소
+            OpportunityTimers[GroupIndex] = FMath::Max(0.0f, OpportunityTimers[GroupIndex] - DeltaTime);
+            
+            // 타이머가 끝났으면 기회 시간 종료
+            if (OpportunityTimers[GroupIndex] <= 0.0f)
+            {
+                IsInOpportunityWindow[GroupIndex] = false;
+                LastUsedSkillIndices[GroupIndex] = 0; // 0번 스킬로 리셋
+                GroupReadyToReset[GroupIndex] = true;
+                
+                UE_LOG(LogTemp, Log, TEXT("그룹 %d의 기회 시간 종료, 다음 사용 시 첫 번째 스킬부터 시작합니다."), GroupIndex);
+            }
+        }
+    }
+}
+
+int32 USkillComponent::GetNextSkillIndexInGroup(int32 GroupIndex)
+{
+    // 그룹 인덱스 유효성 검사
+    if (!LastUsedSkillIndices.IsValidIndex(GroupIndex) || !CachedSkillGroups.IsValidIndex(GroupIndex))
+    {
+        return 0;
+    }
+    
+    const FSkillGroupArray& SkillGroup = CachedSkillGroups[GroupIndex];
+    
+    // 그룹이 비어있으면 0 반환
+    if (SkillGroup.SkillClasses.Num() == 0)
+    {
+        return 0;
+    }
+    
+    int32 CurrentIndex = LastUsedSkillIndices[GroupIndex];
+    
+    // 그룹의 시작 인덱스 가져오기
+    int32 SkillOffset = GroupSkillOffsets[GroupIndex];
+    
+    // 실제 Skills 배열에서의 인덱스
+    int32 ActualSkillIndex = SkillOffset + CurrentIndex;
+    
+    // 해당 스킬이 유효하고 쿨다운이 완료되었는지 확인
+    if (Skills.IsValidIndex(ActualSkillIndex) && Skills[ActualSkillIndex] && Skills[ActualSkillIndex]->IsSkillReady())
+    {
+        // 쿨다운이 완료되었다면 첫 번째 스킬로 리셋
+        if (GroupReadyToReset[GroupIndex])
+        {
+            LastUsedSkillIndices[GroupIndex] = 0;
+            return 0;
+        }
+    }
+    
+    // 다음 스킬 인덱스 계산
+    int32 NextIndex = (CurrentIndex + 1) % SkillGroup.SkillClasses.Num();
+    
+    // 그룹의 마지막 스킬이면 리셋 플래그 설정
+    if (NextIndex == 0)
+    {
+        GroupReadyToReset[GroupIndex] = true;
+    }
+    else
+    {
+        GroupReadyToReset[GroupIndex] = false;
+    }
+    
+    // 다음 인덱스 저장 및 반환
+    LastUsedSkillIndices[GroupIndex] = NextIndex;
+    return NextIndex;
 }
 
 void USkillComponent::Server_InitializeSkills_Implementation(UItemDataAsset* NewItem)
@@ -263,10 +456,10 @@ void USkillComponent::Server_InitializeSkills_Implementation(UItemDataAsset* New
     InitializeSkillsFromItem(NewItem);
 }
 
-void USkillComponent::Server_ExecuteSkill_Implementation(int32 SkillIndex)
+void USkillComponent::Server_ExecuteSkill_Implementation(int32 GroupIndex)
 {
     // 서버에서 스킬 실행
-    ExecuteSkill(SkillIndex);
+    ExecuteSkill(GroupIndex);
 }
 
 void USkillComponent::Client_UpdateSkills_Implementation(const TArray<UBaseSkill*>& UpdatedSkills)
@@ -282,4 +475,94 @@ void USkillComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     
     // 스킬 목록 복제
     DOREPLIFETIME(USkillComponent, Skills);
+}
+
+void USkillComponent::InitializeSkills(USkillDataAsset* NewSkill)
+{
+    // 클라이언트에서 호출되면 서버로 요청
+    if (GetOwnerRole() < ROLE_Authority)
+    {
+        Server_InitializeSkillsFromDataAsset(NewSkill);
+        return;
+    }
+    
+    // 기존 스킬 정리
+    for (UBaseSkill* Skill : Skills)
+    {
+        if (Skill)
+        {
+            Skill->ConditionalBeginDestroy();
+        }
+    }
+    Skills.Empty();
+    
+    // 마지막으로 사용된 스킬 인덱스 배열 초기화
+    LastUsedSkillIndices.Empty();
+    // 그룹의 리셋 준비 상태 배열 초기화
+    GroupReadyToReset.Empty();
+    // 그룹 스킬 오프셋 배열 초기화
+    GroupSkillOffsets.Empty();
+    // 캐싱된 스킬 그룹 배열 초기화
+    CachedSkillGroups.Empty();
+
+    // 기회시간 초기화
+    OpportunityTimers.Empty();
+    IsInOpportunityWindow.Empty();
+    
+    // 아이템 데이터는 null로 설정 (스킬만 사용하므로)
+    CachedItemData = nullptr;
+    
+    // 스킬 데이터가 없으면 스킬 초기화만 하고 리턴
+    if (!NewSkill)
+    {
+        OnSkillsUpdated.Broadcast(Skills);
+        Client_UpdateSkills(Skills);
+        return;
+    }
+    
+    // 스킬의 그룹 캐싱
+    CachedSkillGroups = NewSkill->SkillGroups;
+    
+    // 각 스킬 그룹 처리
+    int32 CurrentSkillOffset = 0;
+    
+    for (int32 GroupIndex = 0; GroupIndex < CachedSkillGroups.Num(); ++GroupIndex)
+    {
+        const FSkillGroupArray& SkillGroup = CachedSkillGroups[GroupIndex];
+        
+        // 그룹의 시작 인덱스 저장
+        GroupSkillOffsets.Add(CurrentSkillOffset);
+        
+        // 상태 배열 초기화
+        LastUsedSkillIndices.Add(0);           // 각 그룹은 0번 인덱스부터 시작
+        GroupReadyToReset.Add(true);           // 초기 상태는 리셋 준비 완료
+        OpportunityTimers.Add(0.0f);           // 기회 시간 타이머 초기화
+        IsInOpportunityWindow.Add(false);      // 기본적으로 기회 시간 모드 비활성화
+        
+        // 그룹 내 각 스킬 클래스 처리
+        for (TSubclassOf<UBaseSkill> SkillClass : SkillGroup.SkillClasses)
+        {
+            if (SkillClass)
+            {
+                UBaseSkill* NewSkillObj = CreateSkill(SkillClass, nullptr);
+                if (NewSkillObj)
+                {
+                    Skills.Add(NewSkillObj);
+                    CurrentSkillOffset++;
+                }
+            }
+        }
+    }
+    
+    // 스킬 업데이트 이벤트 발생
+    OnSkillsUpdated.Broadcast(Skills);
+    
+    // 클라이언트에게 전송
+    Client_UpdateSkills(Skills);
+}
+
+// 스킬 데이터 애셋으로 초기화하는 서버 RPC
+void USkillComponent::Server_InitializeSkillsFromDataAsset_Implementation(USkillDataAsset* NewSkill)
+{
+    InitializeSkills(NewSkill);
 }

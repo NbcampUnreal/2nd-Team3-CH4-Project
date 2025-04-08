@@ -20,48 +20,47 @@ class WEAPONMASTER_API AWeaponMasterController : public APlayerController
 public:
 	AWeaponMasterController();
 
-	// Battle IMC, IA
+	// Battle IMC
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<UInputMappingContext> BattleMappingContext;
+	TObjectPtr<UInputMappingContext> DefaultMappingContext;
+
+	// Template Input Actions
+	/** Jump Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> JumpAction;
+	
+	/** Crouch/Drop Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> CrouchDropAction;
+	
+	/** Move Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> MoveAction;
+	
+	/** Jump Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> DashAction;
+	
+	// Additional Input Actions
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> IdentityAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* HorizontalInputAction;
+	TObjectPtr<UInputAction> DefenceAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> WeakAttackAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> StrongAttackAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* VerticalInputAction;
+	TObjectPtr<UInputAction> PickingItemAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* WeakAttackAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* StrongAttackAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* SpecialAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* DefenceAction;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* DashAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* PickingItemAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* MenuOnOffAction;
+	TObjectPtr<UInputAction> MenuOnOffAction;
 
 protected:
 	virtual void BeginPlay() override;
-
-	// Input Binding Functions
-	void HorizontalInput(const FInputActionValue& Value);
-	void VerticalInput(const FInputActionValue& Value);
-	void WeakAttack(const FInputActionValue& Value);
-	void StrongAttack(const FInputActionValue& Value);
-	void SpecialAttack(const FInputActionValue& Value);
-	void Defence(const FInputActionValue& Value);
-	void Dash(const FInputActionValue& Value);
-	void PickingItem(const FInputActionValue& Value);
-	void MenuOnOff(const FInputActionValue& Value);
+	
 };

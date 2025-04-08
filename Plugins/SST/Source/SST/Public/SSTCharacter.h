@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ISSTInputBindFunctions.h"
 #include "GameFramework/Character.h"
 #include "SSTCharacter.generated.h"
 
@@ -15,7 +16,7 @@
  * USSTCharacterMovementComponent should remain the sole authority on movement for this character. 
  */
 UCLASS(config=Game)
-class SST_API ASSTCharacter : public ACharacter
+class SST_API ASSTCharacter : public ACharacter, public ISSTInputBindFunctions
 {
 	GENERATED_BODY()
 
@@ -26,62 +27,45 @@ class SST_API ASSTCharacter : public ACharacter
 	/** Camera Component */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UFollowCameraComponent> FollowCamera;
-	
-	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
-
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> JumpAction;
-
-	/** Crouch/Drop Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> CrouchDropAction;
-
-	/** Move Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> MoveAction;
-
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> DashAction;
 
 	/** Time in seconds after dropping through a platform before the button becomes usable for jump input */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
 	float DropThroughPlatformJumpLockout = .2f;
 
 private:
-	bool IsJumpStale = false;
+	bool IsJumpState = false;
 
 public:
 	ASSTCharacter(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	/** Called for movement input */
-	void Move(const struct FInputActionValue& Value);
-
+	virtual void Move(const struct FInputActionValue& Value) override;
+	
 	/** Called for crouch/drop input */
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Input")
-	void CrouchDrop();
-
+	// UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Input")
+	virtual void CrouchDrop() override;
+	
 	/** Called when releasing crouch/drop input */
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Input")
- 	void StopCrouchDrop();
-
+	// UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Input")
+ 	virtual void StopCrouchDrop() override;
+	
 	/** Called when jump pressed, which could also be a drop-down command */
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Input")
-	void JumpOrDrop();
+	// UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Input")
+	virtual void JumpOrDrop() override;
 
+	/** Called when releasing the jump button */
+	// UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
+	virtual void ReleaseJump() override;
+	
 	/** Called for dash input */
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Input")
-	void Dash();
+	// UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Input")
+	virtual void Dash() override;
 
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
-	// To add mapping context
 	virtual void BeginPlay();
 
 public:
@@ -92,9 +76,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, BlueprintNativeEvent, Category = "Movement")
 	bool CanDash() const;
 
-	/** Called when releasing the jump button */
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
-	void ReleaseJump();
+	
 
 	/* Overrides to work with custom movement modes */
 	virtual bool CanCrouch() const override; 

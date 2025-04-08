@@ -47,7 +47,7 @@ public:
 protected:
 	// 상호작용 UI 위젯 클래스
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
-	TSubclassOf<class UUserWidget> InteractionWidgetClass;
+	TSubclassOf<UUserWidget> InteractionWidgetClass;
     
 	// 현재 표시 중인 위젯
 	UPROPERTY()

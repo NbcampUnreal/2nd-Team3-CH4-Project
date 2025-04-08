@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SkillGroupArray.h"
 #include "Engine/DataAsset.h"
 #include "WeaponMaster/Skills/BaseSkill.h"
 #include "ItemDataAsset.generated.h"
@@ -66,7 +67,7 @@ public:
 	TSoftObjectPtr<USoundBase> EquipSound;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skills")
-	TArray<TSubclassOf<UBaseSkill>> SkillClasses;
+	TArray<FSkillGroupArray> SkillGroups;
 	
 	// DataAsset 타입 오버라이드
 	virtual FPrimaryAssetId GetPrimaryAssetId() const override;

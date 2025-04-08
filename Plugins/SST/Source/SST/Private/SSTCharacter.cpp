@@ -34,38 +34,13 @@ void ASSTCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
-
 	// Inform movement component of our initial orientation
 	SSTCharacterMovementComponent->SetFacingRight(GetActorForwardVector().X > 0);
 }
 
 void ASSTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
-
-		//Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASSTCharacter::JumpOrDrop);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ASSTCharacter::ReleaseJump);
-
-		//Crouching/Dropping
-		EnhancedInputComponent->BindAction(CrouchDropAction, ETriggerEvent::Triggered, this, &ASSTCharacter::CrouchDrop);
-		EnhancedInputComponent->BindAction(CrouchDropAction, ETriggerEvent::Completed, this, &ASSTCharacter::StopCrouchDrop);
-
-		//Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASSTCharacter::Move);
-
-		//Dashing
-		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Started, this, &ASSTCharacter::Dash);
-	}
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
 
@@ -78,7 +53,7 @@ void ASSTCharacter::Move(const FInputActionValue& Value)
 	}
 }
 
-void ASSTCharacter::JumpOrDrop_Implementation()
+void ASSTCharacter::JumpOrDrop()
 {
 	if (bIsCrouched) // attempt to drop through platform, if any
 	{
@@ -90,7 +65,7 @@ void ASSTCharacter::JumpOrDrop_Implementation()
 	}
 }
 
-void ASSTCharacter::CrouchDrop_Implementation()
+void ASSTCharacter::CrouchDrop()
 {
 	if (CanCrouch())
 	{
@@ -98,7 +73,7 @@ void ASSTCharacter::CrouchDrop_Implementation()
 	}
 }
 
-void ASSTCharacter::StopCrouchDrop_Implementation()
+void ASSTCharacter::StopCrouchDrop()
 {
 	UnCrouch();
 }
@@ -111,12 +86,12 @@ bool ASSTCharacter::CanDash_Implementation() const
 	return true;
 }
 
-void ASSTCharacter::Dash_Implementation()
+void ASSTCharacter::Dash()
 {
 	SSTCharacterMovementComponent->WantsToDash = true;
 }
 
-void ASSTCharacter::ReleaseJump_Implementation()
+void ASSTCharacter::ReleaseJump()
 {
 	StopJumping();
 }
@@ -132,7 +107,7 @@ bool ASSTCharacter::CanCrouch() const
 
 void ASSTCharacter::StopJumping()
 {
-	IsJumpStale = false;
+	IsJumpState = false;
 	Super::StopJumping();
 }
 
@@ -168,9 +143,9 @@ void ASSTCharacter::CheckJumpInput(float DeltaTime)
 
 	if (SSTCharacterMovementComponent)
 	{
-		if (bPressedJump && (IsJumpProvidingForce() || !IsJumpStale))
+		if (bPressedJump && (IsJumpProvidingForce() || !IsJumpState))
 		{
-			IsJumpStale = true;
+			IsJumpState = true;
 
 			if (GetWorld()->GetTimeSeconds() - SSTCharacterMovementComponent->GetLastDropThroughPlatformTime() > DropThroughPlatformJumpLockout)
 			{
