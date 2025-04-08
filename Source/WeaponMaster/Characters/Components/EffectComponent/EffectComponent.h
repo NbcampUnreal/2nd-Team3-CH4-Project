@@ -4,17 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "HitReactComponent.generated.h"
-
+#include "EffectComponent.generated.h"
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class WEAPONMASTER_API UHitReactComponent : public UActorComponent
+class WEAPONMASTER_API UEffectComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this component's properties
-	UHitReactComponent();
+	UEffectComponent();
 
 protected:
 	// Called when the game starts
