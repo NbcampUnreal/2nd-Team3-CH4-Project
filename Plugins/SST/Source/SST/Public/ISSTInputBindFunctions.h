@@ -6,6 +6,7 @@
 #include "UObject/Interface.h"
 #include "ISSTInputBindFunctions.generated.h"
 
+struct FInputActionValue;
 /**
  * 
  */
@@ -18,9 +19,10 @@ class SST_API USSTInputBindFunctions : public UInterface
 class SST_API ISSTInputBindFunctions
 {
 	GENERATED_BODY()
+	
 public:
 	/** Called for movement input */
-	virtual void Move(const struct FInputActionValue& Value) = 0;
+	virtual void Move(const FInputActionValue& Value) = 0;
 	virtual void CrouchDrop() = 0;
 	virtual void StopCrouchDrop() = 0;
 	virtual void JumpOrDrop() = 0;

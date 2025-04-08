@@ -12,6 +12,7 @@
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
 #include "InputActionValue.h"
+#include "Characters/Components/StateComponent/StateComponent.h"
 #include "WeaponMaster/PlayerControllers/WeaponMasterController.h"
 
 // Sets default values
@@ -20,6 +21,9 @@ ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectIniti
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	// StateComponent
+	StateComponent = CreateDefaultSubobject<UStateComponent>(TEXT("StateComponent"));
 
 	// CharacterMovement Constants Setting
 	GetCharacterMovement()->AirControl = 1.0f;
@@ -167,32 +171,32 @@ void ABaseBattleCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	
 }
 
-void ABaseBattleCharacter::WeakAttack(const FInputActionValue& Value)
+void ABaseBattleCharacter::WeakAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::WeakAttack !"));
 }
 
-void ABaseBattleCharacter::StrongAttack(const FInputActionValue& Value)
+void ABaseBattleCharacter::StrongAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::StrongAttack !"));
 }
 
-void ABaseBattleCharacter::Identity(const FInputActionValue& Value)
+void ABaseBattleCharacter::Identity()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Identity !"));
 }
 
-void ABaseBattleCharacter::Defence(const FInputActionValue& Value)
+void ABaseBattleCharacter::Defence()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Defence !"));
 }
 
-void ABaseBattleCharacter::PickingItem(const FInputActionValue& Value)
+void ABaseBattleCharacter::PickingItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::PickingItem !"));
 }
 
-void ABaseBattleCharacter::MenuOnOff(const FInputActionValue& Value)
+void ABaseBattleCharacter::MenuOnOff()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::MenuOnOff !"));
 }

@@ -6,7 +6,6 @@
 #include "UObject/Interface.h"
 #include "IBaseBattleInputBindFunctions.generated.h"
 
-struct FInputActionValue;
 /**
  * 
  */
@@ -19,12 +18,13 @@ class WEAPONMASTER_API UBaseBattleInputBindFunctions : public UInterface
 class WEAPONMASTER_API IBaseBattleInputBindFunctions
 {
 	GENERATED_BODY()
+	
 public:
 	/** Called for movement input */
-	virtual void WeakAttack(const FInputActionValue& Value) = 0;
-	virtual void StrongAttack(const FInputActionValue& Value) = 0;
-	virtual void Identity(const FInputActionValue& Value) = 0;
-	virtual void Defence(const FInputActionValue& Value) = 0;
-	virtual void PickingItem(const FInputActionValue& Value) = 0;
-	virtual void MenuOnOff(const FInputActionValue& Value) = 0;
+	virtual void WeakAttack() = 0;
+	virtual void StrongAttack() = 0;
+	virtual void Identity() = 0;
+	virtual void Defence() = 0;
+	virtual void PickingItem() = 0;
+	virtual void MenuOnOff() = 0;
 };

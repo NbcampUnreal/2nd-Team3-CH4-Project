@@ -7,8 +7,6 @@
 #include "SSTCharacter.h"
 #include "BaseBattleCharacter.generated.h"
 
-struct FInputActionValue;
-
 UCLASS()
 class WEAPONMASTER_API ABaseBattleCharacter : public ASSTCharacter, public IBaseBattleInputBindFunctions
 {
@@ -19,16 +17,19 @@ public:
 	ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer);
 
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UStateComponent> StateComponent;
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	// Additional Input Binding Functions
-	virtual void WeakAttack(const FInputActionValue& Value) override;
-	virtual void StrongAttack(const FInputActionValue& Value) override;
-	virtual void Identity(const FInputActionValue& Value) override;
-	virtual void Defence(const FInputActionValue& Value) override;
-	virtual void PickingItem(const FInputActionValue& Value) override;
-	virtual void MenuOnOff(const FInputActionValue& Value) override;
+	virtual void WeakAttack() override;
+	virtual void StrongAttack() override;
+	virtual void Identity() override;
+	virtual void Defence() override;
+	virtual void PickingItem() override;
+	virtual void MenuOnOff() override;
 
 public:
 	// Called every frame
@@ -36,6 +37,4 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	
 };
