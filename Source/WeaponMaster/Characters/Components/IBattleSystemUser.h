@@ -6,10 +6,11 @@
 #include "UObject/Interface.h"
 #include "IBattleSystemUser.generated.h"
 
+class UItemDataAsset;
 /**
  * 
  */
-UINTERFACE(BlueprintType)
+UINTERFACE(BlueprintType, NotBlueprintable)
 class WEAPONMASTER_API UBattleSystemUser : public UInterface
 {
 	GENERATED_BODY()
@@ -20,8 +21,34 @@ class WEAPONMASTER_API IBattleSystemUser
 	GENERATED_BODY()
 
 public:
-	// SkillComponent에서 Character에 접근할 메서드
-	// ItemComponent에서 Character에 접근할 메서드
-	// SkillComponent에서 ITemComponent에 접근할 메서드
-	// ItemComponent에서 SkillComponent에 접근할 메서드
+	// Character -> ItemComponent
+	UFUNCTION(BlueprintCallable, Category = "Components")
+	virtual UItemComponent* GetItemComponent() const = 0;
+
+	UFUNCTION(BlueprintCallable, Category = "Items")
+	virtual bool EquipItem(FName ItemID) = 0;
+
+	// Character -> SillComponent
+	UFUNCTION(BlueprintCallable, Category = "Components")
+	virtual USkillComponent* GetSkillComponent() const = 0;
+
+	UFUNCTION(BlueprintCallable, Category = "Skills")
+	virtual void ExecuteSkill(int32 SkillIndex) = 0;
+
+	// ItemComponent -> Character -> SkillComponent
+	UFUNCTION(BlueprintCallable, Category = "Items")
+	virtual void OnItemEquipped(UItemDataAsset* EquippedItem) = 0;
+
+	UFUNCTION(BlueprintCallable, Category = "Items")
+	virtual void OnItemUnequipped() = 0;
+
+	UFUNCTION(BlueprintCallable, Category = "Skills")
+	virtual void InterruptActiveSkill() = 0;
+
+	// Interactable Actors
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void SetInteractableActor(AActor* NewInteractableActor) = 0;
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual AActor* GetInteractableActor() const = 0;
 };

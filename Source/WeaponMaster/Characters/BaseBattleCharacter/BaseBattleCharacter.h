@@ -5,10 +5,12 @@
 #include "CoreMinimal.h"
 #include "IBaseBattleInputBindFunctions.h"
 #include "SSTCharacter.h"
+#include "Characters/Components/IBattleSystemUser.h"
 #include "BaseBattleCharacter.generated.h"
 
 UCLASS()
-class WEAPONMASTER_API ABaseBattleCharacter : public ASSTCharacter, public IBaseBattleInputBindFunctions
+class WEAPONMASTER_API ABaseBattleCharacter :
+public ASSTCharacter, public IBaseBattleInputBindFunctions, public IBattleSystemUser
 {
 	GENERATED_BODY()
 
@@ -19,6 +21,18 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UStateComponent> StateComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UEffectComponent> EffectComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UItemComponent> ItemComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class USkillComponent> SkillComponent;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Interacts", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<AActor> InteractableActor;
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -39,4 +53,39 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	// !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
+	// !~!~!~!~ Battle System User Interface ~!~!~!~!
+	// !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
+	
+	// Character -> ItemComponent
+	UFUNCTION(BlueprintCallable, Category = "Components")
+	virtual UItemComponent* GetItemComponent() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Items")
+	virtual bool EquipItem(FName ItemID);
+
+	// Character -> SillComponent
+	UFUNCTION(BlueprintCallable, Category = "Components")
+	virtual USkillComponent* GetSkillComponent() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Skills")
+	virtual void ExecuteSkill(int32 SkillIndex);
+
+	// ItemComponent -> Character -> SkillComponent
+	UFUNCTION(BlueprintCallable, Category = "Items")
+	virtual void OnItemEquipped(UItemDataAsset* EquippedItem);
+
+	UFUNCTION(BlueprintCallable, Category = "Items")
+	virtual void OnItemUnequipped();
+
+	UFUNCTION(BlueprintCallable, Category = "Skills")
+	virtual void InterruptActiveSkill();
+
+	// Interactable Actors
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void SetInteractableActor(AActor* NewInteractableActor);
+
+	UFUNCTION(BlueprintPure, Category = "Interaction")
+	virtual AActor* GetInteractableActor() const;
 };

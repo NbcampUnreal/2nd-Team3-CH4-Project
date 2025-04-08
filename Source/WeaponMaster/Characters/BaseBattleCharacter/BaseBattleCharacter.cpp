@@ -13,7 +13,12 @@
 #include "Engine/World.h"
 #include "InputActionValue.h"
 #include "Characters/Components/StateComponent/StateComponent.h"
+#include "Characters/Components/ItemComponent/ItemComponent.h"
+#include "Characters/Components/SkillComponent/SkillComponent.h"
+#include "Characters/Components/EffectComponent/EffectComponent.h"
+#include "Skills/BaseSkill.h"
 #include "Characters/Components/StateComponent/States/CharacterInputState.h"
+#include "Items/InteractionComponent/InteractionComponent.h"
 #include "WeaponMaster/PlayerControllers/WeaponMasterController.h"
 
 // Sets default values
@@ -26,6 +31,10 @@ ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectIniti
 
 	// StateComponent
 	StateComponent = CreateDefaultSubobject<UStateComponent>(TEXT("StateComponent"));
+	EffectComponent = CreateDefaultSubobject<UEffectComponent>(TEXT("EffectComponent"));
+	ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
+	SkillComponent = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComponent"));
+	InteractableActor = nullptr;
 
 	// CharacterMovement Constants Setting
 	GetCharacterMovement()->AirControl = 1.0f;
@@ -38,6 +47,13 @@ ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectIniti
 void ABaseBattleCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (IsValid(ItemComponent) && IsValid(SkillComponent))
+	{
+		// Item Equipment Event Binding
+		ItemComponent->OnItemEquipped.AddDynamic(this, &IBattleSystemUser::OnItemEquipped);
+		ItemComponent->OnItemUnequipped.AddDynamic(this, &IBattleSystemUser::OnItemUnequipped);
+	}
 }
 
 // Called every frame
@@ -202,19 +218,115 @@ void ABaseBattleCharacter::BindInputFunctions()
 	}
 }
 
+UItemComponent* ABaseBattleCharacter::GetItemComponent() const
+{
+	return ItemComponent;
+}
+
+USkillComponent* ABaseBattleCharacter::GetSkillComponent() const
+{
+	return SkillComponent;
+}
+
+
+bool ABaseBattleCharacter::EquipItem(FName ItemID)
+{
+	if (IsValid(ItemComponent))
+	{
+		return ItemComponent->EquipItem(ItemID);
+	}
+	return false;
+}
+
+void ABaseBattleCharacter::ExecuteSkill(int32 SkillIndex)
+{
+	if (IsValid(SkillComponent))
+	{
+		SkillComponent->ExecuteSkill(SkillIndex);
+	}
+}
+
+void ABaseBattleCharacter::OnItemEquipped(UItemDataAsset* EquippedItem)
+{
+	if (IsValid(SkillComponent))
+	{
+		// 스킬 초기화 (null 전달하여 스킬 제거)
+		SkillComponent->InitializeSkillsFromItem(nullptr);
+	}
+}
+
+void ABaseBattleCharacter::OnItemUnequipped()
+{
+	if (IsValid(SkillComponent))
+	{
+		// 스킬 초기화 (null 전달하여 스킬 제거)
+		SkillComponent->InitializeSkillsFromItem(nullptr);
+	}
+}
+
+void ABaseBattleCharacter::InterruptActiveSkill()
+{
+	// SkillComponent가 없으면 리턴
+	if (!SkillComponent)
+	{
+		return;
+	}
+
+	// 현재 활성화된 스킬 배열 가져오기
+	TArray<UBaseSkill*> CurrentSkills = SkillComponent->GetSkills();
+    
+	// 활성화된 스킬이 있는지 확인하고 중단
+	for (UBaseSkill* Skill : CurrentSkills)
+	{
+		if (Skill && Skill->IsSkillActive())
+		{
+			// 애니메이션 몽타주 중단
+			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+			if (AnimInstance)
+			{
+				UAnimMontage* CurrentMontage = AnimInstance->GetCurrentActiveMontage();
+				if (CurrentMontage)
+				{
+					AnimInstance->Montage_Stop(0.25f, CurrentMontage);
+				}
+			}
+            
+			// 스킬 강제 종료
+			Skill->EndSkill();
+            
+			// 디버그 로그
+			// UE_LOG(LogTestCharacter, Display, TEXT("Skill %s was interrupted due to damage"), *Skill->GetSkillName());
+			break;
+		}
+	}
+}
+
+void ABaseBattleCharacter::SetInteractableActor(AActor* NewInteractableActor)
+{
+	InteractableActor = NewInteractableActor;
+}
+
+AActor* ABaseBattleCharacter::GetInteractableActor() const
+{
+	return NewObject<AActor>();
+}
+
 void ABaseBattleCharacter::WeakAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::WeakAttack !"));
+	ExecuteSkill(0);
 }
 
 void ABaseBattleCharacter::StrongAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::StrongAttack !"));
+	ExecuteSkill(1);
 }
 
 void ABaseBattleCharacter::Identity()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Identity !"));
+	ExecuteSkill(2);
 }
 
 void ABaseBattleCharacter::Defence()
@@ -225,6 +337,17 @@ void ABaseBattleCharacter::Defence()
 void ABaseBattleCharacter::PickingItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::PickingItem !"));
+	// 상호작용 가능한 아이템이 있는지 확인
+	if (InteractableActor)
+	{
+		// 상호작용 컴포넌트 찾기
+		UInteractionComponent* InteractionComp = InteractableActor->FindComponentByClass<UInteractionComponent>();
+		if (InteractionComp)
+		{
+			// 상호작용 실행
+			InteractionComp->Interact(this);
+		}
+	}
 }
 
 void ABaseBattleCharacter::MenuOnOff()
