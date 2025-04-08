@@ -28,7 +28,7 @@ UBaseSkill::UBaseSkill()
     DefaultBaseDamage = 0.0f;
 }
 
-void UBaseSkill::Initialize(ATestCharacter* Owner, UItemDataAsset* OwnerItem)
+void UBaseSkill::Initialize(ACharacter* Owner, UItemDataAsset* OwnerItem)
 {
     OwnerCharacter = Owner;
     ItemData = OwnerItem;

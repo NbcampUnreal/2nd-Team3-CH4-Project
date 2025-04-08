@@ -41,7 +41,7 @@ public:
      * @param OwnerItem 스킬을 제공하는 아이템 데이터
      */
     UFUNCTION(BlueprintCallable, Category = "Skill")
-    virtual void Initialize(ATestCharacter* Owner, UItemDataAsset* OwnerItem);
+    virtual void Initialize(ACharacter* Owner, UItemDataAsset* OwnerItem);
     
     /**
      * 스킬 활성화 시도
@@ -222,7 +222,7 @@ protected:
     
     // 소유자 캐릭터
     UPROPERTY(Transient)
-    ATestCharacter* OwnerCharacter;
+    ACharacter* OwnerCharacter;
     
     // 소유 아이템
     UPROPERTY(Transient)

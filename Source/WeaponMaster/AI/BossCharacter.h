@@ -34,7 +34,7 @@ public:
 	USkillComponent* SkillComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Boss")
-	UItemDataAsset* BossItemAsset;
+	USkillDataAsset* BossSkillAsset;
 
 
 	UFUNCTION()

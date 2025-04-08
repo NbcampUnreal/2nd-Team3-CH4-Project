@@ -30,9 +30,9 @@ void ABossCharacter::BeginPlay()
 		BossStateComponent->OnPhaseChanged.AddDynamic(this, &ABossCharacter::OnPhaseChanged);
 	}
 
-	if (SkillComponent && BossItemAsset)
+	if (SkillComponent && BossSkillAsset)
 	{
-		SkillComponent->InitializeSkillsFromItem(BossItemAsset);
+		SkillComponent->InitializeSkills(BossSkillAsset);
 	}
 
 }

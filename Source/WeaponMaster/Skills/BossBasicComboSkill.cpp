@@ -12,6 +12,11 @@ UBossBasicComboSkill::UBossBasicComboSkill()
 
 }
 
+void UBossBasicComboSkill::ExecuteSkill()
+{
+    Super::ExecuteSkill();
+}
+
 int32 UBossBasicComboSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage)
 {
     // 기본 유효성 검사

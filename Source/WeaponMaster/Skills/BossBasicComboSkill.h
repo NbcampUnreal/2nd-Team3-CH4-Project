@@ -12,6 +12,6 @@ class WEAPONMASTER_API UBossBasicComboSkill : public UBaseSkill
 public:
 	UBossBasicComboSkill();
 
+	virtual void ExecuteSkill() override;
 	virtual int32 ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage) override;
-
 };
