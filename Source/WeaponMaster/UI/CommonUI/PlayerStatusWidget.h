@@ -32,6 +32,12 @@ public:
     UFUNCTION()
     void SetThumbnail(UTexture2D* Thumbnail);
 
+    UFUNCTION(BlueprintCallable, Category = "PlayerStatus")
+    void SetID(int32 TestInt);
+
+    UFUNCTION(BlueprintCallable, Category = "PlayerStatus")
+    int32 GetCharacterID() const { return CharacterID; }
+
 protected:
     // UI 구성요소
     UPROPERTY(meta = (BindWidget))
@@ -45,6 +51,9 @@ protected:
     
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UImage> PlayerThumbnail;
+
+    //Test
+    INT32 CharacterID;
 
     FTimerHandle ChatHideTimerHandle;
 };

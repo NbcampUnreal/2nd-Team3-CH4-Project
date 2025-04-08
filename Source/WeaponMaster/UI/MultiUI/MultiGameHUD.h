@@ -16,20 +16,32 @@ class WEAPONMASTER_API AMultiGameHUD : public AHUD
 public:
     virtual void BeginPlay() override;
 
+    UFUNCTION(BlueprintCallable)
+    void TestDummyModule();
+
+    UFUNCTION(BlueprintCallable)
+    void TestChatModule(FString TestString, int32 TargetCharacterID);
+
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "UI")
     TSubclassOf<UWrapStatusWidget> WrapStatusWidgetClass;
+
+    TObjectPtr<UWrapStatusWidget> WrapStatusWidget;
 
     void CreatePlayerWidgets();
 
     void LogMessage(const FString& Message);
 
-    UPROPERTY(BlueprintReadWrite, Category = "UI")
+    UPROPERTY(EditAnywhere, Category = "UI")
     float BaseX = 50.f;
 
-    UPROPERTY(BlueprintReadWrite, Category = "UI")
+    UPROPERTY(EditAnywhere, Category = "UI")
     float Spacing = 320.f;
 
-    UPROPERTY(BlueprintReadWrite, Category = "UI")
+    UPROPERTY(EditAnywhere, Category = "UI")
     float DefaultY = -50.f;
+
+    UPROPERTY(EditAnywhere, Category = "UI")
+    int TestInt = 4;
+
 };

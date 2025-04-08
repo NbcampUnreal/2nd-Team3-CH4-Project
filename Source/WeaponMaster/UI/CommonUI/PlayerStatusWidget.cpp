@@ -11,16 +11,16 @@ void UPlayerStatusWidget::NativeConstruct()
 {
     Super::NativeConstruct();
 
-    /**For Test*/
-    if (PlayerNameText)
-    {
-        PlayerNameText->SetText(FText::FromString("Player"));
-    }
+    ///**For Test*/
+    //if (PlayerNameText)
+    //{
+    //    PlayerNameText->SetText(FText::FromString("Player"));
+    //}
 
-    if (HealthBar)
-    {
-        HealthBar->SetPercent(1.0f);
-    }
+    //if (HealthBar)
+    //{
+    //    HealthBar->SetPercent(1.0f);xmdp
+    //}
     HideChatMessage();
     //Test End
 }
@@ -75,5 +75,10 @@ void UPlayerStatusWidget::SetThumbnail(UTexture2D* Thumbnail)
     {
         PlayerThumbnail->SetBrushFromTexture(Thumbnail);
     }
+}
+
+void UPlayerStatusWidget::SetID(int32 TestInt)
+{
+    CharacterID = TestInt;
 }
 
