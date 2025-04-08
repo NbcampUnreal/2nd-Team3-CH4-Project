@@ -241,6 +241,7 @@ void AEOSGameSession::HandleUnregisterPlayerCompleted(FName EOSSessionName, cons
 
 void AEOSGameSession::StartSession()
 {
+    UE_LOG(LogTemp, Log, TEXT("Starting Session"));
     IOnlineSubsystem* Subsystem = Online::GetSubsystem(GetWorld());
     IOnlineSessionPtr Session = Subsystem->GetSessionInterface();
 

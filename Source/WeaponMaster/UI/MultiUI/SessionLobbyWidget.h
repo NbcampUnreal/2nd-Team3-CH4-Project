@@ -5,6 +5,7 @@
 #include "SessionLobbyWidget.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStartSessionClicked);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLoginClicked);
 
 class UButton;
 
@@ -21,7 +22,15 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> StartSessionButton;
 
+	FOnLoginClicked OnLoginClicked;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> LoginButton;
+
 protected:
 	UFUNCTION()
 	void HandleStartSessionButtonClicked();
+
+	UFUNCTION()
+	void HandleLoginButtonClicked();
 };
