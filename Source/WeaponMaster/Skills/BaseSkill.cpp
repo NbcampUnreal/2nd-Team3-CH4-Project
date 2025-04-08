@@ -22,9 +22,13 @@ UBaseSkill::UBaseSkill()
     RemainingCooldown = 0.0f;
     bIsActive = false;
     SkillTimer = 0.0f;
+    
+    // 기본 공격 속도 및 데미지 추가
+    DefaultAttackSpeed = 1.0f;
+    DefaultBaseDamage = 0.0f;
 }
 
-void UBaseSkill::Initialize(ATestCharacter* Owner, UItemDataAsset* OwnerItem)
+void UBaseSkill::Initialize(ACharacter* Owner, UItemDataAsset* OwnerItem)
 {
     OwnerCharacter = Owner;
     ItemData = OwnerItem;
@@ -80,6 +84,11 @@ bool UBaseSkill::ActivateSkill()
                     // 아이템의 AttackSpeed를 몽타주 재생 속도에 적용
                     PlayRate = ItemData->AttackSpeed;
                 }
+                else
+                {
+                    // ItemData가 없으면 기본 공격 속도 사용
+                    PlayRate = DefaultAttackSpeed;
+                }
                 
                 // 애니메이션 몽타주 재생 (PlayRate 적용)
                 float MontageLength = OwnerMesh->GetAnimInstance()->Montage_Play(Montage, PlayRate);
@@ -105,19 +114,6 @@ bool UBaseSkill::ActivateSkill()
 
 /**
  * 스킬 실행을 수행합니다.
- *
- * 기본적으로 스킬 사운드와 이펙트를 재생하며, 자식 클래스에서 오버라이드하여
- * 스킬의 세부적인 로직을 구현할 수 있습니다. 스킬의 소유자 캐릭터와 관련된
- * 위치 및 회전을 참조하여 사운드와 이펙트를 실행합니다.
- *
- * - 스킬 사운드: "SkillSound" 변수에 설정된 TSoftObjectPtr<USoundBase>를 로드하여
- *   소유자의 위치에서 재생합니다. 사운드 데이터가 없거나 로드 실패 시, 사운드는 재생되지 않습니다.
- *
- * - 스킬 이펙트: "SkillEffect" 변수에 설정된 TSoftObjectPtr<UNiagaraSystem>을 로드하여
- *   소유자의 위치 및 회전에 따라 이펙트를 스폰합니다. 이펙트 데이터가 없거나 로드 실패 시, 이펙트는 생성되지 않습니다.
- *
- * 이 메서드의 기본 구현은 각 스킬의 공통적인 시각 및 청각 효과를 담당하며,
- * 실제 개별 스킬의 동작은 오버라이드된 메서드에서 더 구체화됩니다.
  */
 void UBaseSkill::ExecuteSkill()
 {
@@ -155,6 +151,11 @@ void UBaseSkill::UpdateCooldown(float DeltaTime)
         // 아이템의 AttackSpeed를 쿨다운 감소 속도에 적용
         CooldownRate = ItemData->AttackSpeed;
     }
+    else
+    {
+        // ItemData가 없으면 기본 공격 속도 사용
+        CooldownRate = DefaultAttackSpeed;
+    }
     
     // 쿨다운 업데이트 (공격 속도에 따라 가속)
     if (RemainingCooldown > 0.0f)
@@ -184,6 +185,26 @@ float UBaseSkill::GetCooldownProgress() const
     }
     
     return 1.0f - (RemainingCooldown / CooldownTime);
+}
+
+// 아이템에서 기본 데미지 가져오는 헬퍼 함수 추가
+float UBaseSkill::GetItemBaseDamage() const
+{
+    if (ItemData)
+    {
+        return ItemData->BaseDamage;
+    }
+    return DefaultBaseDamage;
+}
+
+// 아이템에서 공격 속도 가져오는 헬퍼 함수 추가
+float UBaseSkill::GetItemAttackSpeed() const
+{
+    if (ItemData)
+    {
+        return ItemData->AttackSpeed;
+    }
+    return DefaultAttackSpeed;
 }
 
 int32 UBaseSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage)
