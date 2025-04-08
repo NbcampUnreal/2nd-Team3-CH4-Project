@@ -5,6 +5,26 @@
 #include "Interfaces/OnlineSessionInterface.h"
 #include "WeaponMasterGameInstance.generated.h"
 
+UENUM(BlueprintType)
+enum class EMyStateType : uint8
+{
+	Login			UMETA(DisplayName = "Login"),
+	FindSession     UMETA(DisplayName = "FindSession"),
+	JoinSession     UMETA(DisplayName = "JoinSession"),
+	Register		UMETA(DisplayName = "Register"),
+	StartSession    UMETA(DisplayName = "StartSession")
+};
+
+UENUM(BlueprintType)
+enum class EMyResultType : uint8
+{
+	Success     UMETA(DisplayName = "Success"),
+	Fail        UMETA(DisplayName = "Fail"),
+	Unknown     UMETA(DisplayName = "Unknown")
+};
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(OnProcessReturnValue, EMyStateType, EMyResultType);
+
 UCLASS()
 class WEAPONMASTER_API UWeaponMasterGameInstance : public UGameInstance
 {
@@ -13,6 +33,8 @@ class WEAPONMASTER_API UWeaponMasterGameInstance : public UGameInstance
 public:
 	// 플레이어 관리 필요
 	UWeaponMasterGameInstance();
+
+	OnProcessReturnValue OnProcessReturnValue;
 
 	void Login();
 

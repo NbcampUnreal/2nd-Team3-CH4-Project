@@ -2,8 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Instance/WeaponMasterGameInstance.h"
 #include "EOSPlayerController.generated.h"
 
+class USessionLobbyWidget;
+enum class EGameModeType : uint8;
 class FOnlineSessionSearch;
 class FOnlineSessionSearchResult;
 
@@ -14,8 +17,28 @@ class WEAPONMASTER_API AEOSPlayerController : public APlayerController
 
 public:
 	AEOSPlayerController();
-	
 	virtual void BeginPlay() override;
 
-	void BeginLoginProcess();
+protected:
+	UFUNCTION(Server, Reliable)
+	void Server_RegisterPlayer(APlayerController* PlayerController);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_StartSession();
+
+private:
+	UFUNCTION()
+	void HandleProcessResult(EMyStateType State, EMyResultType Result);
+
+	UFUNCTION()
+	virtual void OnNetCleanup(class UNetConnection* Connection) override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> SessionLobbyWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<USessionLobbyWidget> SessionLobbyWidget;
+
+	UFUNCTION()
+	void OnStartSessionButtonClicked();
 };

@@ -3,6 +3,7 @@
 #include "OnlineSessionSettings.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSubsystemUtils.h"
+#include "GameModes/EOSGameMode.h"
 #include "Interfaces/OnlineSessionInterface.h"
 
 AEOSGameSession::AEOSGameSession()
@@ -65,7 +66,7 @@ void AEOSGameSession::NotifyLogout(const APlayerController* ExitingPlayer)
 
             if (Session->GetSessionState(SessionName) == EOnlineSessionState::InProgress)
             {
-                EndSession();
+                //EndSession();
             }        
         }
     }
@@ -77,6 +78,7 @@ void AEOSGameSession::NotifyLogout(const APlayerController* ExitingPlayer)
 
 void AEOSGameSession::CreateSession(FName KeyName, FString KeyValue)
 {
+    UE_LOG(LogTemp, Warning, TEXT("Creating session"));
     IOnlineSubsystem* Subsystem = Online::GetSubsystem(GetWorld());
     IOnlineSessionPtr Session = Subsystem->GetSessionInterface();
 
@@ -99,6 +101,11 @@ void AEOSGameSession::CreateSession(FName KeyName, FString KeyValue)
     SessionSettings->bUsesStats = true;
 
     SessionSettings->Settings.Add(KeyName, FOnlineSessionSetting((KeyValue), EOnlineDataAdvertisementType::ViaOnlineService));
+
+    if (Session->GetNamedSession(SessionName))
+    {
+        Session->DestroySession(SessionName);
+    }
     
     if (!Session->CreateSession(0, SessionName, *SessionSettings))
     {
@@ -115,7 +122,8 @@ void AEOSGameSession::HandleCreateSessionCompleted(FName EOSSessionName, bool bW
 
     if (bWasSuccessful)
     {
-        bSessionExists = true; 
+        bSessionExists = true;
+        FName UniqueSessionName = FName(*FString::Printf(TEXT("Session_%d"), FMath::Rand()));
         UE_LOG(LogTemp, Log, TEXT("Session: %s Created!"), *EOSSessionName.ToString());
         
     }
@@ -159,13 +167,20 @@ void AEOSGameSession::HandleRegisterPlayerCompleted(FName EOSSessionName, const 
     if (bWasSuccesful)
     {
         UE_LOG(LogTemp, Log, TEXT("Player registered in EOS Session!"));
+        OnProcessReturnValue.Broadcast(EMyStateType::Register, EMyResultType::Success);
+
+        UE_LOG(LogTemp, Warning, TEXT("Player registered in EOS Session! NumberOfPlayersInSession = [%d]"), NumberOfPlayersInSession);
+        
+        /*
         if (NumberOfPlayersInSession == MaxNumberOfPlayersInSession)
         {
             StartSession();
         }
+        */
     }
     else
     {
+        OnProcessReturnValue.Broadcast(EMyStateType::Register, EMyResultType::Fail);
         UE_LOG(LogTemp, Warning, TEXT("Failed to register player! (From Callback)"));
     }
     
@@ -250,10 +265,12 @@ void AEOSGameSession::HandleStartSessionCompleted(FName EOSSessionName, bool bWa
     if (bWasSuccessful)
     {
         UE_LOG(LogTemp, Log, TEXT("Session Started!"));
+        OnProcessReturnValue.Broadcast(EMyStateType::StartSession, EMyResultType::Success);
     }
     else
     {
         UE_LOG(LogTemp, Warning, TEXT("Failed to start session! (From Callback)"));
+        OnProcessReturnValue.Broadcast(EMyStateType::StartSession, EMyResultType::Fail);
     }
 
     Session->ClearOnStartSessionCompleteDelegate_Handle(StartSessionDelegateHandle);
