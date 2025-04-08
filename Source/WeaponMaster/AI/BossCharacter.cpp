@@ -205,35 +205,13 @@ void ABossCharacter::ApplyAreaSkill()
 
 void ABossCharacter::ExecuteAreaSkill()
 {
-	const float Radius = 600.f;
-	const FVector MyLocation = GetActorLocation();
-
-	DrawDebugSphere(
-		GetWorld(),
-		MyLocation,
-		Radius,
-		24,
-		FColor::Purple,
-		false,
-		2.0f,
-		0,
-		3.0f
-	);
-
-	TArray<AActor*> AllEnemies;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWeaponMasterCharacter::StaticClass(), AllEnemies);
-
-	for (AActor* Enemy : AllEnemies)
+	if (HasAuthority())
 	{
-		if (!Enemy || Enemy == this) continue;
-
-		const float Dist = FVector::Dist(Enemy->GetActorLocation(), MyLocation);
-
-		if (Dist <= Radius)
+		//StartBasicCombo();
+		if (SkillComponent)
 		{
-			// 나중에 OnTakeBossDamage 등으로 연결해도 좋음
-			UGameplayStatics::ApplyDamage(Enemy, 100.f, GetController(), this, nullptr);
-			UE_LOG(LogTemp, Warning, TEXT("범위기에 맞은 액터: %s"), *Enemy->GetName());
+			SkillComponent->ExecuteSkill(1);
+			UE_LOG(LogTemp, Warning, TEXT("BossSkill 1"));
 		}
 	}
 }

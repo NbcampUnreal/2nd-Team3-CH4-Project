@@ -18,7 +18,7 @@ enum class EBossPattern : uint8
 	None UMETA(DisplayName = "None"),
 
 	MeleeBasic        UMETA(DisplayName = "기본 근접 공격"),
-	BackTurnCharge    UMETA(DisplayName = "뒤돌기 후 돌진"),
+	BackTurnCharge    UMETA(DisplayName = "뒤로 후퇴"),
 	ThrowObject       UMETA(DisplayName = "무언가 던지기"),
 
 	MeleeHeavy        UMETA(DisplayName = "강한 근접 공격"),
