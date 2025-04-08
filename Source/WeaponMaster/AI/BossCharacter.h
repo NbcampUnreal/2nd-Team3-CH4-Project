@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "WeaponMaster/AI/AIComponent/BossStateComponent.h"
+#include "WeaponMaster/Characters/Components/SkillComponent/SkillComponent.h"
 #include "BossCharacter.generated.h"
 
 UCLASS()
@@ -28,6 +29,13 @@ public:
 
 	//UFUNCTION(BlueprintCallable, Category = "Boss|Damage")
 	//void TakeBossDamage(float DamageAmount);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	USkillComponent* SkillComponent;
+
+	UPROPERTY(EditAnywhere, Category = "Boss")
+	UItemDataAsset* BossItemAsset;
+
 
 	UFUNCTION()
 	void OnPhaseChanged(EBossPhase NewPhase);

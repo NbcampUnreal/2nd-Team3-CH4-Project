@@ -5,7 +5,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "WeaponMaster/Characters/Components/SkillComponent/SkillComponent.h"
 
 
 ABossCharacter::ABossCharacter()
@@ -17,6 +16,7 @@ ABossCharacter::ABossCharacter()
 
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0.f, 1.f, 0.f));
+	SkillComponent = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComponent"));
 }
 
 void ABossCharacter::BeginPlay()
@@ -29,6 +29,12 @@ void ABossCharacter::BeginPlay()
 	{
 		BossStateComponent->OnPhaseChanged.AddDynamic(this, &ABossCharacter::OnPhaseChanged);
 	}
+
+	if (SkillComponent && BossItemAsset)
+	{
+		SkillComponent->InitializeSkillsFromItem(BossItemAsset);
+	}
+
 }
 
 
@@ -115,7 +121,12 @@ void ABossCharacter::ApplyBasicCombo()
 {
 	if (HasAuthority())
 	{
-		StartBasicCombo();
+		//StartBasicCombo();
+		if (SkillComponent)
+		{
+			SkillComponent->ExecuteSkill(0); // 0번째 스킬 실행
+			UE_LOG(LogTemp, Warning, TEXT("BossItem 0"));
+		}
 	}
 	else
 	{
