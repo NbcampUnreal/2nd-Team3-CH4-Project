@@ -6,6 +6,7 @@
 #include "IBaseBattleInputBindFunctions.h"
 #include "Data/StatusTypes.h"
 #include "SSTCharacter.h"
+#include "Characters/Components/DamageSystemUser.h"
 #include "Characters/Components/IBattleSystemUser.h"
 #include "BaseBattleCharacter.generated.h"
 
@@ -14,7 +15,7 @@ class USkillComponent;
 
 UCLASS()
 class WEAPONMASTER_API ABaseBattleCharacter :
-public ASSTCharacter, public IBaseBattleInputBindFunctions, public IBattleSystemUser
+public ASSTCharacter, public IBaseBattleInputBindFunctions, public IBattleSystemUser, public IDamageSystemUser
 {
 	GENERATED_BODY()
 
@@ -110,5 +111,5 @@ public:
 
 	// Event when Attacked
 	UFUNCTION(BlueprintCallable, Category = "Attacked")
-	virtual void OnAttacked(float Damage, const FAttackData& AttackData) override;
+	virtual void OnAttacked(const FAttackData& AttackData) override;
 };

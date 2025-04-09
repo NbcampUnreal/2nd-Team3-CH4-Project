@@ -12,7 +12,7 @@ class UItemDataAsset;
 /**
  * 
  */
-UINTERFACE(BlueprintType, NotBlueprintable)
+UINTERFACE(BlueprintType)
 class WEAPONMASTER_API UBattleSystemUser : public UInterface
 {
 	GENERATED_BODY()
@@ -57,8 +57,4 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	virtual AActor* GetInteractableActor() const = 0;
-
-	// Called When Attacked by Other Character
-	UFUNCTION(BlueprintCallable, Category = "Attacked")
-	virtual void OnAttacked(float Damage, const FAttackData& AttackData) = 0;
 };

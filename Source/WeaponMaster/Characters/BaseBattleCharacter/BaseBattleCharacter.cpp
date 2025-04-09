@@ -21,6 +21,7 @@
 #include "Items/InteractionComponent/InteractionComponent.h"
 #include "WeaponMaster/PlayerControllers/WeaponMasterController.h"
 #include "Data/StatusTypes.h"
+#include "GameFramework/PlayerState.h"
 
 // Sets default values
 ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer)
@@ -341,11 +342,14 @@ AActor* ABaseBattleCharacter::GetInteractableActor() const
 	return InteractableActor;
 }
 
-void ABaseBattleCharacter::OnAttacked(float Damage, const FAttackData& AttackData)
+void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 {
+	auto a = GetPlayerState()->GetUniqueId();
+	auto b = GetPlayerState()->GetPlayerId();
+	
 	LaunchCharacter(AttackData.LaunchVector, true, true);
 	
-	SetHP(HP - Damage);
+	SetHP(HP - AttackData.Damage);
 
 	// 이펙트 적용
 	for (int32 i = 0 ; i < AttackData.BehaviorEffectNumbers ; i++)
