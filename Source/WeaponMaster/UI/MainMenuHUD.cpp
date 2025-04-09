@@ -144,6 +144,8 @@ void AMainMenuHUD::HandleNextClicked()
     //}
 
     /**플레이어 모두를 한 맵으로 */
+
+
     UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_TravelBong")));
 }
 

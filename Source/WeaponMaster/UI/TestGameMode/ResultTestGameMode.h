@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
-#include "BP_ResultTestGameMode.generated.h"
+#include "ResultTestGameMode.generated.h"
 
 USTRUCT()
 struct FPlayerStartUsage
@@ -19,11 +19,11 @@ struct FPlayerStartUsage
 };
 
 UCLASS()
-class WEAPONMASTER_API ABP_ResultTestGameMode : public AGameMode
+class WEAPONMASTER_API AResultTestGameMode : public AGameMode
 {
 	GENERATED_BODY()
 public:
-    ABP_ResultTestGameMode();
+    AResultTestGameMode();
 
     virtual void BeginPlay() override;
     virtual void PostLogin(APlayerController* NewPlayer) override;
