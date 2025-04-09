@@ -10,7 +10,7 @@
 ABossCharacter::ABossCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	MaxHP = 1000.0f;
+	MaxHP = 1000;
 
 	BossStateComponent = CreateDefaultSubobject<UBossStateComponent>(TEXT("BossStateComponent"));
 
@@ -78,36 +78,11 @@ void ABossCharacter::ApplyBasicCombo()
 {
 	if (HasAuthority())
 	{
-		//StartBasicCombo();
 		if (SkillComponent)
 		{
 			SkillComponent->ExecuteSkill(0); // 0번째 스킬 실행
-			UE_LOG(LogTemp, Warning, TEXT("BossItem 0"));
+			UE_LOG(LogTemp, Warning, TEXT("BossSkill 0"));
 		}
-	}
-	else
-	{
-		Server_ApplyBasicCombo();
-	}
-}
-
-
-void ABossCharacter::Server_ApplyBasicCombo_Implementation()
-{
-	StartBasicCombo();
-}
-
-
-void ABossCharacter::StartBasicCombo()
-{
-	PerformComboAttack();
-}
-
-void ABossCharacter::PerformComboAttack()
-{
-	if (ComboMontage1)
-	{
-		Multicast_PlayMontage(ComboMontage1);
 	}
 }
 
@@ -115,11 +90,9 @@ void ABossCharacter::ApplyBackStep()
 {
 	if (!HasAuthority()) return;
 
-	//Multicast_PlayMontage(BackStepMontage); // 연출용 애니메이션
-
 	FVector BackDir = -GetActorForwardVector();
 
-	FVector LaunchVelocity = BackDir * DashPower + FVector(0, 0, JumpBoost);
+	FVector LaunchVelocity = BackDir * 1200.0f + FVector(0, 0, 200.0f);
 
 	LaunchCharacter(LaunchVelocity, true, true);
 }
@@ -128,18 +101,15 @@ void ABossCharacter::ExecuteForwardCharge()
 {
 	if (!HasAuthority()) return;
 
-	// 돌진 애니메이션 재생 (멀티캐스트)
-	// Multicast_PlayMontage(ChargeMontage);
-	// 돌진 방향 = 현재 보스 정면
+	 Multicast_PlayMontage(ChargeMontage);
 
 	FVector ChargeDir = GetActorForwardVector();
 	FVector LaunchVelocity = ChargeDir * 2000.f + FVector(0, 0, 150.f);
 
 	LaunchCharacter(LaunchVelocity, true, true);
 
-	// 충돌 타이밍을 고려해 약간 딜레이 후 판정 실행
-	//FTimerHandle HitCheckTimer;
-	//GetWorldTimerManager().SetTimer(HitCheckTimer, this, &ABossCharacter::ChargeHitCheck, 0.3f, false);
+	FTimerHandle ForwardCharge;
+	//GetWorldTimerManager().SetTimer(ForwardCharge, this, &ABossCharacter::Destroy, 5.0f, false);
 
 }
 
@@ -149,7 +119,7 @@ void ABossCharacter::ApplyAreaSkill()
 	SetActorRotation(FRotator(0, 90.f, 0));
 
 	// 2. 기모으기 애니메이션
-	//Multicast_PlayMontage(Phase2ChargeMontage);
+	//Multicast_PlayMontage(ChargeMontage);
 
 	// 3. 타이머로 실제 시전
 	FTimerHandle Timer;
@@ -166,5 +136,43 @@ void ABossCharacter::ExecuteAreaSkill()
 			SkillComponent->ExecuteSkill(1);
 			UE_LOG(LogTemp, Warning, TEXT("BossSkill 1"));
 		}
+	}
+}
+
+void ABossCharacter::ApplyPowerAttack()
+{
+	if (HasAuthority())
+	{
+		if (SkillComponent)
+		{
+			SkillComponent->ExecuteSkill(2); // 0번째 스킬 실행
+			UE_LOG(LogTemp, Warning, TEXT("BossSkill 2"));
+		}
+	}
+}
+void ABossCharacter::OnAttacked(int Damage)
+{
+	CurrentHP -= Damage;
+	if (CurrentHP <= 0)
+	{
+		CurrentHP = 0;
+		//Die();
+	}
+}
+
+void ABossCharacter::Die()
+{
+	//SetIsDeath(true);
+
+	if (DeathMontage)
+	{
+		PlayAnimMontage(DeathMontage);
+	}
+
+	// AI 멈춤
+	AAIController* AICon = Cast<AAIController>(GetController());
+	if (AICon)
+	{
+		AICon->StopMovement();
 	}
 }
