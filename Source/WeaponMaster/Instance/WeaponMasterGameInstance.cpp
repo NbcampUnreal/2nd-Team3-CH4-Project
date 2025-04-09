@@ -72,7 +72,7 @@ void UWeaponMasterGameInstance::HandleLoginCompleted(int32 LocalUserNum, bool bW
 		UE_LOG(LogTemp, Log, TEXT("Login callback completed!"));
 		UE_LOG(LogTemp, Log, TEXT("Loading cloud data and searching for a session..."));
 
-		OnProcessReturnValue.Broadcast(EMyStateType::Login, EMyResultType::Success);
+		OnProcessReturnValue.Broadcast(EPlayerEOSStateType::Login, ESessionResultType::Success);
 		FindSessions();
 	}
 	else
@@ -137,7 +137,8 @@ void UWeaponMasterGameInstance::HandleFindSessionsCompleted(bool bWasSuccessful,
 			}
 			break;
 		}
-		
+
+		OnProcessReturnValue.Broadcast(EPlayerEOSStateType::FindSession, ESessionResultType::Success);
 		JoinSession();
 	}
 	else
@@ -182,7 +183,9 @@ void UWeaponMasterGameInstance::HandleJoinSessionCompleted(FName SessionName, EO
         
 		if (GEngine && bGotAddress)
 		{
-			UE_LOG(LogTemp, Log, TEXT("Joined session. JoinAddress: [%s]"), *JoinAddress);
+			UE_LOG(LogTemp, Warning, TEXT("Joined session. JoinAddress: [%s]"), *JoinAddress);
+			OnProcessReturnValue.Broadcast(EPlayerEOSStateType::JoinSession, ESessionResultType::Success);
+			
 			FURL DedicatedServerURL(nullptr, *ConnectString, TRAVEL_Absolute);
 			FString DedicatedServerJoinError;
 			auto DedicatedServerJoinStatus = GEngine->Browse(GEngine->GetWorldContextFromWorldChecked(GetWorld()), DedicatedServerURL, DedicatedServerJoinError); 
@@ -202,4 +205,36 @@ void UWeaponMasterGameInstance::HandleJoinSessionCompleted(FName SessionName, EO
 
 	Session->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionDelegateHandle);
 	JoinSessionDelegateHandle.Reset();
+}
+
+FString UWeaponMasterGameInstance::GetPlayerName() const
+{
+	if (IOnlineSubsystem* Subsystem = Online::GetSubsystem(GetWorld()))
+	{
+		if (IOnlineIdentityPtr Session = Subsystem->GetIdentityInterface())
+		{
+			if (Session->GetLoginStatus(0) == ELoginStatus::LoggedIn)
+			{
+				return Session->GetPlayerNickname(0);
+			}
+		}
+	}
+
+	return "";
+}
+
+bool UWeaponMasterGameInstance::IsPlayerLoggedIn() const
+{
+	if (IOnlineSubsystem* Subsystem = Online::GetSubsystem(GetWorld()))
+	{
+		if (IOnlineIdentityPtr Session = Subsystem->GetIdentityInterface())
+		{
+			Session->GetUniquePlayerId(0);
+			if (Session->GetLoginStatus(0) == ELoginStatus::LoggedIn)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
 }
