@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "StateComponent.h"
-#include "States/CharacterInputState.h"
+#include "States/CharacterBehaviorState.h"
 #include "GameFramework/Character.h"
 
 // Sets default values for this component's properties
@@ -21,10 +21,10 @@ void UStateComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// Create Input State
-	CharacterInputState = NewObject<UCharacterInputState>(this);
-	if (!CharacterInputState)
+	CharacterBehaviorState = NewObject<UCharacterBehaviorState>(this);
+	if (!CharacterBehaviorState)
 	{
-		UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : InputState Create Failed."));
+		UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : BehaviorState Create Failed."));
 		return;
 	}
 
@@ -38,7 +38,7 @@ void UStateComponent::BeginPlay()
 	UE_LOG(LogTemp, Display, TEXT("OuterCharacter DisplayName : %s"), *OuterCharacter->GetName());
 
 	// Initialize Input State
-	CharacterInputState->Initialize(OuterCharacter);
+	CharacterBehaviorState->Initialize(OuterCharacter);
 
 	// Execute Binding Function
 	OnStateComponentReady.Execute();
@@ -55,8 +55,8 @@ void UStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	// ...
 }
 
-UCharacterInputState* UStateComponent::GetInputState()
+UCharacterBehaviorState* UStateComponent::GetBehaviorState()
 {
-	return CharacterInputState;
+	return CharacterBehaviorState;
 }
 

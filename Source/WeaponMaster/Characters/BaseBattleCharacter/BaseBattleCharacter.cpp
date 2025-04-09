@@ -17,9 +17,10 @@
 #include "Characters/Components/SkillComponent/SkillComponent.h"
 #include "Characters/Components/EffectComponent/EffectComponent.h"
 #include "Skills/BaseSkill.h"
-#include "Characters/Components/StateComponent/States/CharacterInputState.h"
+#include "Characters/Components/StateComponent/States/CharacterBehaviorState.h"
 #include "Items/InteractionComponent/InteractionComponent.h"
 #include "WeaponMaster/PlayerControllers/WeaponMasterController.h"
+#include "Data/StatusTypes.h"
 
 // Sets default values
 ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer)
@@ -35,6 +36,10 @@ ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectIniti
 	ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
 	SkillComponent = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComponent"));
 	InteractableActor = nullptr;
+
+	// Constants
+	MaxHP = 100.0f;
+	HP = MaxHP;
 
 	// CharacterMovement Constants Setting
 	GetCharacterMovement()->AirControl = 1.0f;
@@ -91,15 +96,15 @@ void ABaseBattleCharacter::BindInputFunctions()
 		return;
 	}
 
-	UCharacterInputState* CharacterInputState = StateComponent->GetInputState();
+	UCharacterBehaviorState* CharacterBehaviorState = StateComponent->GetBehaviorState();
 
 	// Jumping
 	if (WeaponMasterController->JumpAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->JumpAction, ETriggerEvent::Triggered,
-		                                   CharacterInputState, &UCharacterInputState::JumpOrDrop);
+		                                   CharacterBehaviorState, &UCharacterBehaviorState::JumpOrDrop);
 		EnhancedInputComponent->BindAction(WeaponMasterController->JumpAction, ETriggerEvent::Completed,
-		                                   CharacterInputState, &UCharacterInputState::ReleaseJump);
+		                                   CharacterBehaviorState, &UCharacterBehaviorState::ReleaseJump);
 	}
 	else
 	{
@@ -111,9 +116,9 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->CrouchDropAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->CrouchDropAction, ETriggerEvent::Triggered,
-		                                   CharacterInputState, &UCharacterInputState::CrouchDrop);
+		                                   CharacterBehaviorState, &UCharacterBehaviorState::CrouchDrop);
 		EnhancedInputComponent->BindAction(WeaponMasterController->CrouchDropAction, ETriggerEvent::Completed,
-		                                   CharacterInputState, &UCharacterInputState::StopCrouchDrop);
+		                                   CharacterBehaviorState, &UCharacterBehaviorState::StopCrouchDrop);
 	}
 	else
 	{
@@ -125,7 +130,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->MoveAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->MoveAction, ETriggerEvent::Triggered,
-		                                   CharacterInputState, &UCharacterInputState::Move);
+		                                   CharacterBehaviorState, &UCharacterBehaviorState::Move);
 	}
 	else
 	{
@@ -137,7 +142,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->DashAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->DashAction, ETriggerEvent::Started,
-		                                   CharacterInputState, &UCharacterInputState::Dash);
+		                                   CharacterBehaviorState, &UCharacterBehaviorState::Dash);
 	}
 	else
 	{
@@ -149,7 +154,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->WeakAttackAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->WeakAttackAction, ETriggerEvent::Started,
-		                                   CharacterInputState, &UCharacterInputState::WeakAttack);
+		                                   CharacterBehaviorState, &UCharacterBehaviorState::WeakAttack);
 	}
 	else
 	{
@@ -161,7 +166,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->StrongAttackAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->StrongAttackAction, ETriggerEvent::Started,
-		                                   CharacterInputState, &UCharacterInputState::StrongAttack);
+		                                   CharacterBehaviorState, &UCharacterBehaviorState::StrongAttack);
 	}
 	else
 	{
@@ -173,7 +178,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->IdentityAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->IdentityAction, ETriggerEvent::Started,
-		                                   CharacterInputState, &UCharacterInputState::Identity);
+		                                   CharacterBehaviorState, &UCharacterBehaviorState::Identity);
 	}
 	else
 	{
@@ -185,7 +190,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->DefenceAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->DefenceAction, ETriggerEvent::Started,
-		                                   CharacterInputState, &UCharacterInputState::Defence);
+		                                   CharacterBehaviorState, &UCharacterBehaviorState::Defence);
 	}
 	else
 	{
@@ -197,7 +202,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->PickingItemAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->PickingItemAction, ETriggerEvent::Started,
-		                                   CharacterInputState, &UCharacterInputState::PickingItem);
+		                                   CharacterBehaviorState, &UCharacterBehaviorState::PickingItem);
 	}
 	else
 	{
@@ -209,7 +214,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->MenuOnOffAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->MenuOnOffAction, ETriggerEvent::Started,
-		                                   CharacterInputState, &UCharacterInputState::MenuOnOff);
+		                                   CharacterBehaviorState, &UCharacterBehaviorState::MenuOnOff);
 	}
 	else
 	{
@@ -217,6 +222,27 @@ void ABaseBattleCharacter::BindInputFunctions()
 		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->WeakAttackAction"));
 	}
 }
+
+void ABaseBattleCharacter::SetHP(float NewHP)
+{
+	if (NewHP > MaxHP)
+	{
+		HP = 100;
+		UE_LOG(LogTemp, Display, TEXT("Max HP"));
+	}
+	if (NewHP > 0)
+	{
+		HP = NewHP;
+		UE_LOG(LogTemp, Display, TEXT("GetDamaged. HP: %f"), HP);
+	}
+	else
+	{
+		HP = 0;
+		// 죽는 로직
+		UE_LOG(LogTemp, Display, TEXT("Die!"));
+	}
+}
+
 
 UItemComponent* ABaseBattleCharacter::GetItemComponent() const
 {
@@ -244,6 +270,11 @@ void ABaseBattleCharacter::ExecuteSkill(int32 SkillIndex)
 	{
 		SkillComponent->ExecuteSkill(SkillIndex);
 	}
+}
+
+UCharacterBehaviorState* ABaseBattleCharacter::GetBehaviorState() const
+{
+	return StateComponent->GetBehaviorState();
 }
 
 void ABaseBattleCharacter::OnItemEquipped(UItemDataAsset* EquippedItem)
@@ -309,6 +340,19 @@ void ABaseBattleCharacter::SetInteractableActor(AActor* NewInteractableActor)
 AActor* ABaseBattleCharacter::GetInteractableActor() const
 {
 	return NewObject<AActor>();
+}
+
+void ABaseBattleCharacter::OnAttacked(float Damage, const FAttackData& AttackData)
+{
+	LaunchCharacter(AttackData.LaunchVector, true, true);
+	
+	SetHP(HP - Damage);
+
+	// 이펙트 적용
+	for (int32 i = 0 ; i < AttackData.BehaviorEffectNumbers ; i++)
+	{
+		EffectComponent->ActivateBehaviorEffect(AttackData.BehaviorEffects[i], AttackData.BehaviorEffectsDurations[i]);
+	}
 }
 
 void ABaseBattleCharacter::WeakAttack()
