@@ -137,12 +137,14 @@ void AMainMenuHUD::HandleNextClicked()
 {
     PlaySound(SelectSound);
     /**플레이어 단일만 한 맵으로 */
-    if (APlayerController* PC = GetOwningPlayerController())
-    {
-        PC->ClientTravel(TEXT("Test_TravelBong"), ETravelType::TRAVEL_Absolute);
-    }
+    //if (APlayerController* PC = GetOwningPlayerController())
+    //{
+    //    PC->ClientTravel(TEXT("Test_TravelBong"), ETravelType::TRAVEL_Absolute);
+    //// OpenLevel? ClientTravel?
+    //}
+
     /**플레이어 모두를 한 맵으로 */
-    //UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_TravelBong")));
+    UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_TravelBong")));
 }
 
 void AMainMenuHUD::HandlePrevClicked()

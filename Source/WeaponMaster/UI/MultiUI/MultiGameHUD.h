@@ -28,6 +28,16 @@ protected:
 
     TObjectPtr<UWrapStatusWidget> WrapStatusWidget;
 
+    UPROPERTY(EditDefaultsOnly, Category = "UI")
+    TSubclassOf<UWrapStatusWidget> ChatWidgetClass;
+
+    TObjectPtr<UWrapStatusWidget> ChatWidget;
+
+    UPROPERTY(EditDefaultsOnly, Category = "UI")
+    TSubclassOf<UWrapStatusWidget> OptionMenuWidgetClass;
+
+    TObjectPtr<UWrapStatusWidget> OptionMenuWidget;
+
     void CreatePlayerWidgets();
 
     void LogMessage(const FString& Message);
