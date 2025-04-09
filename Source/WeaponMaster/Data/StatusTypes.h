@@ -17,15 +17,16 @@ enum class ECCSkillCategory : uint8
 UENUM(BlueprintType)
 enum class EBehaviorEffect : uint8
 {
-    Stiffness   UMETA(DisplayName = "Stiffness"),
+    // Stiffness   UMETA(DisplayName = "Stiffness"),
     Stun        UMETA(DisplayName = "Stun"),
-    Knockback   UMETA(DisplayName = "Knockback"),
-    AirBorn     UMETA(DisplayName = "AirBorn"),
-    Blind       UMETA(DisplayName = "Blind"),
     Silence     UMETA(DisplayName = "Silence"),
-
+    // AirBorn     UMETA(DisplayName = "AirBorn"),
+    // Blind       UMETA(DisplayName = "Blind"),
+    
     UsingSkill  UMETA(DisplayName = "UsingSkill"),
     Death       UMETA(DisplayName = "Death"),
+
+    // int32 NumEffects = static_cast<uint8>(ENonBehaviorEffect::Max);
     Max         UMETA(DisplayName = "Max")
 };
 
@@ -53,23 +54,18 @@ struct FAttackData
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float Damage;
 
-    // 날라가는 벡터
+    // 날려보내기 벡터
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FVector LaunchVector;
 
-    // 상태이상
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 BehaviorEffectNumbers;
-    
+    // 입력 상태이상
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TArray<EBehaviorEffect> BehaviorEffects;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TArray<float> BehaviorEffectsDurations;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 NonBehaviorEffectNumbers;
-    
+    // 기타 버프/디버프
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TArray<EBehaviorEffect> NonBehaviorEffects;
 

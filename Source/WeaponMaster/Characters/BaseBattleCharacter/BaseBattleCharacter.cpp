@@ -353,11 +353,12 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 {
 	// ㅈㅍㅈㅍ
 	LaunchCharacter(AttackData.LaunchVector, true, true);
+	UE_LOG(LogTemp, Display, TEXT("OnAttacked : %f"), AttackData.LaunchVector.Z);
 	
 	SetHP(HP - AttackData.Damage);
 
 	// 이펙트 적용
-	for (int32 i = 0 ; i < AttackData.BehaviorEffectNumbers ; i++)
+	for (int32 i = 0 ; i < AttackData.BehaviorEffects.Num() ; i++)
 	{
 		EffectComponent->ActivateBehaviorEffect(AttackData.BehaviorEffects[i], AttackData.BehaviorEffectsDurations[i]);
 	}

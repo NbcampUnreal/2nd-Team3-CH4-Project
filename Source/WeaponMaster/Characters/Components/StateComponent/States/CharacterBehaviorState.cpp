@@ -151,7 +151,7 @@ void UCharacterBehaviorState::MenuOnOff()
 
 TScriptInterface<UBehaviorState> UCharacterBehaviorState::GetOuterState() const
 {
-	return OuterState.GetInterface(); 
+	return OuterState; 
 }
 
 void UCharacterBehaviorState::SetOuterState(const TScriptInterface<UBehaviorState>& NewOuterState)

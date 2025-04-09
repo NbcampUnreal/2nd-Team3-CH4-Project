@@ -33,8 +33,6 @@ public:
 	virtual void Identity() override;
 	virtual void Defence() override;
 	virtual void PickingItem() override;
-	
 	// virtual void MenuOnOff() override;
-
-	// virtual ACharacter* GetOwnerCharacter() const override;
+	
 };

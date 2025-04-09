@@ -30,20 +30,37 @@ void UStunEffect::Activate()
 
 void UStunEffect::Activate(float Duration)
 {
-	// 타이머 추가
-	// InnerState 세팅
-	// IsActive true로
-	GetOuter()->GetWorld()->GetTimerManager().ClearTimer(DurationTimer);
+	// Active하면 지속시간 갱신
+	if (bIsActive)
+	{
+		GetOuter()->GetWorld()->GetTimerManager().ClearTimer(DurationTimer);
+		GetOuter()->GetWorld()->GetTimerManager().SetTimer(
+			DurationTimer,
+			this,
+			&UStunEffect::Deactivate,
+			Duration,
+			false
+		);
+		return;
+	}
 	
-	if (GetOuter()->GetOuter()->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
+	auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
+	if (!IsValid(OwnerCharacter))
+	{
+		UE_LOG(LogTemp, Display, TEXT("UStunEffect::Activate : Outer Character is Null"));
+		return;
+	}
+	
+	if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	{
 		bIsActive = true;
 		SetInnerState(IBattleSystemUser::Execute_GetBehaviorState(GetOuter()->GetOuter()));
 		
+		// Cast<IBehaviorState>(InnerState.GetObject())->SetOuterState(TScriptInterface<UBehaviorState>(this));
 		Cast<IBehaviorState>(InnerState.GetObject())->SetOuterState(this);
 		
+		// IBattleSystemUser::Execute_SetBehaviorState(GetOuter()->GetOuter(), TScriptInterface<UBehaviorState>(this));
 		IBattleSystemUser::Execute_SetBehaviorState(GetOuter()->GetOuter(), this);
-		UE_LOG(LogTemp, Display, TEXT("UStunEffect::Activate : Character Cast Success!"));
 		
 		GetOuter()->GetWorld()->GetTimerManager().SetTimer(
 			DurationTimer,
@@ -55,7 +72,7 @@ void UStunEffect::Activate(float Duration)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("UStunEffect::Activate : Character Cast Failed!"));
+		UE_LOG(LogTemp, Error, TEXT("UStunEffect::Activate : Character needs to implement IBattleSystemUser!"));
 	}
 }
 
@@ -63,7 +80,7 @@ void UStunEffect::Deactivate()
 {
 	// InnerState, OuterState 연결하고 여기는 nullptr로
 	// 변수들 원래대로
-	GetOuter()->GetWorld()->GetTimerManager().ClearTimer(DurationTimer);
+	// GetOuter()->GetWorld()->GetTimerManager().ClearTimer(DurationTimer);
 	
 	Cast<IBehaviorState>(InnerState.GetObject())->SetOuterState(OuterState);
 	
@@ -71,19 +88,18 @@ void UStunEffect::Deactivate()
 	{
 		CastedOuterDecorator->SetInnerState(InnerState);
 	}
-
-	if (!IsValid(OuterState.GetObject()))
+	else
 	{
-		IBattleSystemUser::Execute_SetBehaviorState(GetOuter()->GetOuter(), InnerState.GetObject());
+		UE_LOG(LogTemp, Display, TEXT("UStunEffect::Deactivate : None Outer. Set BehaviorState to Inner."));
+		// IBattleSystemUser::Execute_SetBehaviorState(GetOuter()->GetOuter(), InnerState.GetObject());
+		IBattleSystemUser::Execute_SetBehaviorState(GetOuter()->GetOuter(), InnerState);
 	}
-	
 
 	SetInnerState(nullptr);
 	SetOuterState(nullptr);
 
 	UE_LOG(LogTemp, Display, TEXT("UStunEffect::DeActivate : Stun End!"));
 	bIsActive = false;
-
 }
 
 void UStunEffect::Move(const FInputActionValue& Value)

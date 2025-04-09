@@ -49,6 +49,6 @@ public:
 	
 	// InnerState Getter/Setter
 	virtual TScriptInterface<UBehaviorState> GetInnerState() const = 0;
-	virtual void SetInnerState(TScriptInterface<UBehaviorState> NewInnerState) = 0;
+	virtual void SetInnerState(const TScriptInterface<UBehaviorState>& NewInnerState) = 0;
 };
 

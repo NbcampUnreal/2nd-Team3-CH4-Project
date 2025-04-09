@@ -58,16 +58,14 @@ int32 UBossBasicComboSkill::ProcessTargetActors(const TArray<AActor*>& TargetAct
 		if (auto CastedTarget = Cast<IDamageSystemUser>(Target))
 		{
 			UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Success!"));
-			FVector LaunchVector = OwnerCharacter->GetActorForwardVector() * 100;
+			FVector LaunchVector = {1000.0f, 0.0f, 0.0f};
 			
 			FAttackData AttackData
 			{
 				Damage,
 				LaunchVector,
-				1,
 				{ EBehaviorEffect::Stun },
-				{ 2 },
-				0,
+				{ 1 },
 				{},
 				{}
 			};

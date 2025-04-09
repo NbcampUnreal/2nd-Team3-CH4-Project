@@ -84,7 +84,7 @@ TScriptInterface<UBehaviorState> UBehaviorStateDecorator::GetInnerState() const
 	return InnerState;
 }
 
-void UBehaviorStateDecorator::SetInnerState(TScriptInterface<UBehaviorState> NewInnerState)
+void UBehaviorStateDecorator::SetInnerState(const TScriptInterface<UBehaviorState>& NewInnerState)
 {
 	InnerState = NewInnerState;
 }
@@ -96,6 +96,6 @@ TScriptInterface<UBehaviorState> UBehaviorStateDecorator::GetOuterState() const
 
 void UBehaviorStateDecorator::SetOuterState(const TScriptInterface<UBehaviorState>& NewOuterState)
 {
-	InnerState = NewOuterState;
+	OuterState = NewOuterState;
 }
 
