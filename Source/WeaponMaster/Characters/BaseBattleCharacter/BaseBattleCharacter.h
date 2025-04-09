@@ -76,38 +76,38 @@ public:
 	
 	// Character -> ItemComponent
 	UFUNCTION(BlueprintCallable, Category = "Components")
-	virtual UItemComponent* GetItemComponent() const override;
+	virtual UItemComponent* GetItemComponent_Implementation() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Items")
-	virtual bool EquipItem(FName ItemID) override;
+	virtual bool EquipItem_Implementation(FName ItemID) override;
 
 	// Character -> SillComponent
 	UFUNCTION(BlueprintCallable, Category = "Components")
-	virtual USkillComponent* GetSkillComponent() const override;
+	virtual USkillComponent* GetSkillComponent_Implementation() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Skills")
-	virtual void ExecuteSkill(int32 SkillIndex) override;
+	virtual void ExecuteSkill_Implementation(int32 SkillIndex) override;
 
 	// Character -> StateComponent
 	UFUNCTION(BlueprintCallable, Category = "States")
-	virtual UCharacterBehaviorState* GetBehaviorState() const override;
+	virtual UCharacterBehaviorState* GetBehaviorState_Implementation() const override;
 
 	// ItemComponent -> Character -> SkillComponent
 	UFUNCTION(BlueprintCallable, Category = "Items")
-	virtual void OnItemEquipped(UItemDataAsset* EquippedItem) override;
+	virtual void OnItemEquipped_Implementation(UItemDataAsset* EquippedItem) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Items")
-	virtual void OnItemUnequipped() override;
+	virtual void OnItemUnequipped_Implementation() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Skills")
-	virtual void InterruptActiveSkill() override;
+	virtual void InterruptActiveSkill_Implementation() override;
 
 	// Interactable Actors
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	virtual void SetInteractableActor(AActor* NewInteractableActor) override;
+	virtual void SetInteractableActor_Implementation(AActor* NewInteractableActor) override;
 
 	UFUNCTION(BlueprintPure, Category = "Interaction")
-	virtual AActor* GetInteractableActor() const override;
+	virtual AActor* GetInteractableActor_Implementation() const override;
 
 	// Event when Attacked
 	UFUNCTION(BlueprintCallable, Category = "Attacked")

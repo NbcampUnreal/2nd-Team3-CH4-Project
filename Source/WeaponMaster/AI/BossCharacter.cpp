@@ -150,6 +150,7 @@ void ABossCharacter::ApplyPowerAttack()
 		}
 	}
 }
+
 void ABossCharacter::OnAttacked(int Damage)
 {
 	CurrentHP -= Damage;
@@ -175,4 +176,59 @@ void ABossCharacter::Die()
 	{
 		AICon->StopMovement();
 	}
+}
+
+// !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
+// !~!~!~!~ Battle System User Interface ~!~!~!~!
+// !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
+
+UItemComponent* ABossCharacter::GetItemComponent_Implementation() const
+{
+	return nullptr;
+}
+
+USkillComponent* ABossCharacter::GetSkillComponent_Implementation() const
+{
+	return SkillComponent;
+}
+
+
+bool ABossCharacter::EquipItem_Implementation(FName ItemID)
+{
+	return true;
+}
+
+void ABossCharacter::ExecuteSkill_Implementation(int32 SkillIndex)
+{
+}
+
+UCharacterBehaviorState* ABossCharacter::GetBehaviorState_Implementation() const
+{
+	return nullptr;
+}
+
+void ABossCharacter::OnItemEquipped_Implementation(UItemDataAsset* EquippedItem)
+{
+}
+
+void ABossCharacter::OnItemUnequipped_Implementation()
+{
+}
+
+void ABossCharacter::InterruptActiveSkill_Implementation()
+{
+}
+
+void ABossCharacter::SetInteractableActor_Implementation(AActor* NewInteractableActor)
+{
+}
+
+AActor* ABossCharacter::GetInteractableActor_Implementation() const
+{
+	return nullptr;
+}
+
+
+void ABossCharacter::OnAttacked(const FAttackData& AttackData)
+{
 }
