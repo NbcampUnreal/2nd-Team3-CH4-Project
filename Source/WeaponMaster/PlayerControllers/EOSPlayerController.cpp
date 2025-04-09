@@ -39,6 +39,29 @@ void AEOSPlayerController::BeginPlay()
             SessionLobbyWidget->OnLoginClicked.AddDynamic(this, &AEOSPlayerController::OnLoginButtonClicked);
         }
     }
+
+    if (PlayerNameWidgetClass)
+    {
+        PlayerNameWidget = CreateWidget<UPlayerNameWidget>(GetWorld(), PlayerNameWidgetClass);
+    }
+
+    if (!IsRunningDedicatedServer())
+    {
+        if (const UWeaponMasterGameInstance* MyGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
+        {
+            FString PlayerName = MyGI->GetPlayerName();
+            if (PlayerName != "")
+            {
+                if (PlayerNameWidget)
+                {
+                    PlayerNameWidget->SetPlayerName(PlayerName);
+                    PlayerNameWidget->PlayerNameText->SetVisibility(ESlateVisibility::Visible);
+                }
+            }
+
+            UE_LOG(LogTemp, Warning, TEXT("SetPlayerName = [%s]"), *PlayerName);
+        }
+    }
 }
 
 void AEOSPlayerController::OnStartSessionButtonClicked()
@@ -49,13 +72,21 @@ void AEOSPlayerController::OnStartSessionButtonClicked()
 
 void AEOSPlayerController::OnLoginButtonClicked()
 {
-    UE_LOG(LogTemp, Warning, TEXT("StartSessionButton clicked!"));
+    bool bIsPlayerLoggedin = false;;
+    if (const UWeaponMasterGameInstance* MyGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
+    {
+        bIsPlayerLoggedin = MyGI->IsPlayerLoggedIn();
+    }
 
-    if (!IsRunningDedicatedServer())
+    if (!IsRunningDedicatedServer() && !bIsPlayerLoggedin)
     {
         UWeaponMasterGameInstance* MyGI = Cast<UWeaponMasterGameInstance>(GetGameInstance());
         check(MyGI);
         MyGI->Login();
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Player already logged in!"));
     }
 }
 
@@ -82,23 +113,23 @@ void AEOSPlayerController::Server_StartSession_Implementation()
     }
 }
 
-void AEOSPlayerController::HandleProcessResult(EMyStateType State, EMyResultType Result)
+void AEOSPlayerController::HandleProcessResult(EPlayerEOSStateType State, ESessionResultType Result)
 {
     UE_LOG(LogTemp, Warning, TEXT("Player Controller Process Result [%d][%d]"), State, Result);
     switch (State)
     {
-    case EMyStateType::Login:
+    case EPlayerEOSStateType::Login:
         {
-            if (Result == EMyResultType::Success)
+            if (Result == ESessionResultType::Success)
             {
                 break;
             }
         }
-    case EMyStateType::FindSession:
+    case EPlayerEOSStateType::FindSession:
         break;
-    case EMyStateType::JoinSession:
+    case EPlayerEOSStateType::JoinSession:
         {
-            if (Result == EMyResultType::Success)
+            if (Result == ESessionResultType::Success)
             {
                 Server_RegisterPlayer(this);
                 break;

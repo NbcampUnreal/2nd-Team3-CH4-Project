@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Instance/WeaponMasterGameInstance.h"
+#include "UI/MultiUI/PlayerNameWidget.h"
 #include "EOSPlayerController.generated.h"
 
 class USessionLobbyWidget;
@@ -28,20 +29,27 @@ protected:
 
 private:
 	UFUNCTION()
-	void HandleProcessResult(EMyStateType State, EMyResultType Result);
+	void HandleProcessResult(EPlayerEOSStateType State, ESessionResultType Result);
 
 	UFUNCTION()
 	virtual void OnNetCleanup(class UNetConnection* Connection) override;
+	
+	UFUNCTION()
+	void OnStartSessionButtonClicked();
 
+	UFUNCTION()
+	void OnLoginButtonClicked();
+
+	
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> SessionLobbyWidgetClass;
 
 	UPROPERTY()
 	TObjectPtr<USessionLobbyWidget> SessionLobbyWidget;
 
-	UFUNCTION()
-	void OnStartSessionButtonClicked();
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> PlayerNameWidgetClass;
 
-	UFUNCTION()
-	void OnLoginButtonClicked();
+	UPROPERTY()
+	TObjectPtr<UPlayerNameWidget> PlayerNameWidget;
 };

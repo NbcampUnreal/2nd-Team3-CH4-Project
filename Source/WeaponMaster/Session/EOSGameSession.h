@@ -10,7 +10,15 @@ namespace EEndPlayReason
 	enum Type : int;
 }
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(OnProcessReturnValue, EMyStateType, EMyResultType);
+UENUM(BlueprintType)
+enum class ESessionStateType : uint8
+{
+	Register		  UMETA(DisplayName = "Register"),
+	StartSession      UMETA(DisplayName = "StartSession"),
+	PlayerNumChanged  UMETA(DisplayName = "PlayerNumChanged"),
+};
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(OnSessionReturnValue, ESessionStateType, ESessionResultType);
 
 UCLASS(Blueprintable)
 class WEAPONMASTER_API AEOSGameSession : public AGameSession
@@ -20,7 +28,7 @@ class WEAPONMASTER_API AEOSGameSession : public AGameSession
 public:
 	AEOSGameSession();
 
-	OnProcessReturnValue OnProcessReturnValue;
+	OnSessionReturnValue OnSessionReturnValue;
 	
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
