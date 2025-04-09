@@ -10,7 +10,7 @@
 ABossCharacter::ABossCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	MaxHP = 1000;
+	MaxHP = 500;
 
 	BossStateComponent = CreateDefaultSubobject<UBossStateComponent>(TEXT("BossStateComponent"));
 
@@ -99,13 +99,17 @@ void ABossCharacter::ApplyBackStep()
 
 void ABossCharacter::ApplyForwardCharge()
 {
-	if (!HasAuthority()) return;
-
-	 Multicast_PlayMontage(ChargeMontage);
+	if (HasAuthority())
+	{
+		if (SkillComponent)
+		{
+			SkillComponent->ExecuteSkill(2); // 0번째 스킬 실행
+			UE_LOG(LogTemp, Warning, TEXT("BossSkill 2"));
+		}
+	}
 
 	FTimerHandle LaunchTimerHandle;
 	GetWorldTimerManager().SetTimer(LaunchTimerHandle, this, &ABossCharacter::PerformForwardCharge, 0.5f, false);
-
 }
 
 void ABossCharacter::PerformForwardCharge()
@@ -118,11 +122,8 @@ void ABossCharacter::PerformForwardCharge()
 
 void ABossCharacter::ApplyAreaSkill()
 {
-	// 1. 방향 돌리기
 	SetActorRotation(FRotator(0, 90.f, 0));
-
-	// 2. 기모으기 애니메이션
-	//Multicast_PlayMontage(ChargeMontage);
+	Multicast_PlayMontage(AreaChargeMontage);
 
 	// 3. 타이머로 실제 시전
 	FTimerHandle Timer;
@@ -149,18 +150,8 @@ void ABossCharacter::ApplyPowerAttack()
 		if (SkillComponent)
 		{
 			SkillComponent->ExecuteSkill(2); // 0번째 스킬 실행
-			UE_LOG(LogTemp, Warning, TEXT("BossSkill 2"));
+			UE_LOG(LogTemp, Warning, TEXT("BossSkill 3"));
 		}
-	}
-}
-
-void ABossCharacter::OnAttacked(int Damage)
-{
-	CurrentHP -= Damage;
-	if (CurrentHP <= 0)
-	{
-		CurrentHP = 0;
-		//Die();
 	}
 }
 
@@ -234,4 +225,13 @@ AActor* ABossCharacter::GetInteractableActor_Implementation() const
 
 void ABossCharacter::OnAttacked(const FAttackData& AttackData)
 {
+	//LaunchCharacter(AttackData.LaunchVector, true, true);
+	if(CurrentHP - AttackData.Damage <= 0)
+	{
+		Die();
+	}
+	else
+	{
+		CurrentHP -= AttackData.Damage;
+	}
 }

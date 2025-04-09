@@ -38,18 +38,19 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Boss")
 	USkillDataAsset* BossSkillAsset;
 
-
 	UFUNCTION()
 	void OnPhaseChanged(EBossPhase NewPhase);
-	//피격 판정
-	void OnAttacked(int Damage);
-
 	void Die();
+
+	//보스 몽타주
 	UPROPERTY(EditAnywhere, Category = "Death|Montage")
 	UAnimMontage* DeathMontage;
 
-	UPROPERTY(EditAnywhere, Category = "Charge|Montage")
-	UAnimMontage* ChargeMontage;
+	UPROPERTY(EditAnywhere, Category = "RushCharge|Montage")
+	UAnimMontage* ForwardChargeMontage;
+
+	UPROPERTY(EditAnywhere, Category = "AreaCharge|Montage")
+	UAnimMontage* AreaChargeMontage;
 /// 보스 뒤돌기
 
 public:
