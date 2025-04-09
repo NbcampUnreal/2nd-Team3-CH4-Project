@@ -4,23 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "IState.generated.h"
+#include "IEffect.generated.h"
 
 /**
- *  // Walking, Idle, ... , UseSkill, 피격
+ *  
  */
 UINTERFACE(BlueprintType)
-class WEAPONMASTER_API UState : public UInterface
+class WEAPONMASTER_API UEffect : public UInterface
 {
 	GENERATED_BODY()
 };
 
-class WEAPONMASTER_API IState
+class WEAPONMASTER_API IEffect
 {
 	GENERATED_BODY()
 
 public:
-	virtual void Enter() = 0;
-	virtual void Exit() = 0;
+	virtual void Activate() = 0;
+	virtual void Activate(float Duration) = 0;
+	virtual void Deactivate() = 0;
 	virtual void Tick(float DeltaTime) = 0;
 };

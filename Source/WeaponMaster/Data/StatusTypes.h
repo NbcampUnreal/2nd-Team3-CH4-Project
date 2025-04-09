@@ -8,19 +8,71 @@ UENUM(BlueprintType)
 enum class ECCSkillCategory : uint8
 {
     None        UMETA(DisplayName = "None"),
+    Behavior    UMETA(DisplayName = "Behavior"),
+    Stat        UMETA(DisplayName = "Stat"),
+    Dot         UMETA(DisplayName = "Dot"),
+    Max         UMETA(DisplayName = "Max")
+};
+
+UENUM(BlueprintType)
+enum class EBehaviorEffect : uint8
+{
+    Stiffness   UMETA(DisplayName = "Stiffness"),
     Stun        UMETA(DisplayName = "Stun"),
     Knockback   UMETA(DisplayName = "Knockback"),
     AirBorn     UMETA(DisplayName = "AirBorn"),
+    Blind       UMETA(DisplayName = "Blind"),
+    Silence     UMETA(DisplayName = "Silence"),
+
+    UsingSkill  UMETA(DisplayName = "UsingSkill"),
+    Death       UMETA(DisplayName = "Death"),
+    Max         UMETA(DisplayName = "Max")
+};
+
+UENUM(BlueprintType)
+enum class ENonBehaviorEffect : uint8
+{
+    // Soft CC
     Slow        UMETA(DisplayName = "Slow"),
-    Root        UMETA(DisplayName = "Root"),
+    AttackDown  UMETA(DisplayName = "AttackDown"),
+
+    // Dot Effect
     Burn        UMETA(DisplayName = "Burn"),
     Freeze      UMETA(DisplayName = "Freeze"),
     Poison      UMETA(DisplayName = "Poison"),
-    Blind       UMETA(DisplayName = "Blind")
+    Max         UMETA(DisplayName = "Max")
 };
 
-// UENUM(BlueprintType)
-// enum class EBehaviorEffect : uint8
-// {
-//     
-// };
+
+USTRUCT(BlueprintType)
+struct FAttackData
+{
+    GENERATED_BODY()
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float Damage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float Duration;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FVector LaunchVector;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 BehaviorEffectNumbers;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<EBehaviorEffect> BehaviorEffects;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<float> BehaviorEffectsDurations;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 NonBehaviorEffectNumbers;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<EBehaviorEffect> NonBehaviorEffects;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<float> NonBehaviorEffectsDurations;
+};

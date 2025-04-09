@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "States/CharacterInputState.h"
+#include "States/CharacterBehaviorState.h"
 #include "StateComponent.generated.h"
 
 DECLARE_DELEGATE(FOnStateComponentReady);
@@ -22,7 +22,7 @@ public:
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCharacterInputState> CharacterInputState;
+	TObjectPtr<UCharacterBehaviorState> CharacterBehaviorState;
 	
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -32,5 +32,5 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
-	UCharacterInputState* GetInputState();
+	UCharacterBehaviorState* GetBehaviorState();
 };
