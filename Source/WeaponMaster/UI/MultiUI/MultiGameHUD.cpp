@@ -5,8 +5,8 @@
 #include "WrapStatusWidget.h"
 #include "../CommonUI/PlayerStatusWidget.h"
 #include "GameFramework/PlayerState.h"
-#include "Components/VerticalBox.h"
-#include "Components/VerticalBoxSlot.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
 
 
 void AMultiGameHUD::BeginPlay()

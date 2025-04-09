@@ -19,7 +19,9 @@ class WEAPONMASTER_API UOptionWidget : public UUserWidget
 
 public:
 	FOnOptionAction OptionComplete;
+
     virtual void NativeConstruct() override;
+
 protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<USlider> BackgroundVolumeSlider;
