@@ -34,8 +34,7 @@ void AMainMenuHUD::ShowMainMenu()
         {
             MainMenuWidget->AddToViewport();
             MainMenuWidget->OnSingleClicked.AddDynamic(this, &AMainMenuHUD::HandleSingleClicked);
-            MainMenuWidget->OnCoopClicked.AddDynamic(this, &AMainMenuHUD::HandleCoopClicked);
-            MainMenuWidget->OnVsClicked.AddDynamic(this, &AMainMenuHUD::HandleVsClicked);
+            MainMenuWidget->OnMultiClicked.AddDynamic(this, &AMainMenuHUD::HandleMultiClicked);
             MainMenuWidget->OnShopClicked.AddDynamic(this, &AMainMenuHUD::HandleShopClicked);
             MainMenuWidget->OnExitClicked.AddDynamic(this, &AMainMenuHUD::HandleExitClicked);
 
@@ -66,16 +65,13 @@ void AMainMenuHUD::HandleSingleClicked()
     ShowChoiceMenu();
 }
 
-void AMainMenuHUD::HandleCoopClicked()
+void AMainMenuHUD::HandleMultiClicked()
 {
-    LogMessage("In Hud HandleCoopClicked");
-    UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_CoopLobby")));
-}
+    LogMessage("In Hud HandleMultiClicked");
+  //  UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_VSLobby")));
+    
 
-void AMainMenuHUD::HandleVsClicked()
-{
-    LogMessage("In Hud HandleVsClicked");
-    UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_VSLobby")));
+
 }
 
 void AMainMenuHUD::HandleShopClicked()

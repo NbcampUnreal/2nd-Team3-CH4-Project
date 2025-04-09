@@ -25,10 +25,7 @@ public:
 	void HandleSingleClicked();
 
 	UFUNCTION()
-	void HandleCoopClicked();
-
-	UFUNCTION()
-	void HandleVsClicked();
+	void HandleMultiClicked();
 
 	UFUNCTION()
 	void HandleShopClicked();
