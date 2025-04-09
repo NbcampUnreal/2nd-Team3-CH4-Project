@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "WeaponMaster/AI/AIComponent/BossStateComponent.h"
 #include "WeaponMaster/Characters/Components/SkillComponent/SkillComponent.h"
+#include "WeaponMaster/Characters/Components/DamageSystemUser.h"
 #include "BossCharacter.generated.h"
 
 UCLASS()
@@ -19,10 +20,10 @@ protected:
 	virtual void BeginPlay() override;
 public:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss|Stats")
-	float MaxHP;
+	int32 MaxHP;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boss|Stats")
-	float CurrentHP;
+	int32 CurrentHP;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boss|Component")
 	UBossStateComponent* BossStateComponent;
@@ -39,6 +40,15 @@ public:
 
 	UFUNCTION()
 	void OnPhaseChanged(EBossPhase NewPhase);
+	//피격 판정
+	void OnAttacked(int Damage);
+
+	void Die();
+	UPROPERTY(EditAnywhere, Category = "Death|Montage")
+	UAnimMontage* DeathMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Charge|Montage")
+	UAnimMontage* ChargeMontage;
 /// 보스 뒤돌기
 
 public:
@@ -52,43 +62,16 @@ private:
 
 ///보스 공격 패턴
 public:
-	//공격 범위
-	void CalculateAttackBox(int32 ComboStep, FVector& OutCenter, FVector& OutExtent);
-	void DamageActorsInBox(const FVector& Center, const FVector& Extent);
-
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_PlayMontage(UAnimMontage* Montage);
 
 	//////1페이즈//////
 	//기본 공격 
-	UPROPERTY(EditAnywhere, Category = "Combat|Montage")
-	UAnimMontage* ComboMontage1;
 
 	UFUNCTION(BlueprintCallable)
 	void ApplyBasicCombo();
 
-	UFUNCTION(BlueprintCallable)
-	void StartBasicCombo(); // 타격 타이밍에 호출됨
-
-	UFUNCTION(Server, Reliable)
-	void Server_ApplyBasicCombo();
-
-	//1,2,3타
-	void PerformComboAttack();
-
-
 	//뒤로 대쉬
-
-	UPROPERTY(EditAnywhere, Category = "Boss|Movement")
-	float DashPower = 1200.f;
-
-	UPROPERTY(EditAnywhere, Category = "Boss|Movement")
-	float JumpBoost = 200.f;
-
-	UPROPERTY(EditAnywhere, Category = "Boss|Montage")
-	UAnimMontage* BackStepMontage;
-
-
 	UFUNCTION(BlueprintCallable)
 	void ApplyBackStep();
 
@@ -97,8 +80,14 @@ public:
 	void ExecuteForwardCharge();
 
 	//////2페이즈//////
+
+	//광역기
 	UFUNCTION(BlueprintCallable)
 	void ApplyAreaSkill();
 
 	void ExecuteAreaSkill();
+
+	//강공격
+	UFUNCTION(BlueprintCallable)
+	void ApplyPowerAttack();
 };

@@ -1,4 +1,4 @@
-#include "WeaponMaster/Skills/BossBasicComboSkill.h"
+#include "WeaponMaster/Skills/BossAreaSkill.h"
 #include "WeaponMaster/Characters/TestCharacter.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
@@ -7,17 +7,17 @@
 #include "NiagaraSystem.h"
 #include "WeaponMaster/Data/StatusTypes.h"
 
-UBossBasicComboSkill::UBossBasicComboSkill()
+UBossAreaSkill::UBossAreaSkill()
 {
-
+    DefaultAttackSpeed = 0.8f;
 }
 
-void UBossBasicComboSkill::ExecuteSkill()
+void UBossAreaSkill::ExecuteSkill()
 {
     Super::ExecuteSkill();
 }
 
-int32 UBossBasicComboSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage)
+int32 UBossAreaSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage)
 {
     // 기본 유효성 검사
     if (!OwnerCharacter || !OwnerCharacter->HasAuthority())
