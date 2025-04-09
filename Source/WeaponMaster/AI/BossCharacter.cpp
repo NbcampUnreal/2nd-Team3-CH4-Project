@@ -10,7 +10,7 @@
 ABossCharacter::ABossCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	MaxHP = 1000.0f;
+	MaxHP = 1000;
 
 	BossStateComponent = CreateDefaultSubobject<UBossStateComponent>(TEXT("BossStateComponent"));
 
@@ -66,49 +66,6 @@ void ABossCharacter::LookAtTarget(const AActor* TargetActor)
 }
 
 
-
-void ABossCharacter::CalculateAttackBox(int32 ComboStep, FVector& OutCenter, FVector& OutExtent)
-{
-	FVector Forward = GetActorForwardVector();
-	FVector MyLocation = GetActorLocation();
-
-	float ForwardDistance = 200.f + (ComboStep - 1) * 100.f;
-	OutCenter = MyLocation + Forward * ForwardDistance + FVector(0, 0, 50);
-	OutExtent = FVector(100.f, 200.f, 100.f);
-
-	DrawDebugBox(
-		GetWorld(),                    // 월드
-		OutCenter,                 // 박스 중심
-		OutExtent,                    // 반지름 (절반 사이즈)
-		FQuat::Identity,             // 회전 (일단 없음)
-		FColor::Red,                 // 색깔
-		false,                       // 영구 표시? false면 몇 초만 표시됨
-		0.7f,                        // 지속 시간 (초 단위)
-		0,                           // Depth Priority
-		2.0f                         // 선 두께
-	);
-}
-
-
-void ABossCharacter::DamageActorsInBox(const FVector& Center, const FVector& Extent)
-{
-	DrawDebugBox(GetWorld(), Center, Extent, FQuat::Identity, FColor::Red, false, 1.0f, 0, 2.0f);
-
-	TArray<AActor*> AllEnemies;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWeaponMasterCharacter::StaticClass(), AllEnemies);
-
-	for (AActor* Enemy : AllEnemies)
-	{
-		if (!Enemy || Enemy == this) continue;
-
-		if (UKismetMathLibrary::IsPointInBox(Enemy->GetActorLocation(), Center, Extent))
-		{
-			// 나중에 HitReactComponent에 연결
-			UE_LOG(LogTemp, Warning, TEXT("콤보 공격 타격: %s"), *Enemy->GetName());
-		}
-	}
-}
-
 void ABossCharacter::Multicast_PlayMontage_Implementation(UAnimMontage* Montage)
 {
 	if (Montage)
@@ -121,52 +78,21 @@ void ABossCharacter::ApplyBasicCombo()
 {
 	if (HasAuthority())
 	{
-		//StartBasicCombo();
 		if (SkillComponent)
 		{
 			SkillComponent->ExecuteSkill(0); // 0번째 스킬 실행
-			UE_LOG(LogTemp, Warning, TEXT("BossItem 0"));
+			UE_LOG(LogTemp, Warning, TEXT("BossSkill 0"));
 		}
 	}
-	else
-	{
-		Server_ApplyBasicCombo();
-	}
-}
-
-
-void ABossCharacter::Server_ApplyBasicCombo_Implementation()
-{
-	StartBasicCombo();
-}
-
-
-void ABossCharacter::StartBasicCombo()
-{
-	PerformComboAttack();
-}
-
-void ABossCharacter::PerformComboAttack()
-{
-	if (ComboMontage1)
-	{
-		Multicast_PlayMontage(ComboMontage1);
-	}
-
-	FVector Center, Extent;
-	CalculateAttackBox(1, Center, Extent);
-	DamageActorsInBox(Center, Extent);
 }
 
 void ABossCharacter::ApplyBackStep()
 {
 	if (!HasAuthority()) return;
 
-	//Multicast_PlayMontage(BackStepMontage); // 연출용 애니메이션
-
 	FVector BackDir = -GetActorForwardVector();
 
-	FVector LaunchVelocity = BackDir * DashPower + FVector(0, 0, JumpBoost);
+	FVector LaunchVelocity = BackDir * 1200.0f + FVector(0, 0, 200.0f);
 
 	LaunchCharacter(LaunchVelocity, true, true);
 }
@@ -175,28 +101,25 @@ void ABossCharacter::ExecuteForwardCharge()
 {
 	if (!HasAuthority()) return;
 
-	// 돌진 애니메이션 재생 (멀티캐스트)
-	// Multicast_PlayMontage(ChargeMontage);
-	// 돌진 방향 = 현재 보스 정면
+	 Multicast_PlayMontage(ChargeMontage);
 
 	FVector ChargeDir = GetActorForwardVector();
 	FVector LaunchVelocity = ChargeDir * 2000.f + FVector(0, 0, 150.f);
 
 	LaunchCharacter(LaunchVelocity, true, true);
 
-	// 충돌 타이밍을 고려해 약간 딜레이 후 판정 실행
-	//FTimerHandle HitCheckTimer;
-	//GetWorldTimerManager().SetTimer(HitCheckTimer, this, &ABossCharacter::ChargeHitCheck, 0.3f, false);
+	FTimerHandle ForwardCharge;
+	//GetWorldTimerManager().SetTimer(ForwardCharge, this, &ABossCharacter::Destroy, 5.0f, false);
 
 }
 
 void ABossCharacter::ApplyAreaSkill()
 {
 	// 1. 방향 돌리기
-	SetActorRotation(GetActorRotation() + FRotator(0, 90.f, 0));
+	SetActorRotation(FRotator(0, 90.f, 0));
 
 	// 2. 기모으기 애니메이션
-	//Multicast_PlayMontage(Phase2ChargeMontage);
+	//Multicast_PlayMontage(ChargeMontage);
 
 	// 3. 타이머로 실제 시전
 	FTimerHandle Timer;
@@ -205,35 +128,51 @@ void ABossCharacter::ApplyAreaSkill()
 
 void ABossCharacter::ExecuteAreaSkill()
 {
-	const float Radius = 600.f;
-	const FVector MyLocation = GetActorLocation();
-
-	DrawDebugSphere(
-		GetWorld(),
-		MyLocation,
-		Radius,
-		24,
-		FColor::Purple,
-		false,
-		2.0f,
-		0,
-		3.0f
-	);
-
-	TArray<AActor*> AllEnemies;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWeaponMasterCharacter::StaticClass(), AllEnemies);
-
-	for (AActor* Enemy : AllEnemies)
+	if (HasAuthority())
 	{
-		if (!Enemy || Enemy == this) continue;
-
-		const float Dist = FVector::Dist(Enemy->GetActorLocation(), MyLocation);
-
-		if (Dist <= Radius)
+		//StartBasicCombo();
+		if (SkillComponent)
 		{
-			// 나중에 OnTakeBossDamage 등으로 연결해도 좋음
-			UGameplayStatics::ApplyDamage(Enemy, 100.f, GetController(), this, nullptr);
-			UE_LOG(LogTemp, Warning, TEXT("범위기에 맞은 액터: %s"), *Enemy->GetName());
+			SkillComponent->ExecuteSkill(1);
+			UE_LOG(LogTemp, Warning, TEXT("BossSkill 1"));
 		}
+	}
+}
+
+void ABossCharacter::ApplyPowerAttack()
+{
+	if (HasAuthority())
+	{
+		if (SkillComponent)
+		{
+			SkillComponent->ExecuteSkill(2); // 0번째 스킬 실행
+			UE_LOG(LogTemp, Warning, TEXT("BossSkill 2"));
+		}
+	}
+}
+void ABossCharacter::OnAttacked(int Damage)
+{
+	CurrentHP -= Damage;
+	if (CurrentHP <= 0)
+	{
+		CurrentHP = 0;
+		//Die();
+	}
+}
+
+void ABossCharacter::Die()
+{
+	//SetIsDeath(true);
+
+	if (DeathMontage)
+	{
+		PlayAnimMontage(DeathMontage);
+	}
+
+	// AI 멈춤
+	AAIController* AICon = Cast<AAIController>(GetController());
+	if (AICon)
+	{
+		AICon->StopMovement();
 	}
 }

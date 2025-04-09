@@ -1,12 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "PickupableItem.h"
 #include "Components/SphereComponent.h"
 #include "InteractionComponent/InteractionComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "WeaponMaster/Characters/TestCharacter.h"
-#include "WeaponMaster/Characters/WeaponMasterCharacter.h"
+#include "GameFramework/Character.h"
+#include "WeaponMaster/Characters/Components/IBattleSystemUser.h"
 #include "WeaponMaster/Data/GameDataManager.h"
 #include "WeaponMaster/Data/WeaponMasterLib.h"
 
@@ -96,15 +93,23 @@ void APickupableItem::LoadItemData()
 
 void APickupableItem::OnPickup(AActor* Interactor)
 {
-    // 캐릭터 참조 얻기
-    ATestCharacter* Character = Cast<ATestCharacter>(Interactor);
+    // ACharacter로 캐스팅 후 IBattleSystemUser 인터페이스 확인
+    ACharacter* Character = Cast<ACharacter>(Interactor);
     if (!Character || !ItemData)
     {
         return;
     }
     
+    // 캐릭터가 IBattleSystemUser 인터페이스를 구현하는지 확인
+    IBattleSystemUser* BattleSystemUser = Cast<IBattleSystemUser>(Character);
+    if (!BattleSystemUser)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Character does not implement IBattleSystemUser"));
+        return;
+    }
+    
     // 아이템 장착 시도
-    bool bPickedUp = Character->EquipItem(ItemID);
+    bool bPickedUp = BattleSystemUser->EquipItem(ItemID);
     
     if (bPickedUp)
     {
@@ -127,32 +132,50 @@ void APickupableItem::OnInteractionBegin(UPrimitiveComponent* OverlappedComponen
                                         UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
                                         bool bFromSweep, const FHitResult& SweepResult)
 {
-    // 플레이어 캐릭터와 오버랩인지 확인
-    ATestCharacter* Character = Cast<ATestCharacter>(OtherActor);
-    if (Character)
+    // ACharacter로 캐스팅 후 IBattleSystemUser 인터페이스 확인
+    ACharacter* Character = Cast<ACharacter>(OtherActor);
+    if (!Character)
     {
-        // 상호작용 UI 표시
-        InteractionComponent->EnableInteraction(Character);
-        
-        // 캐릭터에게 현재 상호작용 가능한 아이템 알림
-        Character->SetInteractableActor(this);
+        return;
     }
+    
+    // 캐릭터가 IBattleSystemUser 인터페이스를 구현하는지 확인
+    IBattleSystemUser* BattleSystemUser = Cast<IBattleSystemUser>(Character);
+    if (!BattleSystemUser)
+    {
+        return;
+    }
+    
+    // 상호작용 UI 표시
+    InteractionComponent->EnableInteraction(Character);
+    
+    // 캐릭터에게 현재 상호작용 가능한 아이템 알림
+    BattleSystemUser->SetInteractableActor(this);
 }
 
 void APickupableItem::OnInteractionEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-    // 플레이어 캐릭터와 오버랩 종료인지 확인
-    ATestCharacter* Character = Cast<ATestCharacter>(OtherActor);
-    if (Character)
+    // ACharacter로 캐스팅 후 IBattleSystemUser 인터페이스 확인
+    ACharacter* Character = Cast<ACharacter>(OtherActor);
+    if (!Character)
     {
-        // 상호작용 UI 숨기기
-        InteractionComponent->DisableInteraction();
-        
-        // 캐릭터의 상호작용 가능한 아이템 제거
-        if (Character->GetInteractableActor() == this)
-        {
-            Character->SetInteractableActor(nullptr);
-        }
+        return;
+    }
+    
+    // 캐릭터가 IBattleSystemUser 인터페이스를 구현하는지 확인
+    IBattleSystemUser* BattleSystemUser = Cast<IBattleSystemUser>(Character);
+    if (!BattleSystemUser)
+    {
+        return;
+    }
+    
+    // 상호작용 UI 숨기기
+    InteractionComponent->DisableInteraction();
+    
+    // 캐릭터의 상호작용 가능한 아이템 제거
+    if (BattleSystemUser->GetInteractableActor() == this)
+    {
+        BattleSystemUser->SetInteractableActor(nullptr);
     }
 }
