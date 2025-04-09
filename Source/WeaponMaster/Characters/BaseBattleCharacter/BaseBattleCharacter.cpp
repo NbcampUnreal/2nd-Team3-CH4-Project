@@ -250,8 +250,7 @@ void ABaseBattleCharacter::OnItemEquipped(UItemDataAsset* EquippedItem)
 {
 	if (IsValid(SkillComponent))
 	{
-		// 스킬 초기화 (null 전달하여 스킬 제거)
-		SkillComponent->InitializeSkillsFromItem(nullptr);
+		SkillComponent->InitializeSkillsFromItem(EquippedItem);
 	}
 }
 
@@ -308,7 +307,7 @@ void ABaseBattleCharacter::SetInteractableActor(AActor* NewInteractableActor)
 
 AActor* ABaseBattleCharacter::GetInteractableActor() const
 {
-	return NewObject<AActor>();
+	return InteractableActor;
 }
 
 void ABaseBattleCharacter::WeakAttack()
@@ -338,14 +337,13 @@ void ABaseBattleCharacter::PickingItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::PickingItem !"));
 	// 상호작용 가능한 아이템이 있는지 확인
-	if (InteractableActor)
+	if (GetInteractableActor())
 	{
 		// 상호작용 컴포넌트 찾기
-		UInteractionComponent* InteractionComp = InteractableActor->FindComponentByClass<UInteractionComponent>();
+		UInteractionComponent* InteractionComp = GetInteractableActor()->FindComponentByClass<UInteractionComponent>();
 		if (InteractionComp)
 		{
-			// 상호작용 실행
-			InteractionComp->Interact(this);
+			InteractionComp->Interact( this);
 		}
 	}
 }
