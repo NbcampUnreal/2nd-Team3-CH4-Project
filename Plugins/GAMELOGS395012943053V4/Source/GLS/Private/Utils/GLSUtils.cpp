@@ -245,7 +245,7 @@ bool FGLSUtils::IsGLSEnabled()
 {
 #if UE_SERVER
     return false;
-#endif
+#else
 
 #if !defined(GLS_ENABLED) || !GLS_ENABLED
     return false;
@@ -271,7 +271,10 @@ bool FGLSUtils::IsGLSEnabled()
     }
 
     return false;
+
+#endif // UE_SERVER
 }
+
 
 bool UGLSUtils::IsDesktopPlatform()
 {

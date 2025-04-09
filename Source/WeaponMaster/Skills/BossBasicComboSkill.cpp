@@ -33,7 +33,7 @@ int32 UBossBasicComboSkill::ProcessTargetActors(const TArray<AActor*>& TargetAct
         {
             continue;
         }
-
+        UE_LOG(LogTemp, Warning, TEXT("[ComboSkill] Hit Target: %s"), *Target->GetName());
         float FinalDamage = SkillDamage;
 
         // 장비 또는 스킬 계수 적용

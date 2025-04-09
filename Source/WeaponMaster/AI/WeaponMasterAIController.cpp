@@ -74,8 +74,4 @@ void AWeaponMasterAIController::EvaluateTargetPriority()
 	{
 		GetBlackboardComponent()->SetValueAsObject(TEXT("TargetActor"), BestTarget);
 	}
-	else
-	{
-		GetBlackboardComponent()->ClearValue(TEXT("TargetActor"));
-	}
 }

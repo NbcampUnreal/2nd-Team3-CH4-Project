@@ -21,10 +21,10 @@ void UWeaponMasterGameInstance::Login()
 
 	const IOnlineSubsystem* Subsystem = Online::GetSubsystem(GetWorld());
 	const IOnlineIdentityPtr Identity = Subsystem->GetIdentityInterface();
-
+	
 	const FUniqueNetIdPtr NetId = Identity->GetUniquePlayerId(0);
 	if (NetId != nullptr && Identity->GetLoginStatus(0) == ELoginStatus::LoggedIn) return;
-    
+	
 	LoginDelegateHandle = Identity->AddOnLoginCompleteDelegate_Handle( // 핸들러 등록
 		0,
 		FOnLoginCompleteDelegate::CreateUObject(
@@ -57,7 +57,7 @@ void UWeaponMasterGameInstance::Login()
 
 			Identity->ClearOnLoginCompleteDelegate_Handle(0, LoginDelegateHandle);
 			LoginDelegateHandle.Reset();
-		}        
+		}
 	}
 }
 
@@ -71,10 +71,11 @@ void UWeaponMasterGameInstance::HandleLoginCompleted(int32 LocalUserNum, bool bW
 	{
 		UE_LOG(LogTemp, Log, TEXT("Login callback completed!"));
 		UE_LOG(LogTemp, Log, TEXT("Loading cloud data and searching for a session..."));
-		
+
+		OnProcessReturnValue.Broadcast(EMyStateType::Login, EMyResultType::Success);
 		FindSessions();
 	}
-	else 
+	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("EOS login failed."));
 		// 로그인 실패시 EOS 게임모드 통해 메인메뉴로 이동
@@ -121,7 +122,7 @@ void UWeaponMasterGameInstance::HandleFindSessionsCompleted(bool bWasSuccessful,
 		if (Search->SearchResults.Num() == 0)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Finding session failed."));
-			return; 
+			return;
 		}
         
 		UE_LOG(LogTemp, Warning, TEXT("Found session."));
@@ -132,12 +133,12 @@ void UWeaponMasterGameInstance::HandleFindSessionsCompleted(bool bWasSuccessful,
             
 			if (Session->GetResolvedConnectString(SessionInSearchResult, NAME_GamePort, ConnectString))
 			{
-				SessionToJoin = &SessionInSearchResult; 
+				SessionToJoin = &SessionInSearchResult;
 			}
-			break;            
+			break;
 		}
 		
-		JoinSession();  
+		JoinSession();
 	}
 	else
 	{
@@ -166,14 +167,14 @@ void UWeaponMasterGameInstance::JoinSession()
 
 		Session->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionDelegateHandle);
 		JoinSessionDelegateHandle.Reset();
-	} 
+	}
 }
 
 void UWeaponMasterGameInstance::HandleJoinSessionCompleted(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
 	IOnlineSubsystem* Subsystem = Online::GetSubsystem(GetWorld());
 	IOnlineSessionPtr Session = Subsystem->GetSessionInterface();
-    
+	
 	if (Result == EOnJoinSessionCompleteResult::Success)
 	{
 		FString JoinAddress;
