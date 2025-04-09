@@ -52,10 +52,6 @@ private:
 
 ///보스 공격 패턴
 public:
-	//공격 범위
-	void CalculateAttackBox(int32 ComboStep, FVector& OutCenter, FVector& OutExtent);
-	void DamageActorsInBox(const FVector& Center, const FVector& Extent);
-
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_PlayMontage(UAnimMontage* Montage);
 
