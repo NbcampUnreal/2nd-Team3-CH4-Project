@@ -49,6 +49,7 @@ void AEOSGameSession::PostLogin(APlayerController* NewPlayer)
 {
     Super::PostLogin(NewPlayer);
     NumberOfPlayersInSession++;
+    OnSessionReturnValue.Broadcast(ESessionStateType::PlayerNumChanged, ESessionResultType::Success);
 }
 
 void AEOSGameSession::NotifyLogout(const APlayerController* ExitingPlayer)
@@ -58,6 +59,7 @@ void AEOSGameSession::NotifyLogout(const APlayerController* ExitingPlayer)
     if (IsRunningDedicatedServer())
     {
         NumberOfPlayersInSession--;
+        OnSessionReturnValue.Broadcast(ESessionStateType::PlayerNumChanged, ESessionResultType::Success);
         
         if (NumberOfPlayersInSession == 0)
         {
@@ -167,8 +169,7 @@ void AEOSGameSession::HandleRegisterPlayerCompleted(FName EOSSessionName, const 
     if (bWasSuccesful)
     {
         UE_LOG(LogTemp, Log, TEXT("Player registered in EOS Session!"));
-        OnProcessReturnValue.Broadcast(EMyStateType::Register, EMyResultType::Success);
-
+        OnSessionReturnValue.Broadcast(ESessionStateType::Register, ESessionResultType::Success);
         UE_LOG(LogTemp, Warning, TEXT("Player registered in EOS Session! NumberOfPlayersInSession = [%d]"), NumberOfPlayersInSession);
         
         /*
@@ -180,7 +181,7 @@ void AEOSGameSession::HandleRegisterPlayerCompleted(FName EOSSessionName, const 
     }
     else
     {
-        OnProcessReturnValue.Broadcast(EMyStateType::Register, EMyResultType::Fail);
+        OnSessionReturnValue.Broadcast(ESessionStateType::Register, ESessionResultType::Fail);
         UE_LOG(LogTemp, Warning, TEXT("Failed to register player! (From Callback)"));
     }
     
@@ -266,12 +267,12 @@ void AEOSGameSession::HandleStartSessionCompleted(FName EOSSessionName, bool bWa
     if (bWasSuccessful)
     {
         UE_LOG(LogTemp, Log, TEXT("Session Started!"));
-        OnProcessReturnValue.Broadcast(EMyStateType::StartSession, EMyResultType::Success);
+        OnSessionReturnValue.Broadcast(ESessionStateType::StartSession, ESessionResultType::Success);
     }
     else
     {
         UE_LOG(LogTemp, Warning, TEXT("Failed to start session! (From Callback)"));
-        OnProcessReturnValue.Broadcast(EMyStateType::StartSession, EMyResultType::Fail);
+        OnSessionReturnValue.Broadcast(ESessionStateType::StartSession, ESessionResultType::Fail);
     }
 
     Session->ClearOnStartSessionCompleteDelegate_Handle(StartSessionDelegateHandle);

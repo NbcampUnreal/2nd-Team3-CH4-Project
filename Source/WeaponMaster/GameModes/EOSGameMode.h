@@ -60,6 +60,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "EOS")
 	void StartSession();
 
+	UFUNCTION(BlueprintCallable, Category = "EOS")
+	int32 GetPlayerNum();
+
 	UFUNCTION(BlueprintCallable, Category = "Session")
 	FORCEINLINE_DEBUGGABLE AEOSGameSession* GetEOSGameSession() const { return Cast<AEOSGameSession>(GameSession); }
 
@@ -71,5 +74,5 @@ private:
 	FPlayerControllerCollection PlayerControllerList;
 
 	UFUNCTION()
-	void HandleProcessResult(EMyStateType State, EMyResultType Result);
+	void HandleProcessResult(ESessionStateType State, ESessionResultType Result);
 };

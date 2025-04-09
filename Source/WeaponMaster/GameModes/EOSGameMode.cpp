@@ -16,7 +16,7 @@ void AEOSGameMode::BeginPlay()
 
 	if (AEOSGameSession* EOSSession = Cast<AEOSGameSession>(GameSessionClass))
 	{
-		EOSSession->OnProcessReturnValue.AddUObject(this, &AEOSGameMode::HandleProcessResult);
+		EOSSession->OnSessionReturnValue.AddUObject(this, &AEOSGameMode::HandleProcessResult);
 	}
 }
 
@@ -47,9 +47,9 @@ void AEOSGameMode::Logout(AController* Exiting)
 	{
 		if (AEOSGameSession* MyGameSession = GetEOSGameSession())
 		{
-			if (APlayerController* PC = Cast<APlayerController>(Exiting))
+			if (const APlayerController* PC = Cast<APlayerController>(Exiting))
 			{
-				MyGameSession->RegisterPlayer(PC, UniqueNetId, false);
+				MyGameSession->UnregisterPlayer(PC);
 			}
 		}
 	}
@@ -70,20 +70,25 @@ void AEOSGameMode::Logout(AController* Exiting)
 	}
 }
 
-void AEOSGameMode::HandleProcessResult(EMyStateType State, EMyResultType Result)
+void AEOSGameMode::HandleProcessResult(ESessionStateType State, ESessionResultType Result)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Process State is %d, Result is %d"), State, Result);
 	switch (State)
 	{
-	case EMyStateType::Register:
+	case ESessionStateType::Register:
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Player Successfully Registered!!"));
 			break;
 		}
-	case EMyStateType::StartSession:
+	case ESessionStateType::StartSession:
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Session Started Successfully!!!"));
 			TravelMap();
+			break;
+		}
+	case ESessionStateType::PlayerNumChanged:
+		{
+			
 			break;
 		}
 	default: break;
@@ -143,6 +148,16 @@ void AEOSGameMode::StartSession()
 	{
 		EOSSession->StartSession();
 	}
+}
+
+int32 AEOSGameMode::GetPlayerNum()
+{
+	if (AEOSGameSession* EOSSession = GetEOSGameSession())
+	{
+		return EOSSession->NumberOfPlayersInSession;
+	}
+
+	return 0;
 }
 
 

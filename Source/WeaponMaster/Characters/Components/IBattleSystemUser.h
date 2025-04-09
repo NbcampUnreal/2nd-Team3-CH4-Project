@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Data/StatusTypes.h"
 #include "IBattleSystemUser.generated.h"
 
+class UCharacterBehaviorState;
 class UItemDataAsset;
 /**
  * 
@@ -45,10 +47,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Skills")
 	virtual void InterruptActiveSkill() = 0;
 
+	// Character -> StateComponent
+	UFUNCTION(BlueprintCallable, Category = "States")
+	virtual UCharacterBehaviorState* GetBehaviorState() const = 0;
+	
 	// Interactable Actors
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	virtual void SetInteractableActor(AActor* NewInteractableActor) = 0;
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	virtual AActor* GetInteractableActor() const = 0;
+
+	// Called When Attacked by Other Character
+	UFUNCTION(BlueprintCallable, Category = "Attacked")
+	virtual void OnAttacked(float Damage, const FAttackData& AttackData) = 0;
 };

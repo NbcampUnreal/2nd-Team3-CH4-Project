@@ -4,9 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "IBaseBattleInputBindFunctions.h"
+#include "Data/StatusTypes.h"
 #include "SSTCharacter.h"
 #include "Characters/Components/IBattleSystemUser.h"
 #include "BaseBattleCharacter.generated.h"
+
+class UCharacterBehaviorState;
+class USkillComponent;
 
 UCLASS()
 class WEAPONMASTER_API ABaseBattleCharacter :
@@ -19,6 +23,7 @@ public:
 	ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer);
 
 protected:
+	// Components
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UStateComponent> StateComponent;
 
@@ -33,7 +38,15 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Interacts", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AActor> InteractableActor;
-	
+
+	// Constants
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats", meta = (AllowPrivateAccess = "true"))
+	float MaxHP;
+
+	// Variables
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	float HP;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -47,6 +60,8 @@ protected:
 
 	void BindInputFunctions();
 
+	void SetHP(float NewHP);
+	
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -60,32 +75,40 @@ public:
 	
 	// Character -> ItemComponent
 	UFUNCTION(BlueprintCallable, Category = "Components")
-	virtual UItemComponent* GetItemComponent() const;
+	virtual UItemComponent* GetItemComponent() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Items")
-	virtual bool EquipItem(FName ItemID);
+	virtual bool EquipItem(FName ItemID) override;
 
 	// Character -> SillComponent
 	UFUNCTION(BlueprintCallable, Category = "Components")
-	virtual USkillComponent* GetSkillComponent() const;
+	virtual USkillComponent* GetSkillComponent() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Skills")
-	virtual void ExecuteSkill(int32 SkillIndex);
+	virtual void ExecuteSkill(int32 SkillIndex) override;
+
+	// Character -> StateComponent
+	UFUNCTION(BlueprintCallable, Category = "States")
+	virtual UCharacterBehaviorState* GetBehaviorState() const override;
 
 	// ItemComponent -> Character -> SkillComponent
 	UFUNCTION(BlueprintCallable, Category = "Items")
-	virtual void OnItemEquipped(UItemDataAsset* EquippedItem);
+	virtual void OnItemEquipped(UItemDataAsset* EquippedItem) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Items")
-	virtual void OnItemUnequipped();
+	virtual void OnItemUnequipped() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Skills")
-	virtual void InterruptActiveSkill();
+	virtual void InterruptActiveSkill() override;
 
 	// Interactable Actors
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	virtual void SetInteractableActor(AActor* NewInteractableActor);
+	virtual void SetInteractableActor(AActor* NewInteractableActor) override;
 
 	UFUNCTION(BlueprintPure, Category = "Interaction")
-	virtual AActor* GetInteractableActor() const;
+	virtual AActor* GetInteractableActor() const override;
+
+	// Event when Attacked
+	UFUNCTION(BlueprintCallable, Category = "Attacked")
+	virtual void OnAttacked(float Damage, const FAttackData& AttackData) override;
 };

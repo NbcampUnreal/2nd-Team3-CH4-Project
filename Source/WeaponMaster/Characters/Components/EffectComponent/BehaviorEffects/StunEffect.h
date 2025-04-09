@@ -3,32 +3,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ISSTInputBindFunctions.h"
-#include "IState.h"
-#include "Characters/BaseBattleCharacter/IBaseBattleInputBindFunctions.h"
-#include "UObject/Object.h"
-#include "CharacterInputState.generated.h"
+#include "BehaviorStateDecorator.h"
+#include "StunEffect.generated.h"
 
-struct FInputActionValue;
 /**
  * 
  */
 UCLASS()
-class WEAPONMASTER_API UCharacterInputState :
-public UObject, public IState, public ISSTInputBindFunctions, public IBaseBattleInputBindFunctions
+class WEAPONMASTER_API UStunEffect : public UBehaviorStateDecorator
 {
 	GENERATED_BODY()
-protected:
-	UPROPERTY()
-	TObjectPtr<ACharacter> OwnerCharacter;
 
 public:
-	void Initialize(ACharacter* NewOwnerCharacter);
+	UStunEffect();
 	
-	virtual void Enter() override;
-	virtual void Exit() override;
-	virtual void Tick(float DeltaTime) override;
-
+	virtual void Activate() override;
+	virtual void Activate(float Duration) override;
+	virtual void Deactivate() override;
+	
 	virtual void Move(const FInputActionValue& Value) override;
 	virtual void CrouchDrop() override;
 	virtual void StopCrouchDrop() override;

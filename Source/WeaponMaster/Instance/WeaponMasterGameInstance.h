@@ -2,28 +2,27 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "OnlineSessionSettings.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "WeaponMasterGameInstance.generated.h"
 
 UENUM(BlueprintType)
-enum class EMyStateType : uint8
+enum class EPlayerEOSStateType : uint8
 {
 	Login			UMETA(DisplayName = "Login"),
 	FindSession     UMETA(DisplayName = "FindSession"),
-	JoinSession     UMETA(DisplayName = "JoinSession"),
-	Register		UMETA(DisplayName = "Register"),
-	StartSession    UMETA(DisplayName = "StartSession")
+	JoinSession     UMETA(DisplayName = "JoinSession")
 };
 
 UENUM(BlueprintType)
-enum class EMyResultType : uint8
+enum class ESessionResultType : uint8
 {
 	Success     UMETA(DisplayName = "Success"),
 	Fail        UMETA(DisplayName = "Fail"),
 	Unknown     UMETA(DisplayName = "Unknown")
 };
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(OnProcessReturnValue, EMyStateType, EMyResultType);
+DECLARE_MULTICAST_DELEGATE_TwoParams(OnProcessReturnValue, EPlayerEOSStateType, ESessionResultType);
 
 UCLASS()
 class WEAPONMASTER_API UWeaponMasterGameInstance : public UGameInstance
@@ -52,4 +51,10 @@ public:
  
 	void HandleJoinSessionCompleted(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 	FDelegateHandle JoinSessionDelegateHandle;
+
+	UFUNCTION(BlueprintCallable, Category = "EOS")
+	FString GetPlayerName() const;
+
+	UFUNCTION(BlueprintCallable, Category = "EOS")
+	bool IsPlayerLoggedIn() const;
 };
