@@ -9,7 +9,7 @@ UStunEffect::UStunEffect()
 	BehaviorEffectType = EBehaviorEffect::Stun;
 	bIsActive = false;
 }
-
+ 
 void UStunEffect::Activate()
 {
 	if (auto CastedCharacter = Cast<IBattleSystemUser>(OwnerCharacter))

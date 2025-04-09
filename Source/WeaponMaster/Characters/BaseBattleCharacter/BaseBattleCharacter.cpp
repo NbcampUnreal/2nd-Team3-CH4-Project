@@ -21,6 +21,7 @@
 #include "Items/InteractionComponent/InteractionComponent.h"
 #include "WeaponMaster/PlayerControllers/WeaponMasterController.h"
 #include "Data/StatusTypes.h"
+#include "GameFramework/PlayerState.h"
 
 // Sets default values
 ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer)
@@ -225,6 +226,8 @@ void ABaseBattleCharacter::BindInputFunctions()
 
 void ABaseBattleCharacter::SetHP(float NewHP)
 {
+	// ㅈㅍㅈㅍ
+	UE_LOG(LogTemp, Display, TEXT("SetHP : NewHP : %f"), NewHP);
 	if (NewHP > MaxHP)
 	{
 		HP = 100;
@@ -244,18 +247,18 @@ void ABaseBattleCharacter::SetHP(float NewHP)
 }
 
 
-UItemComponent* ABaseBattleCharacter::GetItemComponent() const
+UItemComponent* ABaseBattleCharacter::GetItemComponent_Implementation() const
 {
 	return ItemComponent;
 }
 
-USkillComponent* ABaseBattleCharacter::GetSkillComponent() const
+USkillComponent* ABaseBattleCharacter::GetSkillComponent_Implementation() const
 {
 	return SkillComponent;
 }
 
 
-bool ABaseBattleCharacter::EquipItem(FName ItemID)
+bool ABaseBattleCharacter::EquipItem_Implementation(FName ItemID)
 {
 	if (IsValid(ItemComponent))
 	{
@@ -264,7 +267,7 @@ bool ABaseBattleCharacter::EquipItem(FName ItemID)
 	return false;
 }
 
-void ABaseBattleCharacter::ExecuteSkill(int32 SkillIndex)
+void ABaseBattleCharacter::ExecuteSkill_Implementation(int32 SkillIndex)
 {
 	if (IsValid(SkillComponent))
 	{
@@ -272,12 +275,12 @@ void ABaseBattleCharacter::ExecuteSkill(int32 SkillIndex)
 	}
 }
 
-UCharacterBehaviorState* ABaseBattleCharacter::GetBehaviorState() const
+UCharacterBehaviorState* ABaseBattleCharacter::GetBehaviorState_Implementation() const
 {
 	return StateComponent->GetBehaviorState();
 }
 
-void ABaseBattleCharacter::OnItemEquipped(UItemDataAsset* EquippedItem)
+void ABaseBattleCharacter::OnItemEquipped_Implementation(UItemDataAsset* EquippedItem)
 {
 	if (IsValid(SkillComponent))
 	{
@@ -285,7 +288,7 @@ void ABaseBattleCharacter::OnItemEquipped(UItemDataAsset* EquippedItem)
 	}
 }
 
-void ABaseBattleCharacter::OnItemUnequipped()
+void ABaseBattleCharacter::OnItemUnequipped_Implementation()
 {
 	if (IsValid(SkillComponent))
 	{
@@ -294,7 +297,7 @@ void ABaseBattleCharacter::OnItemUnequipped()
 	}
 }
 
-void ABaseBattleCharacter::InterruptActiveSkill()
+void ABaseBattleCharacter::InterruptActiveSkill_Implementation()
 {
 	// SkillComponent가 없으면 리턴
 	if (!SkillComponent)
@@ -331,21 +334,22 @@ void ABaseBattleCharacter::InterruptActiveSkill()
 	}
 }
 
-void ABaseBattleCharacter::SetInteractableActor(AActor* NewInteractableActor)
+void ABaseBattleCharacter::SetInteractableActor_Implementation(AActor* NewInteractableActor)
 {
 	InteractableActor = NewInteractableActor;
 }
 
-AActor* ABaseBattleCharacter::GetInteractableActor() const
+AActor* ABaseBattleCharacter::GetInteractableActor_Implementation() const
 {
 	return InteractableActor;
 }
 
-void ABaseBattleCharacter::OnAttacked(float Damage, const FAttackData& AttackData)
+void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 {
+	// ㅈㅍㅈㅍ
 	LaunchCharacter(AttackData.LaunchVector, true, true);
 	
-	SetHP(HP - Damage);
+	SetHP(HP - AttackData.Damage);
 
 	// 이펙트 적용
 	for (int32 i = 0 ; i < AttackData.BehaviorEffectNumbers ; i++)

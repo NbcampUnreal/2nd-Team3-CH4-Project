@@ -48,16 +48,16 @@ USTRUCT(BlueprintType)
 struct FAttackData
 {
     GENERATED_BODY()
-    
+
+    // 데미지
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float Damage;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float Duration;
-    
+    // 날라가는 벡터
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FVector LaunchVector;
 
+    // 상태이상
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 BehaviorEffectNumbers;
     
