@@ -78,3 +78,4 @@ void UBehaviorStateDecorator::MenuOnOff()
 {
 	InnerState->MenuOnOff();
 }
+

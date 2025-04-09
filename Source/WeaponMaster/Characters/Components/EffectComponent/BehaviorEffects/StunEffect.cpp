@@ -12,10 +12,10 @@ UStunEffect::UStunEffect()
  
 void UStunEffect::Activate()
 {
-	if (auto CastedCharacter = Cast<IBattleSystemUser>(OwnerCharacter))
+	if (GetOuter()->GetOuter()->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	{
 		bIsActive = true;
-		InnerState = CastedCharacter->GetBehaviorState();
+		SetInnerState(IBattleSystemUser::Execute_GetBehaviorState(GetOuter()->GetOuter()));
 	}
 	else
 	{
@@ -28,13 +28,11 @@ void UStunEffect::Activate(float Duration)
 	// 타이머 추가
 	// InnerState 세팅
 	// IsActive true로
-	if (auto CastedCharacter = Cast<IBattleSystemUser>(OwnerCharacter))
+	if (GetOuter()->GetOuter()->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	{
 		bIsActive = true;
-		
-		SetInnerState(CastedCharacter->GetBehaviorState());
-		InnerState->SetOuterState(this);
-
+		SetInnerState(IBattleSystemUser::Execute_GetBehaviorState(GetOuter()->GetOuter()));
+		UE_LOG(LogTemp, Display, TEXT("UStunEffect::Activate : Character Cast Success!"));
 		GetOuter()->GetWorld()->GetTimerManager().SetTimer(
 			DurationTimer,
 			this,
@@ -72,6 +70,7 @@ void UStunEffect::Deactivate()
 		InnerState->SetOuterState(nullptr);
 	}
 
+	UE_LOG(LogTemp, Error, TEXT("UStunEffect::DeActivate : Stun End!"));
 	bIsActive = false;
 
 }
@@ -120,8 +119,23 @@ void UStunEffect::PickingItem()
 {
 }
 
-// Not Blocking Menu key
-void UStunEffect::MenuOnOff()
-{
-	InnerState->MenuOnOff();
-}
+// Outer3 -> Outer2 -> Outer1 -> Inner0
+//
+// Outer3->fff()
+// fff
+// {
+// 	Suepr::fff;
+// 	Inner->fff();
+// )
+
+
+// // Not Blocking Menu key
+// void UStunEffect::MenuOnOff()
+// {
+// 	InnerState->MenuOnOff();
+// }
+//
+// ACharacter* UStunEffect::GetOwnerCharacter() const
+// {
+// 	return InnerState->GetOwnerCharacter();
+// }

@@ -3,11 +3,6 @@
 #include "CharacterBehaviorState.h"
 #include "GameFramework/Character.h"
 
-void UCharacterBehaviorState::Initialize(ACharacter* NewOwnerCharacter)
-{
-	OwnerCharacter = NewOwnerCharacter;	
-}
-
 void UCharacterBehaviorState::Enter()
 {
 }
@@ -22,7 +17,7 @@ void UCharacterBehaviorState::Tick(float DeltaTime)
 
 void UCharacterBehaviorState::Move(const FInputActionValue& Value)
 {
-	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(OwnerCharacter))
+	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(GetOuter()->GetOuter()))
 	{
 		CastedCharacter->Move(Value); 
 	}
@@ -34,7 +29,7 @@ void UCharacterBehaviorState::Move(const FInputActionValue& Value)
 
 void UCharacterBehaviorState::CrouchDrop()
 {
-	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(OwnerCharacter))
+	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(GetOuter()->GetOuter()))
 	{
 		CastedCharacter->CrouchDrop(); 
 	}
@@ -46,7 +41,7 @@ void UCharacterBehaviorState::CrouchDrop()
 
 void UCharacterBehaviorState::StopCrouchDrop()
 {
-	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(OwnerCharacter))
+	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(GetOuter()->GetOuter()))
 	{
 		CastedCharacter->StopCrouchDrop(); 
 	}
@@ -58,7 +53,7 @@ void UCharacterBehaviorState::StopCrouchDrop()
 
 void UCharacterBehaviorState::JumpOrDrop()
 {
-	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(OwnerCharacter))
+	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(GetOuter()->GetOuter()))
 	{
 		CastedCharacter->JumpOrDrop(); 
 	}
@@ -70,7 +65,7 @@ void UCharacterBehaviorState::JumpOrDrop()
 
 void UCharacterBehaviorState::ReleaseJump()
 {
-	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(OwnerCharacter))
+	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(GetOuter()->GetOuter()))
 	{
 		CastedCharacter->ReleaseJump(); 
 	}
@@ -82,7 +77,7 @@ void UCharacterBehaviorState::ReleaseJump()
 
 void UCharacterBehaviorState::Dash()
 {
-	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(OwnerCharacter))
+	if (auto CastedCharacter = Cast<ISSTInputBindFunctions>(GetOuter()->GetOuter()))
 	{
 		CastedCharacter->Dash(); 
 	}
@@ -94,7 +89,7 @@ void UCharacterBehaviorState::Dash()
 
 void UCharacterBehaviorState::WeakAttack()
 {
-	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(OwnerCharacter))
+	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(GetOuter()->GetOuter()))
 	{
 		CastedCharacter->WeakAttack(); 
 	}
@@ -106,7 +101,7 @@ void UCharacterBehaviorState::WeakAttack()
 
 void UCharacterBehaviorState::StrongAttack()
 {
-	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(OwnerCharacter))
+	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(GetOuter()->GetOuter()))
 	{
 		CastedCharacter->StrongAttack(); 
 	}
@@ -118,7 +113,7 @@ void UCharacterBehaviorState::StrongAttack()
 
 void UCharacterBehaviorState::Identity()
 {
-	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(OwnerCharacter))
+	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(GetOuter()->GetOuter()))
 	{
 		CastedCharacter->Identity(); 
 	}
@@ -130,7 +125,7 @@ void UCharacterBehaviorState::Identity()
 
 void UCharacterBehaviorState::Defence()
 {
-	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(OwnerCharacter))
+	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(GetOuter()->GetOuter()))
 	{
 		CastedCharacter->Defence(); 
 	}
@@ -142,7 +137,7 @@ void UCharacterBehaviorState::Defence()
 
 void UCharacterBehaviorState::PickingItem()
 {
-	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(OwnerCharacter))
+	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(GetOuter()->GetOuter()))
 	{
 		CastedCharacter->PickingItem(); 
 	}
@@ -154,7 +149,7 @@ void UCharacterBehaviorState::PickingItem()
 
 void UCharacterBehaviorState::MenuOnOff()
 {
-	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(OwnerCharacter))
+	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(GetOuter()->GetOuter()))
 	{
 		CastedCharacter->MenuOnOff(); 
 	}

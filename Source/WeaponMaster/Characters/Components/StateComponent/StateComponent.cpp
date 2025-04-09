@@ -28,17 +28,14 @@ void UStateComponent::BeginPlay()
 		return;
 	}
 
-	auto OuterCharacter = Cast<ACharacter>(GetOuter());
-	if (!OuterCharacter)
-	{
-		UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : OuterCharacter Cast Failed."));
-		return;
-	}
-
-	UE_LOG(LogTemp, Display, TEXT("OuterCharacter DisplayName : %s"), *OuterCharacter->GetName());
-
-	// Initialize Input State
-	CharacterBehaviorState->Initialize(OuterCharacter);
+	// auto OuterCharacter = Cast<ACharacter>(GetOuter());
+	// if (!OuterCharacter)
+	// {
+	// 	UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : OuterCharacter Cast Failed."));
+	// 	return;
+	// }
+	//
+	// UE_LOG(LogTemp, Display, TEXT("OuterCharacter DisplayName : %s"), *OuterCharacter->GetName());
 
 	// Execute Binding Function
 	OnStateComponentReady.Execute();

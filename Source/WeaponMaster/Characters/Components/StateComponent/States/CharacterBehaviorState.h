@@ -20,14 +20,9 @@ public UObject, public IState, public ISSTInputBindFunctions, public IBaseBattle
 	GENERATED_BODY()
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
-	TObjectPtr<ACharacter> OwnerCharacter;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	TObjectPtr<UCharacterBehaviorState> OuterState;
 
 public:
-	void Initialize(ACharacter* NewOwnerCharacter);
-
 	virtual void Enter() override;
 	virtual void Exit() override;
 	virtual void Tick(float DeltaTime) override;
@@ -48,4 +43,5 @@ public:
 
 	FORCEINLINE virtual UCharacterBehaviorState* GetOuterState() { return OuterState; };
 	FORCEINLINE virtual void SetOuterState(UCharacterBehaviorState* NewOuterState) { OuterState = NewOuterState; };
+	
 };
