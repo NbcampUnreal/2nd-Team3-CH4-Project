@@ -40,6 +40,8 @@ public:
 
 	UFUNCTION()
 	void OnPhaseChanged(EBossPhase NewPhase);
+
+	UFUNCTION(BlueprintCallable)
 	void Die();
 
 	//보스 몽타주

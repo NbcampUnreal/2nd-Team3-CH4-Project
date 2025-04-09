@@ -149,7 +149,7 @@ void ABossCharacter::ApplyPowerAttack()
 	{
 		if (SkillComponent)
 		{
-			SkillComponent->ExecuteSkill(2); // 0번째 스킬 실행
+			SkillComponent->ExecuteSkill(3);
 			UE_LOG(LogTemp, Warning, TEXT("BossSkill 3"));
 		}
 	}
@@ -157,8 +157,6 @@ void ABossCharacter::ApplyPowerAttack()
 
 void ABossCharacter::Die()
 {
-	//SetIsDeath(true);
-
 	if (DeathMontage)
 	{
 		PlayAnimMontage(DeathMontage);
