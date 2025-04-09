@@ -77,7 +77,9 @@ public:
 
 	//앞으로 돌진 공격
 	UFUNCTION(BlueprintCallable)
-	void ExecuteForwardCharge();
+	void ApplyForwardCharge();
+
+	void PerformForwardCharge();
 
 	//////2페이즈//////
 

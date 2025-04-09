@@ -97,20 +97,23 @@ void ABossCharacter::ApplyBackStep()
 	LaunchCharacter(LaunchVelocity, true, true);
 }
 
-void ABossCharacter::ExecuteForwardCharge()
+void ABossCharacter::ApplyForwardCharge()
 {
 	if (!HasAuthority()) return;
 
 	 Multicast_PlayMontage(ChargeMontage);
 
+	FTimerHandle LaunchTimerHandle;
+	GetWorldTimerManager().SetTimer(LaunchTimerHandle, this, &ABossCharacter::PerformForwardCharge, 0.5f, false);
+
+}
+
+void ABossCharacter::PerformForwardCharge()
+{
 	FVector ChargeDir = GetActorForwardVector();
 	FVector LaunchVelocity = ChargeDir * 2000.f + FVector(0, 0, 150.f);
 
 	LaunchCharacter(LaunchVelocity, true, true);
-
-	FTimerHandle ForwardCharge;
-	//GetWorldTimerManager().SetTimer(ForwardCharge, this, &ABossCharacter::Destroy, 5.0f, false);
-
 }
 
 void ABossCharacter::ApplyAreaSkill()
