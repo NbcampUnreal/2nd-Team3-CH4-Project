@@ -17,11 +17,9 @@
 #include "Characters/Components/SkillComponent/SkillComponent.h"
 #include "Characters/Components/EffectComponent/EffectComponent.h"
 #include "Skills/BaseSkill.h"
-#include "Characters/Components/StateComponent/States/CharacterBehaviorState.h"
 #include "Items/InteractionComponent/InteractionComponent.h"
 #include "WeaponMaster/PlayerControllers/WeaponMasterController.h"
 #include "Data/StatusTypes.h"
-#include "GameFramework/PlayerState.h"
 
 // Sets default values
 ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer)
@@ -97,15 +95,13 @@ void ABaseBattleCharacter::BindInputFunctions()
 		return;
 	}
 
-	UCharacterBehaviorState* CharacterBehaviorState = StateComponent->GetBehaviorState();
-
 	// Jumping
 	if (WeaponMasterController->JumpAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->JumpAction, ETriggerEvent::Triggered,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::JumpOrDrop);
+		                                   StateComponent.Get(), &UStateComponent::JumpOrDrop);
 		EnhancedInputComponent->BindAction(WeaponMasterController->JumpAction, ETriggerEvent::Completed,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::ReleaseJump);
+		                                   StateComponent.Get(), &UStateComponent::ReleaseJump);
 	}
 	else
 	{
@@ -117,9 +113,9 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->CrouchDropAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->CrouchDropAction, ETriggerEvent::Triggered,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::CrouchDrop);
+		                                   StateComponent.Get(), &UStateComponent::CrouchDrop);
 		EnhancedInputComponent->BindAction(WeaponMasterController->CrouchDropAction, ETriggerEvent::Completed,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::StopCrouchDrop);
+		                                   StateComponent.Get(), &UStateComponent::StopCrouchDrop);
 	}
 	else
 	{
@@ -131,7 +127,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->MoveAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->MoveAction, ETriggerEvent::Triggered,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::Move);
+		                                   StateComponent.Get(), &UStateComponent::Move);
 	}
 	else
 	{
@@ -143,7 +139,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->DashAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->DashAction, ETriggerEvent::Started,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::Dash);
+		                                   StateComponent.Get(), &UStateComponent::Dash);
 	}
 	else
 	{
@@ -155,7 +151,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->WeakAttackAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->WeakAttackAction, ETriggerEvent::Started,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::WeakAttack);
+		                                   StateComponent.Get(), &UStateComponent::WeakAttack);
 	}
 	else
 	{
@@ -167,7 +163,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->StrongAttackAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->StrongAttackAction, ETriggerEvent::Started,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::StrongAttack);
+		                                   StateComponent.Get(), &UStateComponent::StrongAttack);
 	}
 	else
 	{
@@ -179,7 +175,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->IdentityAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->IdentityAction, ETriggerEvent::Started,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::Identity);
+		                                   StateComponent.Get(), &UStateComponent::Identity);
 	}
 	else
 	{
@@ -191,7 +187,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->DefenceAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->DefenceAction, ETriggerEvent::Started,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::Defence);
+		                                   StateComponent.Get(), &UStateComponent::Defence);
 	}
 	else
 	{
@@ -203,7 +199,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->PickingItemAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->PickingItemAction, ETriggerEvent::Started,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::PickingItem);
+		                                   StateComponent.Get(), &UStateComponent::PickingItem);
 	}
 	else
 	{
@@ -215,7 +211,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->MenuOnOffAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->MenuOnOffAction, ETriggerEvent::Started,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::MenuOnOff);
+		                                   StateComponent.Get(), &UStateComponent::MenuOnOff);
 	}
 	else
 	{
@@ -275,9 +271,18 @@ void ABaseBattleCharacter::ExecuteSkill_Implementation(int32 SkillIndex)
 	}
 }
 
-UCharacterBehaviorState* ABaseBattleCharacter::GetBehaviorState_Implementation() const
+TScriptInterface<UBehaviorState> ABaseBattleCharacter::GetBehaviorState_Implementation() const
 {
 	return StateComponent->GetBehaviorState();
+}
+
+void ABaseBattleCharacter::SetBehaviorState_Implementation(
+	const TScriptInterface<UBehaviorState>& NewState)
+{
+	if (IsValid(StateComponent))
+	{
+		StateComponent->SetBehaviorState(NewState);
+	}
 }
 
 void ABaseBattleCharacter::OnItemEquipped_Implementation(UItemDataAsset* EquippedItem)
@@ -361,19 +366,19 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 void ABaseBattleCharacter::WeakAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::WeakAttack !"));
-	ExecuteSkill(0);
+	// ExecuteSkill(0); Execute_ 그거 문법으로 바꿔야함
 }
 
 void ABaseBattleCharacter::StrongAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::StrongAttack !"));
-	ExecuteSkill(1);
+	// ExecuteSkill(1);
 }
 
 void ABaseBattleCharacter::Identity()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Identity !"));
-	ExecuteSkill(2);
+	// ExecuteSkill(2);
 }
 
 void ABaseBattleCharacter::Defence()

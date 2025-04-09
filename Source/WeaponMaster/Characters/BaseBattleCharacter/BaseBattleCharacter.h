@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "IBaseBattleInputBindFunctions.h"
+#include "Characters/Components/StateComponent/States/IBehaviorState.h"
 #include "Data/StatusTypes.h"
 #include "SSTCharacter.h"
 #include "Characters/Components/DamageSystemUser.h"
 #include "Characters/Components/IBattleSystemUser.h"
 #include "BaseBattleCharacter.generated.h"
 
-class UCharacterBehaviorState;
+class UStateComponent;
+class UEffectComponent;
 class USkillComponent;
 
 UCLASS()
@@ -26,16 +28,16 @@ public:
 protected:
 	// Components
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UStateComponent> StateComponent;
+	TObjectPtr<UStateComponent> StateComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UEffectComponent> EffectComponent;
+	TObjectPtr<UEffectComponent> EffectComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UItemComponent> ItemComponent;
+	TObjectPtr<UItemComponent> ItemComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class USkillComponent> SkillComponent;
+	TObjectPtr<USkillComponent> SkillComponent;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Interacts", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AActor> InteractableActor;
@@ -75,41 +77,44 @@ public:
 	// !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
 	
 	// Character -> ItemComponent
-	UFUNCTION(BlueprintCallable, Category = "Components")
+	// UFUNCTION(BlueprintCallable, Category = "Components")
 	virtual UItemComponent* GetItemComponent_Implementation() const override;
 
-	UFUNCTION(BlueprintCallable, Category = "Items")
+	// UFUNCTION(BlueprintCallable, Category = "Items")
 	virtual bool EquipItem_Implementation(FName ItemID) override;
 
 	// Character -> SillComponent
-	UFUNCTION(BlueprintCallable, Category = "Components")
+	// UFUNCTION(BlueprintCallable, Category = "Components")
 	virtual USkillComponent* GetSkillComponent_Implementation() const override;
 
-	UFUNCTION(BlueprintCallable, Category = "Skills")
+	// UFUNCTION(BlueprintCallable, Category = "Skills")
 	virtual void ExecuteSkill_Implementation(int32 SkillIndex) override;
 
 	// Character -> StateComponent
-	UFUNCTION(BlueprintCallable, Category = "States")
-	virtual UCharacterBehaviorState* GetBehaviorState_Implementation() const override;
+	// UFUNCTION(BlueprintCallable, Category = "States")
+	virtual TScriptInterface<UBehaviorState> GetBehaviorState_Implementation() const override;
+
+	// UFUNCTION(BlueprintCallable, Category = "States")
+	void SetBehaviorState_Implementation(const TScriptInterface<UBehaviorState>& NewState);
 
 	// ItemComponent -> Character -> SkillComponent
-	UFUNCTION(BlueprintCallable, Category = "Items")
+	// UFUNCTION(BlueprintCallable, Category = "Items")
 	virtual void OnItemEquipped_Implementation(UItemDataAsset* EquippedItem) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Items")
+	// UFUNCTION(BlueprintCallable, Category = "Items")
 	virtual void OnItemUnequipped_Implementation() override;
 
-	UFUNCTION(BlueprintCallable, Category = "Skills")
+	// UFUNCTION(BlueprintCallable, Category = "Skills")
 	virtual void InterruptActiveSkill_Implementation() override;
 
 	// Interactable Actors
-	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	// UFUNCTION(BlueprintCallable, Category = "Interaction")
 	virtual void SetInteractableActor_Implementation(AActor* NewInteractableActor) override;
 
-	UFUNCTION(BlueprintPure, Category = "Interaction")
+	// UFUNCTION(BlueprintPure, Category = "Interaction")
 	virtual AActor* GetInteractableActor_Implementation() const override;
 
 	// Event when Attacked
-	UFUNCTION(BlueprintCallable, Category = "Attacked")
+	// UFUNCTION(BlueprintCallable, Category = "Attacked")
 	virtual void OnAttacked(const FAttackData& AttackData) override;
 };

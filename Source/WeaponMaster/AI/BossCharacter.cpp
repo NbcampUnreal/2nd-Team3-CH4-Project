@@ -202,7 +202,7 @@ void ABossCharacter::ExecuteSkill_Implementation(int32 SkillIndex)
 {
 }
 
-UCharacterBehaviorState* ABossCharacter::GetBehaviorState_Implementation() const
+TScriptInterface<UBehaviorState> ABossCharacter::GetBehaviorState_Implementation() const
 {
 	return nullptr;
 }

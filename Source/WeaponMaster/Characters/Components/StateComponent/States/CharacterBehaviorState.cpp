@@ -2,18 +2,8 @@
 
 #include "CharacterBehaviorState.h"
 #include "GameFramework/Character.h"
-
-void UCharacterBehaviorState::Enter()
-{
-}
-
-void UCharacterBehaviorState::Exit()
-{
-}
-
-void UCharacterBehaviorState::Tick(float DeltaTime)
-{
-}
+#include "ISSTInputBindFunctions.h"
+#include "Characters/BaseBattleCharacter/IBaseBattleInputBindFunctions.h"
 
 void UCharacterBehaviorState::Move(const FInputActionValue& Value)
 {
@@ -157,4 +147,14 @@ void UCharacterBehaviorState::MenuOnOff()
 	{
 		UE_LOG(LogTemp, Error, TEXT("UCharacterBehaviorState::MenuOnOff : Cast Failed."));
 	}
+} 
+
+TScriptInterface<UBehaviorState> UCharacterBehaviorState::GetOuterState() const
+{
+	return OuterState.GetInterface(); 
+}
+
+void UCharacterBehaviorState::SetOuterState(const TScriptInterface<UBehaviorState>& NewOuterState)
+{
+	OuterState = NewOuterState;
 }

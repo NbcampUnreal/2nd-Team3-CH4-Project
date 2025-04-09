@@ -21,61 +21,81 @@ void UBehaviorStateDecorator::Tick(float DeltaTime)
 
 void UBehaviorStateDecorator::Move(const FInputActionValue& Value)
 {
-	InnerState->Move(Value);
+	Cast<IBehaviorState>(InnerState.GetObject())->Move(Value);
 }
 
 void UBehaviorStateDecorator::CrouchDrop()
 {
-	InnerState->CrouchDrop();
+	Cast<IBehaviorState>(InnerState.GetObject())->CrouchDrop();
 }
 
 void UBehaviorStateDecorator::StopCrouchDrop()
 {
-	InnerState->StopCrouchDrop();
+	Cast<IBehaviorState>(InnerState.GetObject())->StopCrouchDrop();
 }
 
 void UBehaviorStateDecorator::JumpOrDrop()
 {
-	InnerState->JumpOrDrop();
+	Cast<IBehaviorState>(InnerState.GetObject())->JumpOrDrop();
 }
 
 void UBehaviorStateDecorator::ReleaseJump()
 {
-	InnerState->ReleaseJump();
+	Cast<IBehaviorState>(InnerState.GetObject())->ReleaseJump();
 }
 
 void UBehaviorStateDecorator::Dash()
 {
-	InnerState->Dash();
+	Cast<IBehaviorState>(InnerState.GetObject())->Dash();
 }
 
 void UBehaviorStateDecorator::WeakAttack()
 {
-	InnerState->WeakAttack();
+	Cast<IBehaviorState>(InnerState.GetObject())->WeakAttack();
 }
 
 void UBehaviorStateDecorator::StrongAttack()
 {
-	InnerState->StrongAttack();
+	Cast<IBehaviorState>(InnerState.GetObject())->StrongAttack();
 }
 
 void UBehaviorStateDecorator::Identity()
 {
-	InnerState->Identity();
+	Cast<IBehaviorState>(InnerState.GetObject())->Identity();
 }
 
 void UBehaviorStateDecorator::Defence()
 {
-	InnerState->Defence();
+	Cast<IBehaviorState>(InnerState.GetObject())->Defence();
 }
 
 void UBehaviorStateDecorator::PickingItem()
 {
-	InnerState->PickingItem();
+	Cast<IBehaviorState>(InnerState.GetObject())->PickingItem();
 }
 
 void UBehaviorStateDecorator::MenuOnOff()
 {
-	InnerState->MenuOnOff();
+	Cast<IBehaviorState>(InnerState.GetObject())->MenuOnOff();
+}
+
+TScriptInterface<UBehaviorState> UBehaviorStateDecorator::GetInnerState() const
+{
+	return InnerState;
+}
+
+void UBehaviorStateDecorator::SetInnerState(TScriptInterface<UBehaviorState> NewInnerState)
+{
+	InnerState = NewInnerState;
+}
+
+TScriptInterface<UBehaviorState> UBehaviorStateDecorator::GetOuterState() const
+{ 
+	return OuterState;
+}
+
+void UBehaviorStateDecorator::SetOuterState(const TScriptInterface<UBehaviorState>& NewOuterState)
+{
+	InnerState = NewOuterState;
 }
 

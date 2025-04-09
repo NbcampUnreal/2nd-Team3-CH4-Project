@@ -3,6 +3,7 @@
 #include "StunEffect.h"
 #include "GameFramework/Character.h"
 #include "Characters/Components/IBattleSystemUser.h"
+#include "Characters/Components/StateComponent/StateComponent.h"
 
 UStunEffect::UStunEffect()
 {
@@ -16,6 +17,10 @@ void UStunEffect::Activate()
 	{
 		bIsActive = true;
 		SetInnerState(IBattleSystemUser::Execute_GetBehaviorState(GetOuter()->GetOuter()));
+		
+		Cast<IBehaviorState>(InnerState.GetObject())->SetOuterState(this);
+
+		IBattleSystemUser::Execute_SetBehaviorState(GetOuter()->GetOuter(), this);
 	}
 	else
 	{
@@ -28,11 +33,18 @@ void UStunEffect::Activate(float Duration)
 	// 타이머 추가
 	// InnerState 세팅
 	// IsActive true로
+	GetOuter()->GetWorld()->GetTimerManager().ClearTimer(DurationTimer);
+	
 	if (GetOuter()->GetOuter()->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	{
 		bIsActive = true;
 		SetInnerState(IBattleSystemUser::Execute_GetBehaviorState(GetOuter()->GetOuter()));
+		
+		Cast<IBehaviorState>(InnerState.GetObject())->SetOuterState(this);
+		
+		IBattleSystemUser::Execute_SetBehaviorState(GetOuter()->GetOuter(), this);
 		UE_LOG(LogTemp, Display, TEXT("UStunEffect::Activate : Character Cast Success!"));
+		
 		GetOuter()->GetWorld()->GetTimerManager().SetTimer(
 			DurationTimer,
 			this,
@@ -53,24 +65,23 @@ void UStunEffect::Deactivate()
 	// 변수들 원래대로
 	GetOuter()->GetWorld()->GetTimerManager().ClearTimer(DurationTimer);
 	
-	if (IsValid(OuterState))
+	Cast<IBehaviorState>(InnerState.GetObject())->SetOuterState(OuterState);
+	
+	if (auto CastedOuterDecorator = Cast<IBehaviorDecorator>(OuterState.GetObject()))
 	{
-		InnerState->SetOuterState(OuterState);
-		if (auto CastedOuter = Cast<UBehaviorStateDecorator>(OuterState))
-		{
-			CastedOuter->SetInnerState(InnerState);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("UStunEffect::DeActivate : OuterState Cast Failed!"));
-		}
-	}
-	else
-	{
-		InnerState->SetOuterState(nullptr);
+		CastedOuterDecorator->SetInnerState(InnerState);
 	}
 
-	UE_LOG(LogTemp, Error, TEXT("UStunEffect::DeActivate : Stun End!"));
+	if (!IsValid(OuterState.GetObject()))
+	{
+		IBattleSystemUser::Execute_SetBehaviorState(GetOuter()->GetOuter(), InnerState.GetObject());
+	}
+	
+
+	SetInnerState(nullptr);
+	SetOuterState(nullptr);
+
+	UE_LOG(LogTemp, Display, TEXT("UStunEffect::DeActivate : Stun End!"));
 	bIsActive = false;
 
 }
