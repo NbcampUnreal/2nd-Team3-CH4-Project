@@ -2,12 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameSession.h"
+#include "Instance/WeaponMasterGameInstance.h"
 #include "EOSGameSession.generated.h"
 
 namespace EEndPlayReason
 {
 	enum Type : int;
 }
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(OnProcessReturnValue, EMyStateType, EMyResultType);
 
 UCLASS(Blueprintable)
 class WEAPONMASTER_API AEOSGameSession : public AGameSession
@@ -16,6 +19,8 @@ class WEAPONMASTER_API AEOSGameSession : public AGameSession
 
 public:
 	AEOSGameSession();
+
+	OnProcessReturnValue OnProcessReturnValue;
 	
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -29,7 +34,7 @@ public:
 	virtual void UnregisterPlayer(const APlayerController* ExitingPlayer) override;
 	
 	FName SessionName = "SessionName"; 
-	const int MaxNumberOfPlayersInSession = 2;
+	const int MaxNumberOfPlayersInSession = 50;
 	int NumberOfPlayersInSession;
 
 	UFUNCTION(BlueprintCallable, Category = "EOS Functions")

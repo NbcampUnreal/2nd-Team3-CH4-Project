@@ -10,6 +10,7 @@ enum class ECCSkillCategory : uint8
     None        UMETA(DisplayName = "None"),
     Stun        UMETA(DisplayName = "Stun"),
     Knockback   UMETA(DisplayName = "Knockback"),
+    AirBorn     UMETA(DisplayName = "AirBorn"),
     Slow        UMETA(DisplayName = "Slow"),
     Root        UMETA(DisplayName = "Root"),
     Burn        UMETA(DisplayName = "Burn"),
@@ -17,3 +18,9 @@ enum class ECCSkillCategory : uint8
     Poison      UMETA(DisplayName = "Poison"),
     Blind       UMETA(DisplayName = "Blind")
 };
+
+// UENUM(BlueprintType)
+// enum class EBehaviorEffect : uint8
+// {
+//     
+// };

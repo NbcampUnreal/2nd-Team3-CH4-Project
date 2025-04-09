@@ -19,7 +19,9 @@ void UChatWidget::OnChatTextCommitted(const FText& Text, ETextCommit::Type Commi
 {
     if (CommitMethod == ETextCommit::OnEnter && !Text.IsEmpty())
     {
-      //Controller에서 하나 함수 파자 
+        //Controller에서 하나 함수 파자 
+        //Controller 인풋모드 게임으로 설정해야함
+
 
         ChatEditableTextBox->SetText(FText::GetEmpty());
     }
