@@ -21,6 +21,7 @@ void AMainMenuHUD::LogMessage(const FString& Message)
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, Message);
     }
 }
+
 void AMainMenuHUD::ShowMainMenu()
 {
     if (!ensure(MainMenuWidgetClass))
