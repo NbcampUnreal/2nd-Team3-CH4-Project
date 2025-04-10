@@ -59,7 +59,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> MenuOnOffAction;
-
+	
+	
 protected:
 	virtual void BeginPlay() override;
 	
