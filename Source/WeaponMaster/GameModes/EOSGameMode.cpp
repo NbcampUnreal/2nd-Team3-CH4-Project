@@ -70,7 +70,13 @@ void AEOSGameMode::HandleProcessResult(ESessionStateType State, ESessionResultTy
 		}
 	case ESessionStateType::PlayerNumChanged:
 		{
-			
+			for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+			{
+				if (AEOSPlayerController* PlayerController = Cast<AEOSPlayerController>(Iterator->Get()))
+				{
+					PlayerController->Client_UpdateTotalPlayerNum(GetPlayerNum());
+				}
+			}
 			break;
 		}
 	default: break;
@@ -132,7 +138,7 @@ void AEOSGameMode::StartSession()
 	}
 }
 
-int32 AEOSGameMode::GetPlayerNum()
+int32 AEOSGameMode::GetPlayerNum() const
 {
 	if (AEOSGameSession* EOSSession = GetEOSGameSession())
 	{
