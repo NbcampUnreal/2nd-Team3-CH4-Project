@@ -6,6 +6,8 @@
 #include "GameFramework/HUD.h"
 #include "MultiGameHUD.generated.h"
 
+class UPlayerNameWidget;
+class USessionLobbyWidget;
 class UPlayerStatusWidget;
 class UWrapStatusWidget;
 class UChatWidget;
@@ -30,7 +32,6 @@ public:
     UFUNCTION(BlueprintCallable)
     void SetMenuWidget(bool bIsOpen);
 
-protected:
     UPROPERTY(EditDefaultsOnly, Category = "UI")
     TSubclassOf<UWrapStatusWidget> WrapStatusWidgetClass;
 
@@ -45,6 +46,18 @@ protected:
     TSubclassOf<UOptionMenuWidget> OptionMenuWidgetClass;
 
     TObjectPtr<UOptionMenuWidget> OptionMenuWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> SessionLobbyWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<USessionLobbyWidget> SessionLobbyWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> PlayerNameWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UPlayerNameWidget> PlayerNameWidget;
 
     void CreatePlayerWidgets();
 

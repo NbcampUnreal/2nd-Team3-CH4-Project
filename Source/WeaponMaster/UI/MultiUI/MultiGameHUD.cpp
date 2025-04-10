@@ -1,14 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "MultiGameHUD.h"
 #include "WrapStatusWidget.h"
 #include "../CommonUI/PlayerStatusWidget.h"
-#include "GameFramework/PlayerState.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "../CommonUI/OptionMenuWidget.h"
 #include "ChatWidget.h"
+#include "PlayerNameWidget.h"
+#include "SessionLobbyWidget.h"
 
 void AMultiGameHUD::BeginPlay()
 {
@@ -31,6 +29,7 @@ void AMultiGameHUD::BeginPlay()
             OptionMenuWidget->AddToViewport();
         }
     }
+    
     if (ChatWidgetClass)
     {
         ChatWidget = CreateWidget<UChatWidget>(GetOwningPlayerController(), ChatWidgetClass);
@@ -40,19 +39,25 @@ void AMultiGameHUD::BeginPlay()
             ChatWidget->AddToViewport();
         }
     }
-    if (APlayerController* PC = GetOwningPlayerController())
+
+    if (SessionLobbyWidgetClass)
     {
-        FInputModeGameAndUI InputMode;
-        InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-        PC->SetInputMode(InputMode);
-        PC->bShowMouseCursor = true;
+        SessionLobbyWidget = CreateWidget<USessionLobbyWidget>(GetWorld(), SessionLobbyWidgetClass);
+        if (SessionLobbyWidget)
+        {
+            SessionLobbyWidget->AddToViewport();
+        }
+    }
+
+    if (PlayerNameWidgetClass)
+    {
+        PlayerNameWidget = CreateWidget<UPlayerNameWidget>(GetWorld(), PlayerNameWidgetClass);
     }
 }
 
 void AMultiGameHUD::TestDummyModule()
 {
     if (!WrapStatusWidgetClass) return;
-
     
     WrapStatusWidget = CreateWidget<UWrapStatusWidget>(GetWorld(), WrapStatusWidgetClass);
     if (WrapStatusWidget)
@@ -60,7 +65,6 @@ void AMultiGameHUD::TestDummyModule()
         WrapStatusWidget->InitializeDummyPlayerStatus(TestInt,1);
         WrapStatusWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
         WrapStatusWidget->AddToViewport();
-        
     }
 }
 

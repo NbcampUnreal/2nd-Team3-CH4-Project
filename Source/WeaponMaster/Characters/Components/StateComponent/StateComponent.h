@@ -22,6 +22,8 @@ public:
 	UStateComponent();
 
 	FOnStateComponentReady OnStateComponentReady;
+
+	bool bIsComponentReady;
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = "true"))

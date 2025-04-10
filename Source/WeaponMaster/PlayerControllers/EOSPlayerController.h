@@ -3,7 +3,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Instance/WeaponMasterGameInstance.h"
-#include "UI/MultiUI/PlayerNameWidget.h"
 #include "EOSPlayerController.generated.h"
 
 class USessionLobbyWidget;
@@ -40,16 +39,9 @@ private:
 	UFUNCTION()
 	void OnLoginButtonClicked();
 
-	
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UUserWidget> SessionLobbyWidgetClass;
-
 	UPROPERTY()
-	TObjectPtr<USessionLobbyWidget> SessionLobbyWidget;
+	FTimerHandle HUDTimerHandle;
 
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UUserWidget> PlayerNameWidgetClass;
-
-	UPROPERTY()
-	TObjectPtr<UPlayerNameWidget> PlayerNameWidget;
+	UFUNCTION()
+	void HandleTimerAction();
 };
