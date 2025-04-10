@@ -55,8 +55,8 @@ void ABaseBattleCharacter::BeginPlay()
 	if (IsValid(ItemComponent) && IsValid(SkillComponent))
 	{
 		// Item Equipment Event Binding
-		ItemComponent->OnItemEquipped.AddDynamic(this, &IBattleSystemUser::OnItemEquipped);
-		ItemComponent->OnItemUnequipped.AddDynamic(this, &IBattleSystemUser::OnItemUnequipped);
+		ItemComponent->OnItemEquipped.AddDynamic(this, &ABaseBattleCharacter::OnItemEquippedForBinding);
+		ItemComponent->OnItemUnequipped.AddDynamic(this, &ABaseBattleCharacter::OnItemUnequippedForBinding);
 	}
 }
 
@@ -293,6 +293,11 @@ void ABaseBattleCharacter::OnItemEquipped_Implementation(UItemDataAsset* Equippe
 	}
 }
 
+void ABaseBattleCharacter::OnItemEquippedForBinding(UItemDataAsset* EquippedItem)
+{
+	OnItemEquipped_Implementation(EquippedItem);
+}
+
 void ABaseBattleCharacter::OnItemUnequipped_Implementation()
 {
 	if (IsValid(SkillComponent))
@@ -300,6 +305,11 @@ void ABaseBattleCharacter::OnItemUnequipped_Implementation()
 		// 스킬 초기화 (null 전달하여 스킬 제거)
 		SkillComponent->InitializeSkillsFromItem(nullptr);
 	}
+}
+
+void ABaseBattleCharacter::OnItemUnequippedForBinding()
+{
+	OnItemUnequipped_Implementation();
 }
 
 void ABaseBattleCharacter::InterruptActiveSkill_Implementation()
@@ -391,13 +401,17 @@ void ABaseBattleCharacter::PickingItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::PickingItem !"));
 	// 상호작용 가능한 아이템이 있는지 확인
-	if (GetInteractableActor())
+
+	if (GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	{
-		// 상호작용 컴포넌트 찾기
-		UInteractionComponent* InteractionComp = GetInteractableActor()->FindComponentByClass<UInteractionComponent>();
-		if (InteractionComp)
+		AActor* interactableActor = IBattleSystemUser::Execute_GetInteractableActor(this);
+		if (interactableActor)
 		{
-			InteractionComp->Interact( this);
+			UInteractionComponent* InteractionComp = interactableActor->FindComponentByClass<UInteractionComponent>();
+			if (InteractionComp)
+			{
+				InteractionComp->Interact( this);
+			}
 		}
 	}
 }
