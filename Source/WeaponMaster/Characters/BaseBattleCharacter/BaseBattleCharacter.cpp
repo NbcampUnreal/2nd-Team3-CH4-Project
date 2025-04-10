@@ -55,8 +55,8 @@ void ABaseBattleCharacter::BeginPlay()
 	if (IsValid(ItemComponent) && IsValid(SkillComponent))
 	{
 		// Item Equipment Event Binding
-		ItemComponent->OnItemEquipped.AddDynamic(this, &IBattleSystemUser::OnItemEquipped);
-		ItemComponent->OnItemUnequipped.AddDynamic(this, &IBattleSystemUser::OnItemUnequipped);
+		ItemComponent->OnItemEquipped.AddDynamic(this, &ABaseBattleCharacter::OnItemEquippedForBinding);
+		ItemComponent->OnItemUnequipped.AddDynamic(this, &ABaseBattleCharacter::OnItemUnequippedForBinding);
 	}
 }
 
@@ -293,6 +293,11 @@ void ABaseBattleCharacter::OnItemEquipped_Implementation(UItemDataAsset* Equippe
 	}
 }
 
+void ABaseBattleCharacter::OnItemEquippedForBinding(UItemDataAsset* EquippedItem)
+{
+	OnItemEquipped_Implementation(EquippedItem);
+}
+
 void ABaseBattleCharacter::OnItemUnequipped_Implementation()
 {
 	if (IsValid(SkillComponent))
@@ -300,6 +305,11 @@ void ABaseBattleCharacter::OnItemUnequipped_Implementation()
 		// 스킬 초기화 (null 전달하여 스킬 제거)
 		SkillComponent->InitializeSkillsFromItem(nullptr);
 	}
+}
+
+void ABaseBattleCharacter::OnItemUnequippedForBinding()
+{
+	OnItemUnequipped_Implementation();
 }
 
 void ABaseBattleCharacter::InterruptActiveSkill_Implementation()

@@ -93,8 +93,14 @@ public:
 
 	// ItemComponent -> Character -> SkillComponent
 	virtual void OnItemEquipped_Implementation(UItemDataAsset* EquippedItem) override;
+
+	UFUNCTION()
+	void OnItemEquippedForBinding(UItemDataAsset* EquippedItem);
 	
 	virtual void OnItemUnequipped_Implementation() override;
+
+	UFUNCTION()
+	void OnItemUnequippedForBinding();
 	
 	virtual void InterruptActiveSkill_Implementation() override;
 
