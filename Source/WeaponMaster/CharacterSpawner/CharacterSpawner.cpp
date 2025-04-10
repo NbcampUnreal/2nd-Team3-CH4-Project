@@ -12,16 +12,17 @@ ACharacterSpawner::ACharacterSpawner()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-ACharacter* ACharacterSpawner::SpawnCharacter()
+ACharacter* ACharacterSpawner::SpawnCharacter(TSubclassOf<ACharacter> CharacterClass)
 {
 	if (!HasAuthority() || !IsValid(CharacterClass) || !IsValid(GetWorld()))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("ACharacterSpawner::SpawnCharacter : Invalid Calling"));
 		return nullptr;
 	}
 
 	FTransform SpawnTransform = GetActorTransform();
 	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
 
 	ACharacter* SpawnedCharacter = GetWorld()->SpawnActor<ACharacter>(CharacterClass, SpawnTransform, SpawnParams);
 
@@ -34,9 +35,6 @@ ACharacter* ACharacterSpawner::SpawnCharacter()
 	return SpawnedCharacter;
 }
 
-ACharacter* ACharacterSpawner::SpawnAndPossess(AController* OwnerController)
-{
-	return nullptr;
-}
+
 
 
