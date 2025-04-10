@@ -58,16 +58,14 @@ int32 UBossBasicComboSkill::ProcessTargetActors(const TArray<AActor*>& TargetAct
 		/*if (auto CastedTarget = Cast<IDamageSystemUser>(Target))
 		{
 			UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Success!"));
-			FVector LaunchVector = OwnerCharacter->GetActorForwardVector() * 100;
+			FVector LaunchVector = {1000.0f, 0.0f, 0.0f};
 			
 			FAttackData AttackData
 			{
 				FinalDamage,
 				LaunchVector,
-				1,
-				{ EBehaviorEffect::Stun },
-				{ 2 },
-				0,
+				{ EBehaviorEffect::Stun, EBehaviorEffect::Confused, EBehaviorEffect::Silence },
+				{ 1, 5, 3 },
 				{},
 				{}
 			};
@@ -80,6 +78,8 @@ int32 UBossBasicComboSkill::ProcessTargetActors(const TArray<AActor*>& TargetAct
 		}*/
 
 		// 타격 이펙트 (선택)
+
+		
 		if (!SkillEffect.IsNull())
 		{
 			UNiagaraSystem* Effect = SkillEffect.LoadSynchronous();

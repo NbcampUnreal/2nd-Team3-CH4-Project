@@ -8,6 +8,8 @@
 
 class UPlayerStatusWidget;
 class UWrapStatusWidget;
+class UChatWidget;
+class UOptionMenuWidget;
 
 UCLASS()
 class WEAPONMASTER_API AMultiGameHUD : public AHUD
@@ -22,6 +24,12 @@ public:
     UFUNCTION(BlueprintCallable)
     void TestChatModule(FString TestString, int32 TargetCharacterID);
 
+    UFUNCTION(BlueprintCallable)
+    void SetHPModule(float NewHP, int32 TargetCharacterID);
+    
+    UFUNCTION(BlueprintCallable)
+    void SetMenuWidget(bool bIsOpen);
+
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "UI")
     TSubclassOf<UWrapStatusWidget> WrapStatusWidgetClass;
@@ -29,14 +37,14 @@ protected:
     TObjectPtr<UWrapStatusWidget> WrapStatusWidget;
 
     UPROPERTY(EditDefaultsOnly, Category = "UI")
-    TSubclassOf<UWrapStatusWidget> ChatWidgetClass;
+    TSubclassOf<UChatWidget> ChatWidgetClass;
 
-    TObjectPtr<UWrapStatusWidget> ChatWidget;
+    TObjectPtr<UChatWidget> ChatWidget;
 
     UPROPERTY(EditDefaultsOnly, Category = "UI")
-    TSubclassOf<UWrapStatusWidget> OptionMenuWidgetClass;
+    TSubclassOf<UOptionMenuWidget> OptionMenuWidgetClass;
 
-    TObjectPtr<UWrapStatusWidget> OptionMenuWidget;
+    TObjectPtr<UOptionMenuWidget> OptionMenuWidget;
 
     void CreatePlayerWidgets();
 

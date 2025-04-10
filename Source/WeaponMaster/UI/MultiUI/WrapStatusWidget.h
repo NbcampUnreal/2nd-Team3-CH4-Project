@@ -39,4 +39,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	float WidgetSpacing = 10.0f;
+
+	//int32 MyTeamNum = -1;
+	//int32 PSID = -1;
 };

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Characters/Components/IBattleSystemUser.h"
+#include "Characters/Components/StateComponent/States/IBehaviorState.h"
 #include "GameFramework/Character.h"
 #include "WeaponMaster/AI/AIComponent/BossStateComponent.h"
 #include "WeaponMaster/Characters/Components/SkillComponent/SkillComponent.h"
@@ -117,7 +118,7 @@ public:
 
 	// Character -> StateComponent
 	UFUNCTION(BlueprintCallable, Category = "States")
-	virtual UCharacterBehaviorState* GetBehaviorState_Implementation() const override;
+	virtual TScriptInterface<UBehaviorState> GetBehaviorState_Implementation() const override;
 
 	// ItemComponent -> Character -> SkillComponent
 	UFUNCTION(BlueprintCallable, Category = "Items")

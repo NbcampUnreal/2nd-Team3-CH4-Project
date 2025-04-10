@@ -9,7 +9,6 @@
 
 class USkillComponent;
 class UItemComponent;
-class UCharacterBehaviorState;
 class UItemDataAsset;
 /**
  * 
@@ -51,7 +50,11 @@ public:
 
 	// Character -> StateComponent
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "States")
-	UCharacterBehaviorState* GetBehaviorState() const;
+	TScriptInterface<UBehaviorState> GetBehaviorState() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "States")
+	void SetBehaviorState(const TScriptInterface<UBehaviorState>& NewState);
+	
 	
 	// Interactable Actors
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")

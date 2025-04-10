@@ -4,15 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Data/StatusTypes.h"
-#include "../IEffect.h"
-#include "Characters/Components/StateComponent/States/CharacterBehaviorState.h"
+#include "IBehaviorDecorator.h"
 #include "BehaviorStateDecorator.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class WEAPONMASTER_API UBehaviorStateDecorator : public UCharacterBehaviorState, public IEffect
+class WEAPONMASTER_API UBehaviorStateDecorator : public UObject, public IBehaviorDecorator
 {
 	GENERATED_BODY()
 
@@ -24,9 +23,12 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	bool bIsActive;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
+	TScriptInterface<UBehaviorState> OuterState;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
-	TObjectPtr<UCharacterBehaviorState> InnerState;
+	TScriptInterface<UBehaviorState> InnerState;
 
 public:
 	virtual void Activate() override;
@@ -48,6 +50,9 @@ public:
 	virtual void PickingItem() override;
 	virtual void MenuOnOff() override;
 	
-	FORCEINLINE virtual UCharacterBehaviorState* GetInnerState() { return InnerState; };
-	FORCEINLINE virtual void SetInnerState(UCharacterBehaviorState* NewInnerState) { InnerState = NewInnerState; };
+	virtual TScriptInterface<UBehaviorState> GetInnerState() const override;
+	virtual void SetInnerState(const TScriptInterface<UBehaviorState>& NewInnerState) override;
+
+	virtual TScriptInterface<UBehaviorState> GetOuterState() const override;
+	virtual void SetOuterState(const TScriptInterface<UBehaviorState>& NewOuterState) override;
 };

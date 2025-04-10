@@ -229,7 +229,6 @@ bool UWeaponMasterGameInstance::IsPlayerLoggedIn() const
 	{
 		if (IOnlineIdentityPtr Session = Subsystem->GetIdentityInterface())
 		{
-			Session->GetUniquePlayerId(0);
 			if (Session->GetLoginStatus(0) == ELoginStatus::LoggedIn)
 			{
 				return true;

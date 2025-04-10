@@ -5,6 +5,7 @@
 #include "OnlineSubsystemUtils.h"
 #include "GameModes/EOSGameMode.h"
 #include "Interfaces/OnlineSessionInterface.h"
+#include "PlayerState/WeaponMasterPlayerState.h"
 
 AEOSGameSession::AEOSGameSession()
 {
@@ -68,7 +69,7 @@ void AEOSGameSession::NotifyLogout(const APlayerController* ExitingPlayer)
 
             if (Session->GetSessionState(SessionName) == EOnlineSessionState::InProgress)
             {
-                //EndSession();
+                EndSession();
             }        
         }
     }
@@ -91,16 +92,18 @@ void AEOSGameSession::CreateSession(FName KeyName, FString KeyValue)
 
     TSharedRef<FOnlineSessionSettings> SessionSettings = MakeShared<FOnlineSessionSettings>();
     SessionSettings->NumPublicConnections = MaxNumberOfPlayersInSession;
-    SessionSettings->bShouldAdvertise = true;
     SessionSettings->bUsesPresence = false;
     SessionSettings->bAllowJoinViaPresence = false;
     SessionSettings->bAllowJoinViaPresenceFriendsOnly = false;
     SessionSettings->bAllowInvites = false;
-    SessionSettings->bAllowJoinInProgress = false;
-    SessionSettings->bIsDedicated = true;
     SessionSettings->bUseLobbiesIfAvailable = false;
     SessionSettings->bUseLobbiesVoiceChatIfAvailable = false;
+    
+    SessionSettings->bShouldAdvertise = true;
+    SessionSettings->bAllowJoinInProgress = true;
+    SessionSettings->bIsDedicated = true;
     SessionSettings->bUsesStats = true;
+    // 플레이어가 나가도 세션이 유지되는 옵션
 
     SessionSettings->Settings.Add(KeyName, FOnlineSessionSetting((KeyValue), EOnlineDataAdvertisementType::ViaOnlineService));
 
@@ -127,7 +130,6 @@ void AEOSGameSession::HandleCreateSessionCompleted(FName EOSSessionName, bool bW
         bSessionExists = true;
         FName UniqueSessionName = FName(*FString::Printf(TEXT("Session_%d"), FMath::Rand()));
         UE_LOG(LogTemp, Log, TEXT("Session: %s Created!"), *EOSSessionName.ToString());
-        
     }
     else
     {
@@ -192,34 +194,33 @@ void AEOSGameSession::HandleRegisterPlayerCompleted(FName EOSSessionName, const 
 void AEOSGameSession::UnregisterPlayer(const APlayerController* ExitingPlayer)
 {
     Super::UnregisterPlayer(ExitingPlayer);
-
+ 
     if (IsRunningDedicatedServer())
     {
         IOnlineSubsystem* Subsystem = Online::GetSubsystem(GetWorld());
         IOnlineIdentityPtr Identity = Subsystem->GetIdentityInterface(); 
         IOnlineSessionPtr Session = Subsystem->GetSessionInterface();
-
+ 
         if (ExitingPlayer->PlayerState)
         {
             UnregisterPlayerDelegateHandle =
                 Session->AddOnUnregisterPlayersCompleteDelegate_Handle(FOnUnregisterPlayersCompleteDelegate::CreateUObject(
                     this,
                     &ThisClass::HandleUnregisterPlayerCompleted));
-
-            /*
-            if (!Session->UnregisterPlayer(SessionName, *ExitingPlayer->PlayerState->UniqueId))
+ 
+            if (!Session->UnregisterPlayer(SessionName, *ExitingPlayer->PlayerState->GetUniqueId()))
             {
                 UE_LOG(LogTemp, Warning, TEXT("Failed to Unregister Player!"));
                 Session->ClearOnUnregisterPlayersCompleteDelegate_Handle(UnregisterPlayerDelegateHandle);
                 UnregisterPlayerDelegateHandle.Reset();
             }
-            */
         }
         else
         {
             UE_LOG(LogTemp, Warning, TEXT("Failed to Unregister Player!"));
+            Session->ClearOnUnregisterPlayersCompleteDelegate_Handle(UnregisterPlayerDelegateHandle);
+            UnregisterPlayerDelegateHandle.Reset();
         }
-
     }
 }
 
@@ -281,6 +282,7 @@ void AEOSGameSession::HandleStartSessionCompleted(FName EOSSessionName, bool bWa
 
 void AEOSGameSession::EndSession()
 {
+    UE_LOG(LogTemp, Warning, TEXT("EndSession!"));
     IOnlineSubsystem* Subsystem = Online::GetSubsystem(GetWorld());
     IOnlineSessionPtr Session = Subsystem->GetSessionInterface();
 
@@ -317,6 +319,7 @@ void AEOSGameSession::HandleEndSessionCompleted(FName EOSSessionName, bool bWasS
 
 void AEOSGameSession::DestroySession()
 {
+    UE_LOG(LogTemp, Warning, TEXT("DestroySession!"));
     IOnlineSubsystem* Subsystem = Online::GetSubsystem(GetWorld());
     IOnlineSessionPtr Session = Subsystem->GetSessionInterface();
 

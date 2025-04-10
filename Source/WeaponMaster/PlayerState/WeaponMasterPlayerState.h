@@ -15,6 +15,7 @@ class WEAPONMASTER_API AWeaponMasterPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 public:
+	FUniqueNetIdRepl UniqueId;
 //
 //	AWeaponMasterPlayerState();
 //

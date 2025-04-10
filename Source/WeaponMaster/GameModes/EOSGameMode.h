@@ -70,9 +70,6 @@ public:
 	void RegisterPlayer(APlayerController* NewPlayer);
 	
 private:
-	UPROPERTY()
-	FPlayerControllerCollection PlayerControllerList;
-
 	UFUNCTION()
 	void HandleProcessResult(ESessionStateType State, ESessionResultType Result);
 };
