@@ -3,19 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorStateDecorator.h"
-#include "StunEffect.generated.h"
+#include "../BehaviorStateDecorator.h"
+#include "ConfusedEffect.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class WEAPONMASTER_API UStunEffect : public UBehaviorStateDecorator
+class WEAPONMASTER_API UConfusedEffect : public UBehaviorStateDecorator
 {
 	GENERATED_BODY()
 
 public:
-	UStunEffect();
+	UConfusedEffect();
 	
 	virtual void Activate() override;
 	virtual void Activate(float Duration) override;
@@ -33,6 +33,5 @@ public:
 	virtual void Identity() override;
 	virtual void Defence() override;
 	virtual void PickingItem() override;
-	// virtual void MenuOnOff() override;
-	
+	virtual void MenuOnOff() override;
 };

@@ -20,14 +20,12 @@ enum class EBehaviorEffect : uint8
     // Stiffness   UMETA(DisplayName = "Stiffness"),
     Stun        UMETA(DisplayName = "Stun"),
     Silence     UMETA(DisplayName = "Silence"),
+    Confused    UMETA(DisplayName = "Confused"),
     // AirBorn     UMETA(DisplayName = "AirBorn"),
-    // Blind       UMETA(DisplayName = "Blind"),
     
-    UsingSkill  UMETA(DisplayName = "UsingSkill"),
+    // UsingSkill  UMETA(DisplayName = "UsingSkill"),
     Death       UMETA(DisplayName = "Death"),
-
-    // int32 NumEffects = static_cast<uint8>(ENonBehaviorEffect::Max);
-    Max         UMETA(DisplayName = "Max")
+    Max         UMETA(DisplayName = "Max") // int32 NumEffects = static_cast<uint8>(ENonBehaviorEffect::Max);
 };
 
 UENUM(BlueprintType)

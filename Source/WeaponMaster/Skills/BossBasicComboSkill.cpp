@@ -64,8 +64,8 @@ int32 UBossBasicComboSkill::ProcessTargetActors(const TArray<AActor*>& TargetAct
 			{
 				Damage,
 				LaunchVector,
-				{ EBehaviorEffect::Stun },
-				{ 1 },
+				{ EBehaviorEffect::Stun, EBehaviorEffect::Confused, EBehaviorEffect::Silence },
+				{ 1, 5, 3 },
 				{},
 				{}
 			};
