@@ -71,7 +71,19 @@ public:
 	
 private:
 	UPROPERTY()
-	FString MapURL;
+	FString MapURL = "";
+
+	UPROPERTY()
+	int32 TimerCountDown = 100;
+
+	UFUNCTION()
+	void SetTimer();
+
+	UPROPERTY()
+	FTimerHandle PlayCountDownTimerHandle;
+
+	UFUNCTION()
+	void PlayCountDownTimerAction();
 	
 	UFUNCTION()
 	void HandleProcessResult(ESessionStateType State, ESessionResultType Result);

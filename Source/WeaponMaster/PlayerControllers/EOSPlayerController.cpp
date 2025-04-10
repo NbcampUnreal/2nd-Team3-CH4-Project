@@ -2,6 +2,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "GameModes/EOSGameMode.h"
+#include "GameState/WeaponMasterGameState.h"
 #include "Instance/WeaponMasterGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/MultiUI/MultiGameHUD.h"
@@ -28,6 +29,14 @@ void AEOSPlayerController::BeginPlay()
     bShowMouseCursor = true;
 }
 
+void AEOSPlayerController::Client_UpdateTimer_Implementation(int32 TimerCountDown)
+{
+    if (const AMultiGameHUD* MultiGameHUD = Cast<AMultiGameHUD>(GetHUD()))
+    {
+        MultiGameHUD->MapSelectWidget->SetTimer(TimerCountDown);
+    }
+}
+
 void AEOSPlayerController::SetTimer()
 {
     GetWorldTimerManager().SetTimer(
@@ -37,29 +46,6 @@ void AEOSPlayerController::SetTimer()
         5.0f,
         false
     );
-
-    GetWorldTimerManager().SetTimer(
-        PlayCountDownTimerHandle,
-        this,
-        &AEOSPlayerController::PlayCountDownTimerAction,
-        1.0f,
-        true
-    );
-}
-
-void AEOSPlayerController::PlayCountDownTimerAction()
-{
-    --TimerCountDown;
-
-    if (const AMultiGameHUD* MultiGameHUD = Cast<AMultiGameHUD>(GetHUD()))
-    {
-        MultiGameHUD->MapSelectWidget->SetTimer(TimerCountDown);
-    }
-
-    if (TimerCountDown == 0)
-    {
-        GetWorldTimerManager().ClearTimer(PlayCountDownTimerHandle);
-    }
 }
 
 void AEOSPlayerController::AddDelegate()
@@ -96,12 +82,50 @@ void AEOSPlayerController::AddDelegate()
 
 void AEOSPlayerController::OnCooperateButtonClicked()
 {
-    
+    if (bIsCooperateVoted) return;
+    Server_SetCooperationMapSelected(bIsVoted);
+    SetSelectedPlayerWidget();
+    bIsVoted = true;
+    bIsCooperateVoted = true;
+    bIsDeathMatchVoted = false;
+}
+
+void AEOSPlayerController::Server_SetCooperationMapSelected_Implementation(bool IsVoted)
+{
+    if (AWeaponMasterGameState* GameState = GetWorld()->GetGameState<AWeaponMasterGameState>())
+    {
+        GameState->SetCooperateVotedPlayerNum(IsVoted);
+    }
 }
 
 void AEOSPlayerController::OnDeathMatchButtonClicked()
 {
-    
+    if (bIsDeathMatchVoted) return;
+    Server_SetDeathMatchMapSelected(bIsVoted);
+    SetSelectedPlayerWidget();
+    bIsVoted = true;
+    bIsCooperateVoted = false;
+    bIsDeathMatchVoted = true;
+}
+
+void AEOSPlayerController::Server_SetDeathMatchMapSelected_Implementation(bool IsVoted)
+{
+    if (AWeaponMasterGameState* GameState = GetWorld()->GetGameState<AWeaponMasterGameState>())
+    {
+        GameState->SetDeathMatchVotedPlayerNum(IsVoted);
+    }
+}
+
+void AEOSPlayerController::SetSelectedPlayerWidget()
+{
+    if (const AMultiGameHUD* MultiGameHUD = Cast<AMultiGameHUD>(GetHUD()))
+    {
+        if (const AWeaponMasterGameState* GameState = GetWorld()->GetGameState<AWeaponMasterGameState>())
+        {
+            MultiGameHUD->MapSelectWidget->SetCooperateMapSelectedPlayers(GameState->GetCooperateVotedPlayerNum());
+            MultiGameHUD->MapSelectWidget->SetDeathMatchMapSelectedPlayers(GameState->GetDeathMatchVotedPlayerNum());
+        }
+    }
 }
 
 void AEOSPlayerController::Client_UpdateTotalPlayerNum_Implementation(int16 PlayerNum)
