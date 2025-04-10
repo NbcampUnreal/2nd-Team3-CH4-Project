@@ -14,6 +14,9 @@ UCLASS()
 class WEAPONMASTER_API AWeaponMasterPlayerState : public APlayerState
 {
 	GENERATED_BODY()
+protected:
+	uint8 TeamIdx;
+	
 public:
 	FUniqueNetIdRepl UniqueId;
 	

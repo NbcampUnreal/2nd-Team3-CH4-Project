@@ -45,6 +45,9 @@ ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectIniti
 	GetCharacterMovement()->AirControlBoostMultiplier = 0.0f;
 	GetCharacterMovement()->AirControlBoostVelocityThreshold = 0.0f;
 	GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
+
+	// Replicate
+	bReplicates = true;
 }
 
 // Called when the game starts or when spawned

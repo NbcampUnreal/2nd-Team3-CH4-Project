@@ -11,7 +11,8 @@
 
 UWeaponMasterGameInstance::UWeaponMasterGameInstance()
 {
-	
+	CharacterClass = nullptr;
+	ItemName = FName();
 }
 
 // Login
