@@ -72,7 +72,14 @@ void ABaseBattleCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	InputComponent = PlayerInputComponent;
 
-	StateComponent->OnStateComponentReady.BindUObject(this, &ABaseBattleCharacter::BindInputFunctions);
+	if (StateComponent->bIsComponentReady)
+	{
+		BindInputFunctions();
+	}
+	else
+	{
+		StateComponent->OnStateComponentReady.BindUObject(this, &ABaseBattleCharacter::BindInputFunctions);
+	}
 }
 
 void ABaseBattleCharacter::BindInputFunctions()
