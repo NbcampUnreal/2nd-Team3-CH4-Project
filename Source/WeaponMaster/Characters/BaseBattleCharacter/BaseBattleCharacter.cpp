@@ -367,19 +367,19 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 void ABaseBattleCharacter::WeakAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::WeakAttack !"));
-	// ExecuteSkill(0); Execute_ 그거 문법으로 바꿔야함
+	IBattleSystemUser::Execute_ExecuteSkill(this, 0);
 }
 
 void ABaseBattleCharacter::StrongAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::StrongAttack !"));
-	// ExecuteSkill(1);
+	IBattleSystemUser::Execute_ExecuteSkill(this, 1);
 }
 
 void ABaseBattleCharacter::Identity()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Identity !"));
-	// ExecuteSkill(2);
+	IBattleSystemUser::Execute_ExecuteSkill(this, 2);
 }
 
 void ABaseBattleCharacter::Defence()
