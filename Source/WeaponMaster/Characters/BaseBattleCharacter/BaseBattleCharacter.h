@@ -77,44 +77,38 @@ public:
 	// !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
 	
 	// Character -> ItemComponent
-	// UFUNCTION(BlueprintCallable, Category = "Components")
 	virtual UItemComponent* GetItemComponent_Implementation() const override;
 
-	// UFUNCTION(BlueprintCallable, Category = "Items")
 	virtual bool EquipItem_Implementation(FName ItemID) override;
 
 	// Character -> SillComponent
-	// UFUNCTION(BlueprintCallable, Category = "Components")
 	virtual USkillComponent* GetSkillComponent_Implementation() const override;
 
-	// UFUNCTION(BlueprintCallable, Category = "Skills")
 	virtual void ExecuteSkill_Implementation(int32 SkillIndex) override;
 
 	// Character -> StateComponent
-	// UFUNCTION(BlueprintCallable, Category = "States")
 	virtual TScriptInterface<UBehaviorState> GetBehaviorState_Implementation() const override;
 
-	// UFUNCTION(BlueprintCallable, Category = "States")
-	void SetBehaviorState_Implementation(const TScriptInterface<UBehaviorState>& NewState);
+	virtual void SetBehaviorState_Implementation(const TScriptInterface<UBehaviorState>& NewState) override;
 
 	// ItemComponent -> Character -> SkillComponent
-	// UFUNCTION(BlueprintCallable, Category = "Items")
 	virtual void OnItemEquipped_Implementation(UItemDataAsset* EquippedItem) override;
 
-	// UFUNCTION(BlueprintCallable, Category = "Items")
+	UFUNCTION()
+	void OnItemEquippedForBinding(UItemDataAsset* EquippedItem);
+	
 	virtual void OnItemUnequipped_Implementation() override;
 
-	// UFUNCTION(BlueprintCallable, Category = "Skills")
+	UFUNCTION()
+	void OnItemUnequippedForBinding();
+	
 	virtual void InterruptActiveSkill_Implementation() override;
 
 	// Interactable Actors
-	// UFUNCTION(BlueprintCallable, Category = "Interaction")
 	virtual void SetInteractableActor_Implementation(AActor* NewInteractableActor) override;
-
-	// UFUNCTION(BlueprintPure, Category = "Interaction")
+	
 	virtual AActor* GetInteractableActor_Implementation() const override;
 
 	// Event when Attacked
-	// UFUNCTION(BlueprintCallable, Category = "Attacked")
 	virtual void OnAttacked(const FAttackData& AttackData) override;
 };
