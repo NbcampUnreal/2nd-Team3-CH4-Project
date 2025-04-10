@@ -4,6 +4,7 @@
 #include "GameModes/EOSGameMode.h"
 #include "Instance/WeaponMasterGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "UI/MultiUI/MultiGameHUD.h"
 #include "UI/MultiUI/SessionLobbyWidget.h"
 
 AEOSPlayerController::AEOSPlayerController()
@@ -13,55 +14,29 @@ AEOSPlayerController::AEOSPlayerController()
 
 void AEOSPlayerController::BeginPlay()
 {
-    UE_LOG(LogTemp, Display, TEXT("AEOSPlayerController::BeginPlay"));
     Super::BeginPlay();
+
+    UE_LOG(LogTemp, Warning, TEXT("AEOSPlayerController::BeginPlay"));
 
     if (UWeaponMasterGameInstance* MyGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
     {
         MyGI->OnProcessReturnValue.AddUObject(this, &AEOSPlayerController::HandleProcessResult);
     }
 
-    if (SessionLobbyWidgetClass)
-    {
-        SessionLobbyWidget = CreateWidget<USessionLobbyWidget>(GetWorld(), SessionLobbyWidgetClass);
-        if (SessionLobbyWidget)
-        {
-            FInputModeGameAndUI InputMode;
-            InputMode.SetWidgetToFocus(SessionLobbyWidget->TakeWidget());
-            InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-            InputMode.SetHideCursorDuringCapture(false);
+    GetWorldTimerManager().SetTimer(
+        HUDTimerHandle,
+        this,
+        &AEOSPlayerController::HandleTimerAction,
+        5.0f,
+        false
+    );
 
-            SetInputMode(InputMode);
-            bShowMouseCursor = true;
-            
-            SessionLobbyWidget->AddToViewport();
-            SessionLobbyWidget->OnStartSessionClicked.AddDynamic(this, &AEOSPlayerController::OnStartSessionButtonClicked);
-            SessionLobbyWidget->OnLoginClicked.AddDynamic(this, &AEOSPlayerController::OnLoginButtonClicked);
-        }
-    }
+    FInputModeGameAndUI InputMode;
+    InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+    InputMode.SetHideCursorDuringCapture(false);
 
-    if (PlayerNameWidgetClass)
-    {
-        PlayerNameWidget = CreateWidget<UPlayerNameWidget>(GetWorld(), PlayerNameWidgetClass);
-    }
-
-    if (!IsRunningDedicatedServer())
-    {
-        if (const UWeaponMasterGameInstance* MyGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
-        {
-            const FString PlayerName = MyGI->GetPlayerName();
-            if (PlayerName != "")
-            {
-                if (PlayerNameWidget)
-                {
-                    PlayerNameWidget->SetPlayerName(PlayerName);
-                    PlayerNameWidget->PlayerNameText->SetVisibility(ESlateVisibility::Visible);
-                }
-            }
-
-            UE_LOG(LogTemp, Warning, TEXT("SetPlayerName = [%s]"), *PlayerName);
-        }
-    }
+    SetInputMode(InputMode);
+    bShowMouseCursor = true;
 }
 
 void AEOSPlayerController::OnStartSessionButtonClicked()
@@ -88,6 +63,33 @@ void AEOSPlayerController::OnLoginButtonClicked()
     {
         UE_LOG(LogTemp, Warning, TEXT("Player already logged in!"));
     }
+}
+
+void AEOSPlayerController::HandleTimerAction()
+{
+    UE_LOG(LogTemp, Warning, TEXT("HandleTimerAction"));
+    if (!IsRunningDedicatedServer())
+    {
+        if (const UWeaponMasterGameInstance* MyGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
+        {
+            const FString PlayerName = MyGI->GetPlayerName();
+            if (AMultiGameHUD *MultiHUD = Cast<AMultiGameHUD>(GetHUD()))
+            {
+                UE_LOG(LogTemp, Warning, TEXT("BindAction!!"));
+                MultiHUD->SessionLobbyWidget->OnStartSessionClicked.AddDynamic(this, &AEOSPlayerController::OnStartSessionButtonClicked);
+                MultiHUD->SessionLobbyWidget->OnLoginClicked.AddDynamic(this, &AEOSPlayerController::OnLoginButtonClicked);
+                
+                if (MultiHUD->PlayerNameWidget)
+                {        
+                    MultiHUD->PlayerNameWidget->SetPlayerName(PlayerName);
+                    MultiHUD->PlayerNameWidget->PlayerNameText->SetVisibility(ESlateVisibility::Visible);
+                }
+            }
+            UE_LOG(LogTemp, Warning, TEXT("SetPlayerName = [%s]"), *PlayerName);
+        }
+    }
+
+    GetWorldTimerManager().ClearTimer(HUDTimerHandle);
 }
 
 void AEOSPlayerController::OnNetCleanup(class UNetConnection* Connection)

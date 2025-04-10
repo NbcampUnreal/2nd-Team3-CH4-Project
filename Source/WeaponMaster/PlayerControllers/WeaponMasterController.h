@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EOSPlayerController.h"
 #include "GameFramework/PlayerController.h"
 #include "WeaponMasterController.generated.h"
 
@@ -10,11 +11,8 @@ struct FInputActionValue;
 class UInputMappingContext;
 class UInputAction;
 
-/**
- * 
- */
 UCLASS()
-class WEAPONMASTER_API AWeaponMasterController : public APlayerController
+class WEAPONMASTER_API AWeaponMasterController : public AEOSPlayerController
 {
 	GENERATED_BODY()
 public:
