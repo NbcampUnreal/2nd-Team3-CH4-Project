@@ -48,7 +48,6 @@ public:
 	virtual void Identity() override;
 	virtual void Defence() override;
 	virtual void PickingItem() override;
-	virtual void MenuOnOff() override;
 	
 	virtual TScriptInterface<UBehaviorState> GetInnerState() const override;
 	virtual void SetInnerState(const TScriptInterface<UBehaviorState>& NewInnerState) override;

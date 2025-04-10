@@ -137,18 +137,6 @@ void UCharacterBehaviorState::PickingItem()
 	}
 }
 
-void UCharacterBehaviorState::MenuOnOff()
-{
-	if (auto CastedCharacter = Cast<IBaseBattleInputBindFunctions>(GetOuter()->GetOuter()))
-	{
-		CastedCharacter->MenuOnOff(); 
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("UCharacterBehaviorState::MenuOnOff : Cast Failed."));
-	}
-} 
-
 TScriptInterface<UBehaviorState> UCharacterBehaviorState::GetOuterState() const
 {
 	return OuterState; 

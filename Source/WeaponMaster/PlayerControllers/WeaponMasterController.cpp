@@ -18,6 +18,7 @@ AWeaponMasterController::AWeaponMasterController()
 	DashAction = nullptr;
 	PickingItemAction = nullptr;
 	MenuOnOffAction = nullptr;
+	ChatAction = nullptr;
 }
 
 void AWeaponMasterController::BeginPlay()

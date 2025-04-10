@@ -207,11 +207,6 @@ void UBehaviorStateDecorator::PickingItem()
 	Cast<IBehaviorState>(InnerState.GetObject())->PickingItem();
 }
 
-void UBehaviorStateDecorator::MenuOnOff()
-{
-	Cast<IBehaviorState>(InnerState.GetObject())->MenuOnOff();
-}
-
 TScriptInterface<UBehaviorState> UBehaviorStateDecorator::GetInnerState() const
 {
 	return InnerState;
