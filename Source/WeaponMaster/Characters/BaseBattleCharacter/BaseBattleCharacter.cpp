@@ -401,13 +401,17 @@ void ABaseBattleCharacter::PickingItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::PickingItem !"));
 	// 상호작용 가능한 아이템이 있는지 확인
-	if (GetInteractableActor())
+
+	if (GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	{
-		// 상호작용 컴포넌트 찾기
-		UInteractionComponent* InteractionComp = GetInteractableActor()->FindComponentByClass<UInteractionComponent>();
-		if (InteractionComp)
+		AActor* interactableActor = IBattleSystemUser::Execute_GetInteractableActor(this);
+		if (interactableActor)
 		{
-			InteractionComp->Interact( this);
+			UInteractionComponent* InteractionComp = interactableActor->FindComponentByClass<UInteractionComponent>();
+			if (InteractionComp)
+			{
+				InteractionComp->Interact( this);
+			}
 		}
 	}
 }
