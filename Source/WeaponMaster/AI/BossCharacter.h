@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Characters/Components/IBattleSystemUser.h"
+#include "Characters/Components/StateComponent/States/IBehaviorState.h"
 #include "GameFramework/Character.h"
 #include "WeaponMaster/AI/AIComponent/BossStateComponent.h"
 #include "WeaponMaster/Characters/Components/SkillComponent/SkillComponent.h"
@@ -10,7 +12,7 @@
 #include "BossCharacter.generated.h"
 
 UCLASS()
-class WEAPONMASTER_API ABossCharacter : public ACharacter
+class WEAPONMASTER_API ABossCharacter : public ACharacter, public IBattleSystemUser, public IDamageSystemUser
 {
 	GENERATED_BODY()
 
@@ -90,4 +92,47 @@ public:
 	//강공격
 	UFUNCTION(BlueprintCallable)
 	void ApplyPowerAttack();
+
+	// !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
+	// !~!~!~!~ Battle System User Interface ~!~!~!~!
+	// !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
+
+	// Character -> ItemComponent
+	UFUNCTION(BlueprintCallable, Category = "Components")
+	virtual UItemComponent* GetItemComponent_Implementation() const override;
+
+	UFUNCTION(BlueprintCallable, Category = "Items")
+	virtual bool EquipItem_Implementation(FName ItemID) override;
+
+	// Character -> SillComponent
+	UFUNCTION(BlueprintCallable, Category = "Components")
+	virtual USkillComponent* GetSkillComponent_Implementation() const override;
+
+	UFUNCTION(BlueprintCallable, Category = "Skills")
+	virtual void ExecuteSkill_Implementation(int32 SkillIndex) override;
+
+	// Character -> StateComponent
+	UFUNCTION(BlueprintCallable, Category = "States")
+	virtual TScriptInterface<UBehaviorState> GetBehaviorState_Implementation() const override;
+
+	// ItemComponent -> Character -> SkillComponent
+	UFUNCTION(BlueprintCallable, Category = "Items")
+	virtual void OnItemEquipped_Implementation(UItemDataAsset* EquippedItem) override;
+
+	UFUNCTION(BlueprintCallable, Category = "Items")
+	virtual void OnItemUnequipped_Implementation() override;
+
+	UFUNCTION(BlueprintCallable, Category = "Skills")
+	virtual void InterruptActiveSkill_Implementation() override;
+
+	// Interactable Actors
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void SetInteractableActor_Implementation(AActor* NewInteractableActor) override;
+
+	UFUNCTION(BlueprintPure, Category = "Interaction")
+	virtual AActor* GetInteractableActor_Implementation() const override;
+	
+	// Event when Attacked
+	UFUNCTION(BlueprintCallable, Category = "Attacked")
+	virtual void OnAttacked(const FAttackData& AttackData) override;
 };

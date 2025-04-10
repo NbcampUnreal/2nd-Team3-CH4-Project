@@ -3,7 +3,10 @@
 
 #include "EffectComponent.h"
 #include "BehaviorEffects/BehaviorStateDecorator.h"
-#include "BehaviorEffects/StunEffect.h"
+#include "BehaviorEffects/SpecificEffects/ConfusedEffect.h"
+#include "BehaviorEffects/SpecificEffects/DeathEffect.h"
+#include "BehaviorEffects/SpecificEffects/SilenceEffect.h"
+#include "BehaviorEffects/SpecificEffects/StunEffect.h"
 
 
 // Sets default values for this component's properties
@@ -22,7 +25,15 @@ void UEffectComponent::Initialize()
 	ActiveBehaviorEffects.Empty();
 	BehaviorEffectMapper.Empty();
 
+	// Create BehaviorEffect Instances
 	BehaviorEffectMapper.Add(EBehaviorEffect::Stun, NewObject<UStunEffect>(this));
+	// BehaviorEffectMapper.Add(EBehaviorEffect::Stiffness, NewObject<UStunEffect>(this));   
+	BehaviorEffectMapper.Add(EBehaviorEffect::Silence, NewObject<USilenceEffect>(this));     
+	BehaviorEffectMapper.Add(EBehaviorEffect::Confused, NewObject<UConfusedEffect>(this));    
+	// BehaviorEffectMapper.Add(EBehaviorEffect::AirBorn, NewObject<UStunEffect>(this));     
+	// BehaviorEffectMapper.Add(EBehaviorEffect::UsingSkill, NewObject<UStunEffect>(this));  
+	BehaviorEffectMapper.Add(EBehaviorEffect::Death, NewObject<UDeathEffect>(this));       
+	
 }
 
 // Called when the game starts

@@ -7,12 +7,13 @@
 #include "Data/StatusTypes.h"
 #include "IBattleSystemUser.generated.h"
 
-class UCharacterBehaviorState;
+class USkillComponent;
+class UItemComponent;
 class UItemDataAsset;
 /**
  * 
  */
-UINTERFACE(BlueprintType, NotBlueprintable)
+UINTERFACE(BlueprintType)
 class WEAPONMASTER_API UBattleSystemUser : public UInterface
 {
 	GENERATED_BODY()
@@ -24,41 +25,41 @@ class WEAPONMASTER_API IBattleSystemUser
 
 public:
 	// Character -> ItemComponent
-	UFUNCTION(BlueprintCallable, Category = "Components")
-	virtual UItemComponent* GetItemComponent() const = 0;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Components")
+	UItemComponent* GetItemComponent() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Items")
-	virtual bool EquipItem(FName ItemID) = 0;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Items")
+	bool EquipItem(FName ItemID);
 
 	// Character -> SillComponent
-	UFUNCTION(BlueprintCallable, Category = "Components")
-	virtual USkillComponent* GetSkillComponent() const = 0;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Components")
+	USkillComponent* GetSkillComponent() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Skills")
-	virtual void ExecuteSkill(int32 SkillIndex) = 0;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Skills")
+	void ExecuteSkill(int32 SkillIndex);
 
 	// ItemComponent -> Character -> SkillComponent
-	UFUNCTION(BlueprintCallable, Category = "Items")
-	virtual void OnItemEquipped(UItemDataAsset* EquippedItem) = 0;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Items")
+	void OnItemEquipped(UItemDataAsset* EquippedItem);
 
-	UFUNCTION(BlueprintCallable, Category = "Items")
-	virtual void OnItemUnequipped() = 0;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Items")
+	void OnItemUnequipped();
 
-	UFUNCTION(BlueprintCallable, Category = "Skills")
-	virtual void InterruptActiveSkill() = 0;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Skills")
+	void InterruptActiveSkill();
 
 	// Character -> StateComponent
-	UFUNCTION(BlueprintCallable, Category = "States")
-	virtual UCharacterBehaviorState* GetBehaviorState() const = 0;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "States")
+	TScriptInterface<UBehaviorState> GetBehaviorState() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "States")
+	void SetBehaviorState(const TScriptInterface<UBehaviorState>& NewState);
+	
 	
 	// Interactable Actors
-	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	virtual void SetInteractableActor(AActor* NewInteractableActor) = 0;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
+	void SetInteractableActor(AActor* NewInteractableActor);
 
-	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	virtual AActor* GetInteractableActor() const = 0;
-
-	// Called When Attacked by Other Character
-	UFUNCTION(BlueprintCallable, Category = "Attacked")
-	virtual void OnAttacked(float Damage, const FAttackData& AttackData) = 0;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
+	AActor* GetInteractableActor() const;
 };

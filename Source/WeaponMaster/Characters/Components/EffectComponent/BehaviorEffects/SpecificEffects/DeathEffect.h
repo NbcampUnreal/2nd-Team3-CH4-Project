@@ -3,25 +3,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "IBehaviorState.h"
-#include "UObject/Object.h"
-#include "CharacterBehaviorState.generated.h"
+#include "Characters/Components/EffectComponent/BehaviorEffects/BehaviorStateDecorator.h"
+#include "DeathEffect.generated.h"
 
-struct FInputActionValue;
 /**
  * 
  */
 UCLASS()
-class WEAPONMASTER_API UCharacterBehaviorState :
-public UObject, public IBehaviorState
+class WEAPONMASTER_API UDeathEffect : public UBehaviorStateDecorator
 {
 	GENERATED_BODY()
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
-	TScriptInterface<UBehaviorState> OuterState;
 
 public:
-	// ISSTInputBindFunctions
+	UDeathEffect();
+	
+	virtual void Activate() override;
+	virtual void Activate(float Duration) override;
+	virtual void Deactivate() override;
+	
 	virtual void Move(const FInputActionValue& Value) override;
 	virtual void CrouchDrop() override;
 	virtual void StopCrouchDrop() override;
@@ -29,15 +28,10 @@ public:
 	virtual void ReleaseJump() override;
 	virtual void Dash() override;
 
-	// IBaseBattleInputBindFunctions
 	virtual void WeakAttack() override;
 	virtual void StrongAttack() override;
 	virtual void Identity() override;
 	virtual void Defence() override;
 	virtual void PickingItem() override;
 	virtual void MenuOnOff() override;
-
-	virtual TScriptInterface<UBehaviorState> GetOuterState() const override;
-	virtual void SetOuterState(const TScriptInterface<UBehaviorState>& NewOuterState) override;
-	
 };
