@@ -3,7 +3,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Instance/WeaponMasterGameInstance.h"
-#include "UI/MultiUI/PlayerNameWidget.h"
 #include "EOSPlayerController.generated.h"
 
 class USessionLobbyWidget;
