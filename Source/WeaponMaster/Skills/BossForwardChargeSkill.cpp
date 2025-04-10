@@ -1,4 +1,6 @@
-#include "WeaponMaster/Skills/BossBasicComboSkill.h"
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#include "Skills/BossForwardChargeSkill.h"
 #include "WeaponMaster/Characters/TestCharacter.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
@@ -9,17 +11,18 @@
 #include "Data/StatusTypes.h"
 #include "WeaponMaster/Data/StatusTypes.h"
 
-UBossBasicComboSkill::UBossBasicComboSkill()
+UBossForwardChargeSkill::UBossForwardChargeSkill()
 {
-	SkillDamage = 5.0f;
+	DefaultAttackSpeed = 1.0f;
+	SkillDamage = 15.0f;
 }
 
-void UBossBasicComboSkill::ExecuteSkill()
+void UBossForwardChargeSkill::ExecuteSkill()
 {
 	Super::ExecuteSkill();
 }
 
-int32 UBossBasicComboSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage)
+int32 UBossForwardChargeSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage)
 {
 	// 기본 유효성 검사
 	if (!OwnerCharacter || !OwnerCharacter->HasAuthority())
@@ -58,18 +61,20 @@ int32 UBossBasicComboSkill::ProcessTargetActors(const TArray<AActor*>& TargetAct
 		/*if (auto CastedTarget = Cast<IDamageSystemUser>(Target))
 		{
 			UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Success!"));
-			FVector LaunchVector = {1000.0f, 0.0f, 0.0f};
-			
+			FVector LaunchVector = OwnerCharacter->GetActorForwardVector() * 100;
+
 			FAttackData AttackData
 			{
 				FinalDamage,
 				LaunchVector,
-				{ EBehaviorEffect::Stun, EBehaviorEffect::Confused, EBehaviorEffect::Silence },
-				{ 1, 5, 3 },
+				1,
+				{ EBehaviorEffect::Stiffness },
+				{ 2 },
+				0,
 				{},
 				{}
 			};
-			
+
 			CastedTarget->OnAttacked(AttackData);
 		}
 		else
@@ -78,8 +83,6 @@ int32 UBossBasicComboSkill::ProcessTargetActors(const TArray<AActor*>& TargetAct
 		}*/
 
 		// 타격 이펙트 (선택)
-
-		
 		if (!SkillEffect.IsNull())
 		{
 			UNiagaraSystem* Effect = SkillEffect.LoadSynchronous();
