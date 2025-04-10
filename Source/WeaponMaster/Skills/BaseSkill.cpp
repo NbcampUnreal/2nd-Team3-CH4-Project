@@ -62,6 +62,8 @@ bool UBaseSkill::ActivateSkill()
     {
         return false;
     }
+
+    OnSkillStarted.Broadcast();
     
     // 스킬 활성화 상태로 변경
     bIsActive = true;
@@ -124,6 +126,8 @@ void UBaseSkill::EndSkill()
 {
     // 스킬 비활성화
     bIsActive = false;
+
+    OnSkillEnded.Broadcast();
 }
 
 void UBaseSkill::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
