@@ -4,7 +4,6 @@
 #include "GameFramework/GameModeBase.h"
 #include "SingleGameMode.generated.h"
 
-
 UCLASS()
 class WEAPONMASTER_API ASingleGameMode : public AGameModeBase
 {

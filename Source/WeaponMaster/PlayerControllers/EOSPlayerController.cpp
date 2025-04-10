@@ -7,6 +7,7 @@
 #include "UI/MultiUI/MultiGameHUD.h"
 #include "UI/MultiUI/PlayerNameWidget.h"
 #include "UI/MultiUI/SessionLobbyWidget.h"
+#include "UI/MultiUI/SessionWidget.h"
 
 AEOSPlayerController::AEOSPlayerController()
 {
@@ -17,13 +18,18 @@ void AEOSPlayerController::BeginPlay()
 {
     Super::BeginPlay();
 
-    UE_LOG(LogTemp, Warning, TEXT("AEOSPlayerController::BeginPlay"));
+    SetTimer();
 
-    if (UWeaponMasterGameInstance* MyGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
-    {
-        MyGI->OnProcessReturnValue.AddUObject(this, &AEOSPlayerController::HandleProcessResult);
-    }
+    FInputModeGameAndUI InputMode;
+    InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+    InputMode.SetHideCursorDuringCapture(false);
 
+    SetInputMode(InputMode);
+    bShowMouseCursor = true;
+}
+
+void AEOSPlayerController::SetTimer()
+{
     GetWorldTimerManager().SetTimer(
         HUDTimerHandle,
         this,
@@ -32,12 +38,78 @@ void AEOSPlayerController::BeginPlay()
         false
     );
 
-    FInputModeGameAndUI InputMode;
-    InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-    InputMode.SetHideCursorDuringCapture(false);
+    GetWorldTimerManager().SetTimer(
+        PlayCountDownTimerHandle,
+        this,
+        &AEOSPlayerController::PlayCountDownTimerAction,
+        1.0f,
+        true
+    );
+}
 
-    SetInputMode(InputMode);
-    bShowMouseCursor = true;
+void AEOSPlayerController::PlayCountDownTimerAction()
+{
+    --TimerCountDown;
+
+    if (const AMultiGameHUD* MultiGameHUD = Cast<AMultiGameHUD>(GetHUD()))
+    {
+        MultiGameHUD->MapSelectWidget->SetTimer(TimerCountDown);
+    }
+
+    if (TimerCountDown == 0)
+    {
+        GetWorldTimerManager().ClearTimer(PlayCountDownTimerHandle);
+    }
+}
+
+void AEOSPlayerController::AddDelegate()
+{
+    if (UWeaponMasterGameInstance* MyGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
+    {
+        MyGI->OnProcessReturnValue.AddUObject(this, &AEOSPlayerController::HandleProcessResult);
+    }
+
+    if (const AMultiGameHUD* MultiGameHUD = Cast<AMultiGameHUD>(GetHUD()))
+    {
+        FString PlayerName = "";
+        if (const UWeaponMasterGameInstance* MyGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
+        {
+            PlayerName = MyGI->GetPlayerName();
+        }
+        
+        UE_LOG(LogTemp, Warning, TEXT("SetPlayerName = [%s]"), *PlayerName);
+        UE_LOG(LogTemp, Warning, TEXT("BindAction!!"));
+        
+        MultiGameHUD->MapSelectWidget->OnCooperateButtonClickedDelegate.AddDynamic(this, &AEOSPlayerController::OnCooperateButtonClicked);
+        MultiGameHUD->MapSelectWidget->OnDeathMatchButtonClickedDelegate.AddDynamic(this, &AEOSPlayerController::OnDeathMatchButtonClicked);
+        
+        MultiGameHUD->SessionLobbyWidget->OnStartSessionClicked.AddDynamic(this, &AEOSPlayerController::OnStartSessionButtonClicked);
+        MultiGameHUD->SessionLobbyWidget->OnLoginClicked.AddDynamic(this, &AEOSPlayerController::OnLoginButtonClicked);
+        
+        if (MultiGameHUD->PlayerNameWidget)
+        {        
+            MultiGameHUD->PlayerNameWidget->SetPlayerName(PlayerName);
+            MultiGameHUD->PlayerNameWidget->PlayerNameText->SetVisibility(ESlateVisibility::Visible);
+        }
+    }
+}
+
+void AEOSPlayerController::OnCooperateButtonClicked()
+{
+    
+}
+
+void AEOSPlayerController::OnDeathMatchButtonClicked()
+{
+    
+}
+
+void AEOSPlayerController::Client_UpdateTotalPlayerNum_Implementation(int16 PlayerNum)
+{
+    if (const AMultiGameHUD* MultiGameHUD = Cast<AMultiGameHUD>(GetHUD()))
+    {
+        MultiGameHUD->MapSelectWidget->SetTotalPlayers(PlayerNum);
+    }
 }
 
 void AEOSPlayerController::OnStartSessionButtonClicked()
@@ -71,23 +143,7 @@ void AEOSPlayerController::HandleTimerAction()
     UE_LOG(LogTemp, Warning, TEXT("HandleTimerAction"));
     if (!IsRunningDedicatedServer())
     {
-        if (const UWeaponMasterGameInstance* MyGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
-        {
-            const FString PlayerName = MyGI->GetPlayerName();
-            if (AMultiGameHUD *MultiHUD = Cast<AMultiGameHUD>(GetHUD()))
-            {
-                UE_LOG(LogTemp, Warning, TEXT("BindAction!!"));
-                MultiHUD->SessionLobbyWidget->OnStartSessionClicked.AddDynamic(this, &AEOSPlayerController::OnStartSessionButtonClicked);
-                MultiHUD->SessionLobbyWidget->OnLoginClicked.AddDynamic(this, &AEOSPlayerController::OnLoginButtonClicked);
-                
-                if (MultiHUD->PlayerNameWidget)
-                {        
-                    MultiHUD->PlayerNameWidget->SetPlayerName(PlayerName);
-                    MultiHUD->PlayerNameWidget->PlayerNameText->SetVisibility(ESlateVisibility::Visible);
-                }
-            }
-            UE_LOG(LogTemp, Warning, TEXT("SetPlayerName = [%s]"), *PlayerName);
-        }
+        AddDelegate();
     }
 
     GetWorldTimerManager().ClearTimer(HUDTimerHandle);
