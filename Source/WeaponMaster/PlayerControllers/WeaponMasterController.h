@@ -57,7 +57,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> MenuOnOffAction;
-
+	
+	UFUNCTION(Server, Reliable)
+	void ServerSetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName);
+	
 protected:
 	virtual void BeginPlay() override;
 	
