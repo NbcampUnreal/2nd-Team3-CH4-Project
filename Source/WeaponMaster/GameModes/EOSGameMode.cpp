@@ -23,10 +23,7 @@ void AEOSGameMode::BeginPlay()
 void AEOSGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-
-	FSinglePlayerController Entry;
-	Entry.Controller = NewPlayer;
-	PlayerControllerList.Controller.Add(Entry);
+	
 }
 
 APlayerController* AEOSGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal,
@@ -51,21 +48,6 @@ void AEOSGameMode::Logout(AController* Exiting)
 			{
 				MyGameSession->UnregisterPlayer(PC);
 			}
-		}
-	}
-
-	if (APlayerController* PC = Cast<APlayerController>(Exiting))
-	{
-		FSinglePlayerController ExitEntry;
-		ExitEntry.Controller = PC;
-
-		if (PlayerControllerList.Controller.Remove(ExitEntry) > 0)
-		{
-			UE_LOG(LogTemp, Log, TEXT("Removed controller from PlayerControllerList: %s"), *PC->GetName());
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Controller not found in PlayerControllerList: %s"), *PC->GetName());
 		}
 	}
 }
