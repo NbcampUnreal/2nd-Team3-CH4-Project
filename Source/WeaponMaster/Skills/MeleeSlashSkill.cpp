@@ -8,6 +8,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "TimerManager.h"
+#include "Characters/Components/DamageSystemUser.h"
 #include "Engine/DamageEvents.h"
 #include "Engine/World.h"
 #include "WeaponMaster/Characters/Components/ItemComponent/ItemComponent.h"
@@ -67,27 +68,26 @@ int32 UMeleeSlashSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors,
         // 새로운 헬퍼 메서드 사용
         FinalDamage += GetItemBaseDamage();
         
-        // 데미지 타입 설정
-        TSubclassOf<UDamageType> DamageTypeClass = DamageType;
-        if (!DamageTypeClass)
+        if (auto CastedTarget = Cast<IDamageSystemUser>(TargetActor))
         {
-            DamageTypeClass = UDamageType::StaticClass();
-        }
-        
-        // 데미지 적용
-        TargetActor->TakeDamage(FinalDamage, FDamageEvent(DamageTypeClass), OwnerCharacter->GetController(), OwnerCharacter);
-        
-        // 넉백 적용 (선택적)
-        if (KnockbackPower > 0.0f)
-        {
-            ACharacter* TargetCharacter = Cast<ACharacter>(TargetActor);
-            if (TargetCharacter)
+            UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Success!"));
+            FVector LaunchVector = {1000.0f, 0.0f, 0.0f};
+			
+            FAttackData AttackData
             {
-                FVector KnockbackDirection = (TargetCharacter->GetActorLocation() - OwnerCharacter->GetActorLocation()).GetSafeNormal();
-                KnockbackDirection.Z = 0.2f; // 약간 위로 밀기
-                
-                TargetCharacter->LaunchCharacter(KnockbackDirection * KnockbackPower, true, true);
-            }
+                FinalDamage,
+                LaunchVector,
+                { EBehaviorEffect::Stun, EBehaviorEffect::Confused, EBehaviorEffect::Silence },
+                { 1, 5, 3 },
+                {},
+                {}
+            };
+			
+            CastedTarget->OnAttacked(AttackData);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Failed!"));
         }
         
         // 타격 이펙트 생성 (선택적)

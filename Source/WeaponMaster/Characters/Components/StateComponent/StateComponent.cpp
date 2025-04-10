@@ -10,7 +10,8 @@ UStateComponent::UStateComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	
+
+	bIsComponentReady = false;
 	// ...
 }
 
@@ -82,27 +83,28 @@ void UStateComponent::BeginPlay()
 
 	// Create Input State
 	UCharacterBehaviorState* DefaultState = NewObject<UCharacterBehaviorState>(this);
-	
+    
 	CharacterBehaviorState = TScriptInterface<UBehaviorState>(DefaultState);
-	
+    
 	if (!IsValid(CharacterBehaviorState.GetObject()))
 	{
 		UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : BehaviorState Create Failed."));
 		return;
 	}
 
-	// auto OuterCharacter = Cast<ACharacter>(GetOuter());
-	// if (!OuterCharacter)
-	// {
-	// 	UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : OuterCharacter Cast Failed."));
-	// 	return;
-	// }
-	//
-	// UE_LOG(LogTemp, Display, TEXT("OuterCharacter DisplayName : %s"), *OuterCharacter->GetName());
-
-	// Execute Binding Function
-	OnStateComponentReady.Execute();
-
+	auto OuterCharacter = Cast<ACharacter>(GetOuter());
+	if (!OuterCharacter)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : OuterCharacter Cast Failed."));
+		return;
+	}
+    
+	if (OnStateComponentReady.IsBound())
+	{
+		OnStateComponentReady.Execute();
+	}
+	bIsComponentReady = true;
+    
 	// ...
 }
 
