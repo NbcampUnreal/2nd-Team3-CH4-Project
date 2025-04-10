@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Data/StatusTypes.h"
 #include "DamageSystemUser.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI)
+UINTERFACE(BlueprintType, NotBlueprintable)
 class UDamageSystemUser : public UInterface
 {
 	GENERATED_BODY()
@@ -17,8 +18,8 @@ class WEAPONMASTER_API IDamageSystemUser
 {
 	GENERATED_BODY()
 
-
 public:
-	//UFUNCTION(BlueprintCallable, Category = "Attacked")
-	//virtual void OnAttacked(float Damage, struct FAttackData AttackData) = 0;
+	// Called When Attacked by Other Character
+	UFUNCTION(BlueprintCallable, Category = "Attacked")
+	virtual void OnAttacked(const FAttackData& AttackData) = 0;
 };

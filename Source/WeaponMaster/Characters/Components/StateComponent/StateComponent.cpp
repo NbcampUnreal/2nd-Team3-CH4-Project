@@ -14,6 +14,66 @@ UStateComponent::UStateComponent()
 	// ...
 }
 
+void UStateComponent::Move(const FInputActionValue& Value)
+{
+	Cast<IBehaviorState>(CharacterBehaviorState.GetObject())->Move(Value);
+}
+
+void UStateComponent::CrouchDrop()
+{
+	Cast<IBehaviorState>(CharacterBehaviorState.GetObject())->CrouchDrop();
+}
+
+void UStateComponent::StopCrouchDrop()
+{
+	Cast<IBehaviorState>(CharacterBehaviorState.GetObject())->StopCrouchDrop();
+}
+
+void UStateComponent::JumpOrDrop()
+{
+	Cast<IBehaviorState>(CharacterBehaviorState.GetObject())->JumpOrDrop();
+}
+
+void UStateComponent::ReleaseJump()
+{
+	Cast<IBehaviorState>(CharacterBehaviorState.GetObject())->ReleaseJump();
+}
+
+void UStateComponent::Dash()
+{
+	Cast<IBehaviorState>(CharacterBehaviorState.GetObject())->Dash();
+}
+
+void UStateComponent::WeakAttack()
+{
+	Cast<IBehaviorState>(CharacterBehaviorState.GetObject())->WeakAttack();
+}
+
+void UStateComponent::StrongAttack()
+{
+	Cast<IBehaviorState>(CharacterBehaviorState.GetObject())->StrongAttack();
+}
+
+void UStateComponent::Identity()
+{
+	Cast<IBehaviorState>(CharacterBehaviorState.GetObject())->Identity();
+}
+
+void UStateComponent::Defence()
+{
+	Cast<IBehaviorState>(CharacterBehaviorState.GetObject())->Defence();
+}
+
+void UStateComponent::PickingItem()
+{
+	Cast<IBehaviorState>(CharacterBehaviorState.GetObject())->PickingItem();
+}
+
+void UStateComponent::MenuOnOff()
+{
+	Cast<IBehaviorState>(CharacterBehaviorState.GetObject())->MenuOnOff();
+}
+
 
 // Called when the game starts
 void UStateComponent::BeginPlay()
@@ -21,24 +81,24 @@ void UStateComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// Create Input State
-	CharacterBehaviorState = NewObject<UCharacterBehaviorState>(this);
-	if (!CharacterBehaviorState)
+	UCharacterBehaviorState* DefaultState = NewObject<UCharacterBehaviorState>(this);
+	
+	CharacterBehaviorState = TScriptInterface<UBehaviorState>(DefaultState);
+	
+	if (!IsValid(CharacterBehaviorState.GetObject()))
 	{
 		UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : BehaviorState Create Failed."));
 		return;
 	}
 
-	auto OuterCharacter = Cast<ACharacter>(GetOuter());
-	if (!OuterCharacter)
-	{
-		UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : OuterCharacter Cast Failed."));
-		return;
-	}
-
-	UE_LOG(LogTemp, Display, TEXT("OuterCharacter DisplayName : %s"), *OuterCharacter->GetName());
-
-	// Initialize Input State
-	CharacterBehaviorState->Initialize(OuterCharacter);
+	// auto OuterCharacter = Cast<ACharacter>(GetOuter());
+	// if (!OuterCharacter)
+	// {
+	// 	UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : OuterCharacter Cast Failed."));
+	// 	return;
+	// }
+	//
+	// UE_LOG(LogTemp, Display, TEXT("OuterCharacter DisplayName : %s"), *OuterCharacter->GetName());
 
 	// Execute Binding Function
 	OnStateComponentReady.Execute();
@@ -53,10 +113,5 @@ void UStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
-}
-
-UCharacterBehaviorState* UStateComponent::GetBehaviorState()
-{
-	return CharacterBehaviorState;
 }
 

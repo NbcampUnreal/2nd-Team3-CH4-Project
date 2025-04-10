@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Characters/Components/IBattleSystemUser.h"
+#include "Characters/Components/StateComponent/States/IBehaviorState.h"
 #include "GameFramework/Character.h"
 #include "WeaponMaster/AI/AIComponent/BossStateComponent.h"
 #include "WeaponMaster/Characters/Components/SkillComponent/SkillComponent.h"
@@ -10,7 +12,7 @@
 #include "BossCharacter.generated.h"
 
 UCLASS()
-class WEAPONMASTER_API ABossCharacter : public ACharacter
+class WEAPONMASTER_API ABossCharacter : public ACharacter, public IBattleSystemUser, public IDamageSystemUser
 {
 	GENERATED_BODY()
 
@@ -37,18 +39,21 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Boss")
 	USkillDataAsset* BossSkillAsset;
 
-
 	UFUNCTION()
 	void OnPhaseChanged(EBossPhase NewPhase);
-	//피격 판정
-	void OnAttacked(int Damage);
 
+	UFUNCTION(BlueprintCallable)
 	void Die();
+
+	//보스 몽타주
 	UPROPERTY(EditAnywhere, Category = "Death|Montage")
 	UAnimMontage* DeathMontage;
 
-	UPROPERTY(EditAnywhere, Category = "Charge|Montage")
-	UAnimMontage* ChargeMontage;
+	UPROPERTY(EditAnywhere, Category = "RushCharge|Montage")
+	UAnimMontage* ForwardChargeMontage;
+
+	UPROPERTY(EditAnywhere, Category = "AreaCharge|Montage")
+	UAnimMontage* AreaChargeMontage;
 /// 보스 뒤돌기
 
 public:
@@ -77,7 +82,9 @@ public:
 
 	//앞으로 돌진 공격
 	UFUNCTION(BlueprintCallable)
-	void ExecuteForwardCharge();
+	void ApplyForwardCharge();
+
+	void PerformForwardCharge();
 
 	//////2페이즈//////
 
@@ -90,4 +97,36 @@ public:
 	//강공격
 	UFUNCTION(BlueprintCallable)
 	void ApplyPowerAttack();
+
+	// !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
+	// !~!~!~!~ Battle System User Interface ~!~!~!~!
+	// !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
+
+	// Character -> ItemComponent
+	virtual UItemComponent* GetItemComponent_Implementation() const override;
+	
+	virtual bool EquipItem_Implementation(FName ItemID) override;
+	
+	// Character -> SillComponent
+	virtual USkillComponent* GetSkillComponent_Implementation() const override;
+	
+	virtual void ExecuteSkill_Implementation(int32 SkillIndex) override;
+	
+	// Character -> StateComponent
+	virtual TScriptInterface<UBehaviorState> GetBehaviorState_Implementation() const override;
+	
+	// ItemComponent -> Character -> SkillComponent
+	virtual void OnItemEquipped_Implementation(UItemDataAsset* EquippedItem) override;
+	
+	virtual void OnItemUnequipped_Implementation() override;
+	
+	virtual void InterruptActiveSkill_Implementation() override;
+	
+	// Interactable Actors
+	virtual void SetInteractableActor_Implementation(AActor* NewInteractableActor) override;
+	
+	virtual AActor* GetInteractableActor_Implementation() const override;
+	
+	// Event when Attacked
+	virtual void OnAttacked(const FAttackData& AttackData) override;
 };

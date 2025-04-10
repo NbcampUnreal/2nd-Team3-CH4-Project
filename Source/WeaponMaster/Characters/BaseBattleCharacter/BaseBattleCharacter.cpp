@@ -17,7 +17,6 @@
 #include "Characters/Components/SkillComponent/SkillComponent.h"
 #include "Characters/Components/EffectComponent/EffectComponent.h"
 #include "Skills/BaseSkill.h"
-#include "Characters/Components/StateComponent/States/CharacterBehaviorState.h"
 #include "Items/InteractionComponent/InteractionComponent.h"
 #include "WeaponMaster/PlayerControllers/WeaponMasterController.h"
 #include "Data/StatusTypes.h"
@@ -56,8 +55,8 @@ void ABaseBattleCharacter::BeginPlay()
 	if (IsValid(ItemComponent) && IsValid(SkillComponent))
 	{
 		// Item Equipment Event Binding
-		ItemComponent->OnItemEquipped.AddDynamic(this, &IBattleSystemUser::OnItemEquipped);
-		ItemComponent->OnItemUnequipped.AddDynamic(this, &IBattleSystemUser::OnItemUnequipped);
+		ItemComponent->OnItemEquipped.AddDynamic(this, &ABaseBattleCharacter::OnItemEquippedForBinding);
+		ItemComponent->OnItemUnequipped.AddDynamic(this, &ABaseBattleCharacter::OnItemUnequippedForBinding);
 	}
 }
 
@@ -96,15 +95,13 @@ void ABaseBattleCharacter::BindInputFunctions()
 		return;
 	}
 
-	UCharacterBehaviorState* CharacterBehaviorState = StateComponent->GetBehaviorState();
-
 	// Jumping
 	if (WeaponMasterController->JumpAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->JumpAction, ETriggerEvent::Triggered,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::JumpOrDrop);
+		                                   StateComponent.Get(), &UStateComponent::JumpOrDrop);
 		EnhancedInputComponent->BindAction(WeaponMasterController->JumpAction, ETriggerEvent::Completed,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::ReleaseJump);
+		                                   StateComponent.Get(), &UStateComponent::ReleaseJump);
 	}
 	else
 	{
@@ -116,9 +113,9 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->CrouchDropAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->CrouchDropAction, ETriggerEvent::Triggered,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::CrouchDrop);
+		                                   StateComponent.Get(), &UStateComponent::CrouchDrop);
 		EnhancedInputComponent->BindAction(WeaponMasterController->CrouchDropAction, ETriggerEvent::Completed,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::StopCrouchDrop);
+		                                   StateComponent.Get(), &UStateComponent::StopCrouchDrop);
 	}
 	else
 	{
@@ -130,7 +127,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->MoveAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->MoveAction, ETriggerEvent::Triggered,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::Move);
+		                                   StateComponent.Get(), &UStateComponent::Move);
 	}
 	else
 	{
@@ -142,7 +139,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->DashAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->DashAction, ETriggerEvent::Started,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::Dash);
+		                                   StateComponent.Get(), &UStateComponent::Dash);
 	}
 	else
 	{
@@ -154,7 +151,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->WeakAttackAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->WeakAttackAction, ETriggerEvent::Started,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::WeakAttack);
+		                                   StateComponent.Get(), &UStateComponent::WeakAttack);
 	}
 	else
 	{
@@ -166,7 +163,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->StrongAttackAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->StrongAttackAction, ETriggerEvent::Started,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::StrongAttack);
+		                                   StateComponent.Get(), &UStateComponent::StrongAttack);
 	}
 	else
 	{
@@ -178,7 +175,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->IdentityAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->IdentityAction, ETriggerEvent::Started,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::Identity);
+		                                   StateComponent.Get(), &UStateComponent::Identity);
 	}
 	else
 	{
@@ -190,7 +187,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->DefenceAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->DefenceAction, ETriggerEvent::Started,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::Defence);
+		                                   StateComponent.Get(), &UStateComponent::Defence);
 	}
 	else
 	{
@@ -202,7 +199,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->PickingItemAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->PickingItemAction, ETriggerEvent::Started,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::PickingItem);
+		                                   StateComponent.Get(), &UStateComponent::PickingItem);
 	}
 	else
 	{
@@ -214,7 +211,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->MenuOnOffAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->MenuOnOffAction, ETriggerEvent::Started,
-		                                   CharacterBehaviorState, &UCharacterBehaviorState::MenuOnOff);
+		                                   StateComponent.Get(), &UStateComponent::MenuOnOff);
 	}
 	else
 	{
@@ -225,6 +222,8 @@ void ABaseBattleCharacter::BindInputFunctions()
 
 void ABaseBattleCharacter::SetHP(float NewHP)
 {
+	// ㅈㅍㅈㅍ
+	UE_LOG(LogTemp, Display, TEXT("SetHP : NewHP : %f"), NewHP);
 	if (NewHP > MaxHP)
 	{
 		HP = 100;
@@ -244,18 +243,18 @@ void ABaseBattleCharacter::SetHP(float NewHP)
 }
 
 
-UItemComponent* ABaseBattleCharacter::GetItemComponent() const
+UItemComponent* ABaseBattleCharacter::GetItemComponent_Implementation() const
 {
 	return ItemComponent;
 }
 
-USkillComponent* ABaseBattleCharacter::GetSkillComponent() const
+USkillComponent* ABaseBattleCharacter::GetSkillComponent_Implementation() const
 {
 	return SkillComponent;
 }
 
 
-bool ABaseBattleCharacter::EquipItem(FName ItemID)
+bool ABaseBattleCharacter::EquipItem_Implementation(FName ItemID)
 {
 	if (IsValid(ItemComponent))
 	{
@@ -264,7 +263,7 @@ bool ABaseBattleCharacter::EquipItem(FName ItemID)
 	return false;
 }
 
-void ABaseBattleCharacter::ExecuteSkill(int32 SkillIndex)
+void ABaseBattleCharacter::ExecuteSkill_Implementation(int32 SkillIndex)
 {
 	if (IsValid(SkillComponent))
 	{
@@ -272,12 +271,21 @@ void ABaseBattleCharacter::ExecuteSkill(int32 SkillIndex)
 	}
 }
 
-UCharacterBehaviorState* ABaseBattleCharacter::GetBehaviorState() const
+TScriptInterface<UBehaviorState> ABaseBattleCharacter::GetBehaviorState_Implementation() const
 {
 	return StateComponent->GetBehaviorState();
 }
 
-void ABaseBattleCharacter::OnItemEquipped(UItemDataAsset* EquippedItem)
+void ABaseBattleCharacter::SetBehaviorState_Implementation(
+	const TScriptInterface<UBehaviorState>& NewState)
+{
+	if (IsValid(StateComponent))
+	{
+		StateComponent->SetBehaviorState(NewState);
+	}
+}
+
+void ABaseBattleCharacter::OnItemEquipped_Implementation(UItemDataAsset* EquippedItem)
 {
 	if (IsValid(SkillComponent))
 	{
@@ -285,7 +293,12 @@ void ABaseBattleCharacter::OnItemEquipped(UItemDataAsset* EquippedItem)
 	}
 }
 
-void ABaseBattleCharacter::OnItemUnequipped()
+void ABaseBattleCharacter::OnItemEquippedForBinding(UItemDataAsset* EquippedItem)
+{
+	OnItemEquipped_Implementation(EquippedItem);
+}
+
+void ABaseBattleCharacter::OnItemUnequipped_Implementation()
 {
 	if (IsValid(SkillComponent))
 	{
@@ -294,7 +307,12 @@ void ABaseBattleCharacter::OnItemUnequipped()
 	}
 }
 
-void ABaseBattleCharacter::InterruptActiveSkill()
+void ABaseBattleCharacter::OnItemUnequippedForBinding()
+{
+	OnItemUnequipped_Implementation();
+}
+
+void ABaseBattleCharacter::InterruptActiveSkill_Implementation()
 {
 	// SkillComponent가 없으면 리턴
 	if (!SkillComponent)
@@ -331,24 +349,26 @@ void ABaseBattleCharacter::InterruptActiveSkill()
 	}
 }
 
-void ABaseBattleCharacter::SetInteractableActor(AActor* NewInteractableActor)
+void ABaseBattleCharacter::SetInteractableActor_Implementation(AActor* NewInteractableActor)
 {
 	InteractableActor = NewInteractableActor;
 }
 
-AActor* ABaseBattleCharacter::GetInteractableActor() const
+AActor* ABaseBattleCharacter::GetInteractableActor_Implementation() const
 {
 	return InteractableActor;
 }
 
-void ABaseBattleCharacter::OnAttacked(float Damage, const FAttackData& AttackData)
+void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 {
+	// ㅈㅍㅈㅍ
 	LaunchCharacter(AttackData.LaunchVector, true, true);
+	UE_LOG(LogTemp, Display, TEXT("OnAttacked : %f"), AttackData.LaunchVector.Z);
 	
-	SetHP(HP - Damage);
+	SetHP(HP - AttackData.Damage);
 
 	// 이펙트 적용
-	for (int32 i = 0 ; i < AttackData.BehaviorEffectNumbers ; i++)
+	for (int32 i = 0 ; i < AttackData.BehaviorEffects.Num() ; i++)
 	{
 		EffectComponent->ActivateBehaviorEffect(AttackData.BehaviorEffects[i], AttackData.BehaviorEffectsDurations[i]);
 	}
@@ -357,19 +377,19 @@ void ABaseBattleCharacter::OnAttacked(float Damage, const FAttackData& AttackDat
 void ABaseBattleCharacter::WeakAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::WeakAttack !"));
-	ExecuteSkill(0);
+	IBattleSystemUser::Execute_ExecuteSkill(this, 0);
 }
 
 void ABaseBattleCharacter::StrongAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::StrongAttack !"));
-	ExecuteSkill(1);
+	IBattleSystemUser::Execute_ExecuteSkill(this, 1);
 }
 
 void ABaseBattleCharacter::Identity()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Identity !"));
-	ExecuteSkill(2);
+	IBattleSystemUser::Execute_ExecuteSkill(this, 2);
 }
 
 void ABaseBattleCharacter::Defence()
@@ -381,13 +401,17 @@ void ABaseBattleCharacter::PickingItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::PickingItem !"));
 	// 상호작용 가능한 아이템이 있는지 확인
-	if (GetInteractableActor())
+
+	if (GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	{
-		// 상호작용 컴포넌트 찾기
-		UInteractionComponent* InteractionComp = GetInteractableActor()->FindComponentByClass<UInteractionComponent>();
-		if (InteractionComp)
+		AActor* interactableActor = IBattleSystemUser::Execute_GetInteractableActor(this);
+		if (interactableActor)
 		{
-			InteractionComp->Interact( this);
+			UInteractionComponent* InteractionComp = interactableActor->FindComponentByClass<UInteractionComponent>();
+			if (InteractionComp)
+			{
+				InteractionComp->Interact( this);
+			}
 		}
 	}
 }

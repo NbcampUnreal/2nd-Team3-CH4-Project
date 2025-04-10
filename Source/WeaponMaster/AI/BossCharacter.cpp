@@ -10,7 +10,7 @@
 ABossCharacter::ABossCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	MaxHP = 1000;
+	MaxHP = 500;
 
 	BossStateComponent = CreateDefaultSubobject<UBossStateComponent>(TEXT("BossStateComponent"));
 
@@ -97,29 +97,33 @@ void ABossCharacter::ApplyBackStep()
 	LaunchCharacter(LaunchVelocity, true, true);
 }
 
-void ABossCharacter::ExecuteForwardCharge()
+void ABossCharacter::ApplyForwardCharge()
 {
-	if (!HasAuthority()) return;
+	if (HasAuthority())
+	{
+		if (SkillComponent)
+		{
+			SkillComponent->ExecuteSkill(2); // 0번째 스킬 실행
+			UE_LOG(LogTemp, Warning, TEXT("BossSkill 2"));
+		}
+	}
 
-	 Multicast_PlayMontage(ChargeMontage);
+	FTimerHandle LaunchTimerHandle;
+	GetWorldTimerManager().SetTimer(LaunchTimerHandle, this, &ABossCharacter::PerformForwardCharge, 0.5f, false);
+}
 
+void ABossCharacter::PerformForwardCharge()
+{
 	FVector ChargeDir = GetActorForwardVector();
 	FVector LaunchVelocity = ChargeDir * 2000.f + FVector(0, 0, 150.f);
 
 	LaunchCharacter(LaunchVelocity, true, true);
-
-	FTimerHandle ForwardCharge;
-	//GetWorldTimerManager().SetTimer(ForwardCharge, this, &ABossCharacter::Destroy, 5.0f, false);
-
 }
 
 void ABossCharacter::ApplyAreaSkill()
 {
-	// 1. 방향 돌리기
 	SetActorRotation(FRotator(0, 90.f, 0));
-
-	// 2. 기모으기 애니메이션
-	//Multicast_PlayMontage(ChargeMontage);
+	Multicast_PlayMontage(AreaChargeMontage);
 
 	// 3. 타이머로 실제 시전
 	FTimerHandle Timer;
@@ -145,25 +149,14 @@ void ABossCharacter::ApplyPowerAttack()
 	{
 		if (SkillComponent)
 		{
-			SkillComponent->ExecuteSkill(2); // 0번째 스킬 실행
-			UE_LOG(LogTemp, Warning, TEXT("BossSkill 2"));
+			SkillComponent->ExecuteSkill(3);
+			UE_LOG(LogTemp, Warning, TEXT("BossSkill 3"));
 		}
-	}
-}
-void ABossCharacter::OnAttacked(int Damage)
-{
-	CurrentHP -= Damage;
-	if (CurrentHP <= 0)
-	{
-		CurrentHP = 0;
-		//Die();
 	}
 }
 
 void ABossCharacter::Die()
 {
-	//SetIsDeath(true);
-
 	if (DeathMontage)
 	{
 		PlayAnimMontage(DeathMontage);
@@ -174,5 +167,69 @@ void ABossCharacter::Die()
 	if (AICon)
 	{
 		AICon->StopMovement();
+	}
+}
+
+// !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
+// !~!~!~!~ Battle System User Interface ~!~!~!~!
+// !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
+
+UItemComponent* ABossCharacter::GetItemComponent_Implementation() const
+{
+	return nullptr;
+}
+
+USkillComponent* ABossCharacter::GetSkillComponent_Implementation() const
+{
+	return SkillComponent;
+}
+
+
+bool ABossCharacter::EquipItem_Implementation(FName ItemID)
+{
+	return true;
+}
+
+void ABossCharacter::ExecuteSkill_Implementation(int32 SkillIndex)
+{
+}
+
+TScriptInterface<UBehaviorState> ABossCharacter::GetBehaviorState_Implementation() const
+{
+	return nullptr;
+}
+
+void ABossCharacter::OnItemEquipped_Implementation(UItemDataAsset* EquippedItem)
+{
+}
+
+void ABossCharacter::OnItemUnequipped_Implementation()
+{
+}
+
+void ABossCharacter::InterruptActiveSkill_Implementation()
+{
+}
+
+void ABossCharacter::SetInteractableActor_Implementation(AActor* NewInteractableActor)
+{
+}
+
+AActor* ABossCharacter::GetInteractableActor_Implementation() const
+{
+	return nullptr;
+}
+
+
+void ABossCharacter::OnAttacked(const FAttackData& AttackData)
+{
+	//LaunchCharacter(AttackData.LaunchVector, true, true);
+	if(CurrentHP - AttackData.Damage <= 0)
+	{
+		Die();
+	}
+	else
+	{
+		CurrentHP -= AttackData.Damage;
 	}
 }
