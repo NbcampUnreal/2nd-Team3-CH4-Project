@@ -18,6 +18,13 @@ class WEAPONMASTER_API AEOSPlayerController : public APlayerController
 public:
 	AEOSPlayerController();
 	virtual void BeginPlay() override;
+	
+	// EOS 서버에서 보내주는 정보
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateTotalPlayerNum(int16 PlayerNum);
+
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateTimer(int32 TimerCountDown);
 
 protected:
 	UFUNCTION(Server, Reliable)
@@ -26,7 +33,22 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_StartSession();
 
+	UFUNCTION(Server, Reliable)
+	void Server_SetCooperationMapSelected(bool IsVoted);
+
+	UFUNCTION(Server, Reliable)
+	void Server_SetDeathMatchMapSelected(bool IsVoted);
+
 private:
+	UPROPERTY()
+	bool bIsVoted = false;
+
+	UPROPERTY()
+	bool bIsCooperateVoted = false;
+
+	UPROPERTY()
+	bool bIsDeathMatchVoted = false;
+	
 	UFUNCTION()
 	void HandleProcessResult(EPlayerEOSStateType State, ESessionResultType Result);
 
@@ -44,4 +66,19 @@ private:
 
 	UFUNCTION()
 	void HandleTimerAction();
+
+	UFUNCTION()
+	void AddDelegate();
+
+	UFUNCTION()
+	void OnCooperateButtonClicked();
+
+	UFUNCTION()
+	void OnDeathMatchButtonClicked();
+
+	UFUNCTION()
+	void SetTimer();
+
+	UFUNCTION()
+	void SetSelectedPlayerWidget();
 };

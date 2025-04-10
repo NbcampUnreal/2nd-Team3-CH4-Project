@@ -62,7 +62,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "UI")
 	TObjectPtr<UChoiceWidget> ChoiceWidget;
 
-	void PlaySound(TObjectPtr<USoundBase> Sound);
+	void PlaySound(const TObjectPtr<USoundBase>& Sound);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<USoundBase> SelectSound;
