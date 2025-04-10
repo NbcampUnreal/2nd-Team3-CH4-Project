@@ -5,6 +5,7 @@
 #include "Instance/WeaponMasterGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/MultiUI/MultiGameHUD.h"
+#include "UI/MultiUI/PlayerNameWidget.h"
 #include "UI/MultiUI/SessionLobbyWidget.h"
 
 AEOSPlayerController::AEOSPlayerController()
