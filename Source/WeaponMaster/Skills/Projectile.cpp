@@ -10,7 +10,6 @@
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
 #include "Characters/Components/DamageSystemUser.h"
-#include "Characters/Components/IBattleSystemUser.h"
 
 AProjectile::AProjectile()
 {
@@ -159,8 +158,6 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 		// 타겟 추가
 		AddHitTarget(OtherCharacter);
 
-		// 범위 데미지 로직 제거
-
 		// 직접 타격 대상에 데미지 적용
 		ApplyDamage(OtherCharacter, Hit);
 
@@ -222,8 +219,6 @@ void AProjectile::ApplyDamage(AActor* TargetActor, const FHitResult& Hit)
 		return;
 	}
 
-	// 데미지 적용
-
 	// OnAttacked 호출
 	ACharacter* TargetCharacter = Cast<ACharacter>(TargetActor);
 	if (TargetCharacter)
@@ -244,20 +239,6 @@ void AProjectile::ApplyDamage(AActor* TargetActor, const FHitResult& Hit)
 				});
 		}
 	}
-
-
-	// 넉백 적용 (선택적)
-	// if (KnockbackPower > 0.0f)
-	// {
-	//     ACharacter* TargetCharacter = Cast<ACharacter>(TargetActor);
-	//     if (TargetCharacter)
-	//     {
-	//         FVector KnockbackDirection = (TargetCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-	//         KnockbackDirection.Z = 0.2f; // 약간 위로 밀기
-	//         
-	//         TargetCharacter->LaunchCharacter(KnockbackDirection * KnockbackPower, true, true);
-	//     }
-	// }
 }
 
 void AProjectile::SpawnImpactEffect(const FHitResult& Hit)

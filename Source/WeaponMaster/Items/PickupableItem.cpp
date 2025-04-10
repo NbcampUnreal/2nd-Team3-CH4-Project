@@ -100,31 +100,27 @@ void APickupableItem::OnPickup(AActor* Interactor)
         return;
     }
     
-    // 캐릭터가 IBattleSystemUser 인터페이스를 구현하는지 확인
-    IBattleSystemUser* BattleSystemUser = Cast<IBattleSystemUser>(Character);
-    if (!BattleSystemUser)
+   
+    if (Character->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
     {
-        UE_LOG(LogTemp, Warning, TEXT("Character does not implement IBattleSystemUser"));
-        return;
-    }
+        // 아이템 장착 시도
+        bool bPickedUp = IBattleSystemUser::Execute_EquipItem(Character, ItemID);
     
-    // 아이템 장착 시도
-    bool bPickedUp = BattleSystemUser->EquipItem(ItemID);
-    
-    if (bPickedUp)
-    {
-        // 획득 효과음 재생
-        if (!ItemData->PickupSound.IsNull())
+        if (bPickedUp)
         {
-            USoundBase* Sound = ItemData->PickupSound.LoadSynchronous();
-            if (Sound)
+            // 획득 효과음 재생
+            if (!ItemData->PickupSound.IsNull())
             {
-                UGameplayStatics::PlaySoundAtLocation(this, Sound, GetActorLocation());
+                USoundBase* Sound = ItemData->PickupSound.LoadSynchronous();
+                if (Sound)
+                {
+                    UGameplayStatics::PlaySoundAtLocation(this, Sound, GetActorLocation());
+                }
             }
-        }
         
-        // 아이템 제거
-        Destroy();
+            // 아이템 제거
+            Destroy();
+        }
     }
 }
 
@@ -139,18 +135,13 @@ void APickupableItem::OnInteractionBegin(UPrimitiveComponent* OverlappedComponen
         return;
     }
     
-    // 캐릭터가 IBattleSystemUser 인터페이스를 구현하는지 확인
-    IBattleSystemUser* BattleSystemUser = Cast<IBattleSystemUser>(Character);
-    if (!BattleSystemUser)
+    if (Character->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
     {
-        return;
+        IBattleSystemUser::Execute_SetInteractableActor(Character, this);
+
+        // 상호작용 UI 표시
+        InteractionComponent->EnableInteraction(Character);
     }
-    
-    // 상호작용 UI 표시
-    InteractionComponent->EnableInteraction(Character);
-    
-    // 캐릭터에게 현재 상호작용 가능한 아이템 알림
-    BattleSystemUser->SetInteractableActor(this);
 }
 
 void APickupableItem::OnInteractionEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
@@ -164,18 +155,19 @@ void APickupableItem::OnInteractionEnd(UPrimitiveComponent* OverlappedComponent,
     }
     
     // 캐릭터가 IBattleSystemUser 인터페이스를 구현하는지 확인
-    IBattleSystemUser* BattleSystemUser = Cast<IBattleSystemUser>(Character);
+    /*IBattleSystemUser* BattleSystemUser = Cast<IBattleSystemUser>(Character);
     if (!BattleSystemUser)
     {
         return;
-    }
-    
-    // 상호작용 UI 숨기기
-    InteractionComponent->DisableInteraction();
-    
-    // 캐릭터의 상호작용 가능한 아이템 제거
-    if (BattleSystemUser->GetInteractableActor() == this)
+    }*/
+
+    if (Character->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
     {
-        BattleSystemUser->SetInteractableActor(nullptr);
+        if (IBattleSystemUser::Execute_GetInteractableActor(Character))
+        {
+            IBattleSystemUser::Execute_SetInteractableActor(Character, nullptr);
+        }
+        // 상호작용 UI 숨기기
+        InteractionComponent->DisableInteraction();
     }
 }

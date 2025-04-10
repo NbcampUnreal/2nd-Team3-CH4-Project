@@ -38,13 +38,6 @@ void UMeleeSlashSkill::ExecuteSkill()
 {
     Super::ExecuteSkill();
     
-    // IBattleSystemUser 인터페이스 검사 (필요한 경우)
-    IBattleSystemUser* BattleSystemUser = Cast<IBattleSystemUser>(OwnerCharacter);
-    if (BattleSystemUser)
-    {
-        // 필요한 경우 BattleSystemUser 인터페이스의 함수 호출
-        // 예: UItemComponent* ItemComp = BattleSystemUser->GetItemComponent();
-    }
 }
 
 int32 UMeleeSlashSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage)
