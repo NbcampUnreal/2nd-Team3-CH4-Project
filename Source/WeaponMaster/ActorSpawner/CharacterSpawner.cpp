@@ -2,6 +2,7 @@
 
 
 #include "CharacterSpawner.h"
+#include "GameFramework/Character.h"
 
 
 // Sets default values
@@ -11,19 +12,31 @@ ACharacterSpawner::ACharacterSpawner()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void ACharacterSpawner::Spawn()
+ACharacter* ACharacterSpawner::SpawnCharacter()
 {
-	if (HasAuthority())
+	if (!HasAuthority() || !IsValid(CharacterClass) || !IsValid(GetWorld()))
 	{
-		
+		return nullptr;
 	}
+
+	FTransform SpawnTransform = GetActorTransform();
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	ACharacter* SpawnedCharacter = GetWorld()->SpawnActor<ACharacter>(CharacterClass, SpawnTransform, SpawnParams);
+
+	if (!IsValid(SpawnedCharacter))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ACharacterSpawner::SpawnCharacter : Failed to spawn character"));
+		return nullptr;
+	}
+
+	return SpawnedCharacter;
 }
 
-void ACharacterSpawner::SpawnAndPossess(AController* OwnerController)
+ACharacter* ACharacterSpawner::SpawnAndPossess(AController* OwnerController)
 {
-	if (HasAuthority())
-	{
-		
-	}
+	return nullptr;
 }
+
 

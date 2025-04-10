@@ -23,8 +23,8 @@ public:
 	int32 TeamID;
 
 	UFUNCTION(BlueprintCallable)
-	void Spawn();
+	ACharacter* SpawnCharacter();
 
 	UFUNCTION(BlueprintCallable)
-	void SpawnAndPossess(AController* OwnerController);
+	ACharacter* SpawnAndPossess(AController* OwnerController);
 };
