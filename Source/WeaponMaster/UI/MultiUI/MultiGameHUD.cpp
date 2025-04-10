@@ -40,13 +40,7 @@ void AMultiGameHUD::BeginPlay()
             ChatWidget->AddToViewport();
         }
     }
-    if (APlayerController* PC = GetOwningPlayerController())
-    {
-        FInputModeGameAndUI InputMode;
-        InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-        PC->SetInputMode(InputMode);
-        PC->bShowMouseCursor = true;
-    }
+
 }
 
 void AMultiGameHUD::TestDummyModule()
