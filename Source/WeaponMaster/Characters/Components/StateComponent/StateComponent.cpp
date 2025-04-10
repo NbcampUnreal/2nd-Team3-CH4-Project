@@ -12,7 +12,6 @@ UStateComponent::UStateComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	bIsComponentReady = false;
-	
 	// ...
 }
 
@@ -76,6 +75,7 @@ void UStateComponent::MenuOnOff()
 	Cast<IBehaviorState>(CharacterBehaviorState.GetObject())->MenuOnOff();
 }
 
+
 // Called when the game starts
 void UStateComponent::BeginPlay()
 {
@@ -83,9 +83,9 @@ void UStateComponent::BeginPlay()
 
 	// Create Input State
 	UCharacterBehaviorState* DefaultState = NewObject<UCharacterBehaviorState>(this);
-	
+    
 	CharacterBehaviorState = TScriptInterface<UBehaviorState>(DefaultState);
-	
+    
 	if (!IsValid(CharacterBehaviorState.GetObject()))
 	{
 		UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : BehaviorState Create Failed."));
@@ -98,13 +98,13 @@ void UStateComponent::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : OuterCharacter Cast Failed."));
 		return;
 	}
-	
+    
 	if (OnStateComponentReady.IsBound())
 	{
 		OnStateComponentReady.Execute();
 	}
 	bIsComponentReady = true;
-	
+    
 	// ...
 }
 
