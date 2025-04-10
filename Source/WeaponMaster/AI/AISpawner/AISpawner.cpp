@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AI/AISpawner.h"
+#include "AI/AISpawner/AISpawner.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "TimerManager.h"
@@ -22,27 +22,34 @@ void AAISpawner::BeginPlay()
 
 void AAISpawner::SpawnAI()
 {
+    if (CurrentSpawnCount >= MaxSpawnCount)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("최대 소환 수(%d)에 도달. 스폰 중단."), MaxSpawnCount);
+        GetWorldTimerManager().ClearTimer(SpawnTimer);
+        return;
+    }
+
     if (AIClasses.Num() == 0)
     {
         UE_LOG(LogTemp, Warning, TEXT("AIClasses가 비어 있습니다."));
         return;
     }
 
-    // 랜덤 AI 선택
     int32 RandomAIIndex = FMath::RandRange(0, AIClasses.Num() - 1);
     TSubclassOf<APawn> AIToSpawn = AIClasses[RandomAIIndex];
 
     if (AIToSpawn)
     {
         FActorSpawnParameters SpawnParams;
-        FVector SpawnLocation = GetActorLocation();          // Spawner의 위치에서 생성
-        FRotator SpawnRotation = GetActorRotation();         // Spawner의 방향
+        FVector SpawnLocation = GetActorLocation();
+        FRotator SpawnRotation = GetActorRotation();
 
         APawn* SpawnedAI = GetWorld()->SpawnActor<APawn>(AIToSpawn, SpawnLocation, SpawnRotation, SpawnParams);
 
         if (SpawnedAI)
         {
-            UE_LOG(LogTemp, Log, TEXT("AI 스폰 성공: %s"), *SpawnedAI->GetName());
+            ++CurrentSpawnCount;
+            UE_LOG(LogTemp, Log, TEXT("AI 스폰 성공 (%d/%d): %s"), CurrentSpawnCount, MaxSpawnCount, *SpawnedAI->GetName());
         }
     }
 }

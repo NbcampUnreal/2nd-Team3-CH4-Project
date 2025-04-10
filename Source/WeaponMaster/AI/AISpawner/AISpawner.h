@@ -22,7 +22,15 @@ protected:
 
     // 스폰 간격
     UPROPERTY(EditAnywhere, Category = "Spawner")
-    float SpawnInterval = 5.f;
+    float SpawnInterval;
+
+    // AISpawner.h
+
+    UPROPERTY(EditAnywhere, Category = "Spawner")
+    int32 MaxSpawnCount;
+
+    int32 CurrentSpawnCount;
+
 
     FTimerHandle SpawnTimer;
 
