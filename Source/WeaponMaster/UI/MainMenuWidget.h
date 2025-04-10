@@ -26,10 +26,7 @@ protected:
     TObjectPtr<UButton> Button_Single;
     
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UButton> Button_Cooperation;
-
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UButton> Button_VS;
+    TObjectPtr<UButton> Button_Multi;
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> Button_Shop;
@@ -37,19 +34,14 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> Button_Exit;
 
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UTextBlock> GoldText;
 
 public:
     UPROPERTY(BlueprintAssignable)
     FOnMainMenuAction OnSingleClicked;
 
     UPROPERTY(BlueprintAssignable)
-    FOnMainMenuAction OnCoopClicked;
+    FOnMainMenuAction OnMultiClicked;
 
-    UPROPERTY(BlueprintAssignable)
-    FOnMainMenuAction OnVsClicked;
-    
     UPROPERTY(BlueprintAssignable)
     FOnMainMenuAction OnShopClicked;
     
@@ -71,11 +63,8 @@ protected:
     void OnSingleButtonClicked();
 
     UFUNCTION()
-    void OnCoopButtonClicked();
-    
-    UFUNCTION()
-    void OnVsButtonClicked();
-    
+    void OnMultiButtonClicked();
+  
     UFUNCTION()
     void OnShopButtonClicked();
     

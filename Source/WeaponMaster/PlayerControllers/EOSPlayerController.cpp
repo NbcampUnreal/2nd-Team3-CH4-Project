@@ -49,7 +49,7 @@ void AEOSPlayerController::BeginPlay()
     {
         if (const UWeaponMasterGameInstance* MyGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
         {
-            FString PlayerName = MyGI->GetPlayerName();
+            const FString PlayerName = MyGI->GetPlayerName();
             if (PlayerName != "")
             {
                 if (PlayerNameWidget)

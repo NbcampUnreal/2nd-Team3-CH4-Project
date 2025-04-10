@@ -11,6 +11,7 @@
 
 UBossBasicComboSkill::UBossBasicComboSkill()
 {
+	SkillDamage = 5.0f;
 }
 
 void UBossBasicComboSkill::ExecuteSkill()
@@ -53,16 +54,15 @@ int32 UBossBasicComboSkill::ProcessTargetActors(const TArray<AActor*>& TargetAct
 
 		UE_LOG(LogTemp, Warning, TEXT("[ComboSkill] Hit Target: %s | Damage: %.1f"), *Target->GetName(), FinalDamage);
 
-		// 실제 데미지 적용
-		// Target->TakeDamage(FinalDamage, FDamageEvent(DamageTypeClass), OwnerCharacter->GetController(), OwnerCharacter);
-		if (auto CastedTarget = Cast<IDamageSystemUser>(Target))
+
+		/*if (auto CastedTarget = Cast<IDamageSystemUser>(Target))
 		{
 			UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Success!"));
 			FVector LaunchVector = {1000.0f, 0.0f, 0.0f};
 			
 			FAttackData AttackData
 			{
-				Damage,
+				FinalDamage,
 				LaunchVector,
 				{ EBehaviorEffect::Stun, EBehaviorEffect::Confused, EBehaviorEffect::Silence },
 				{ 1, 5, 3 },
@@ -75,7 +75,7 @@ int32 UBossBasicComboSkill::ProcessTargetActors(const TArray<AActor*>& TargetAct
 		else
 		{
 			UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Failed!"));
-		}
+		}*/
 
 		// 타격 이펙트 (선택)
 

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BP_ResultTestGameMode.h"
+#include "ResultTestGameMode.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
@@ -12,17 +12,17 @@
 /**PostLogin -> BeginPlay*/
 //지금 해야할게 이렇게 함수를 짜지말고,
 // 그때 그때 찾고 갱신해야하는데
-ABP_ResultTestGameMode::ABP_ResultTestGameMode()
+AResultTestGameMode::AResultTestGameMode()
 {
 }
 
-void ABP_ResultTestGameMode::BeginPlay()
+void AResultTestGameMode::BeginPlay()
 {
     Super::BeginPlay();
     
 }
 
-APlayerStart* ABP_ResultTestGameMode::FindAvailablePlayerStart(const FName& Tag)
+APlayerStart* AResultTestGameMode::FindAvailablePlayerStart(const FName& Tag)
 {
     if (!bIsSaved)
     {
@@ -50,7 +50,7 @@ APlayerStart* ABP_ResultTestGameMode::FindAvailablePlayerStart(const FName& Tag)
     return nullptr;
 }
 
-void ABP_ResultTestGameMode::PostLogin(APlayerController* NewPlayer)
+void AResultTestGameMode::PostLogin(APlayerController* NewPlayer)
 {
     Super::PostLogin(NewPlayer);
 
@@ -89,7 +89,7 @@ void ABP_ResultTestGameMode::PostLogin(APlayerController* NewPlayer)
         }
     }
 }
-void ABP_ResultTestGameMode::SavedPlayerMap()
+void AResultTestGameMode::SavedPlayerMap()
 {
     
     UE_LOG(LogTemp, Display, TEXT("BeginPlay 호출"));

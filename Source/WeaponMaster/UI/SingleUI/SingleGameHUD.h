@@ -18,7 +18,11 @@ public:
 	ASingleGameHUD();
 
 	virtual void BeginPlay() override;
+	void OpenSingleWidget();
+	void SetPlayerHP(float NewHP);
+	void SetMenuWidget(bool bIsOpen);
 protected:
+	/**TODO :: 보기 안좋으면 Wraping */
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<UPlayerStatusWidget> PlayerStatusWidgetClass;
@@ -26,11 +30,11 @@ protected:
 	UPROPERTY()
 	UPlayerStatusWidget* PlayerStatusWidget;
 
-	/*UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<UOptionMenuWidget> OptionMenuWidgetClass;
 
 	UPROPERTY()
-	UOptionMenuWidget* OptionMenuWidget;*/
+	UOptionMenuWidget* OptionMenuWidget;
 
 	bool bIsOptionMenuVisible = false;
 
