@@ -18,6 +18,10 @@ class WEAPONMASTER_API AEOSPlayerController : public APlayerController
 public:
 	AEOSPlayerController();
 	virtual void BeginPlay() override;
+	
+	// EOS 서버에서 보내주는 정보
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateTotalPlayerNum(int16 PlayerNum);
 
 protected:
 	UFUNCTION(Server, Reliable)
@@ -27,6 +31,9 @@ protected:
 	void Server_StartSession();
 
 private:
+	UPROPERTY()
+	int32 TimerCountDown = 100;
+	
 	UFUNCTION()
 	void HandleProcessResult(EPlayerEOSStateType State, ESessionResultType Result);
 
@@ -44,4 +51,22 @@ private:
 
 	UFUNCTION()
 	void HandleTimerAction();
+
+	UPROPERTY()
+	FTimerHandle PlayCountDownTimerHandle;
+
+	UFUNCTION()
+	void PlayCountDownTimerAction();
+
+	UFUNCTION()
+	void AddDelegate();
+
+	UFUNCTION()
+	void OnCooperateButtonClicked();
+
+	UFUNCTION()
+	void OnDeathMatchButtonClicked();
+
+	UFUNCTION()
+	void SetTimer();
 };

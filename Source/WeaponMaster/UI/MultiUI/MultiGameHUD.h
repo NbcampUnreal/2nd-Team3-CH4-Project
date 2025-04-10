@@ -6,6 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "MultiGameHUD.generated.h"
 
+class USessionWidget;
 class UPlayerNameWidget;
 class USessionLobbyWidget;
 class UPlayerStatusWidget;
@@ -54,6 +55,12 @@ public:
 	TObjectPtr<USessionLobbyWidget> SessionLobbyWidget;
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> MapSelectWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<USessionWidget> MapSelectWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> PlayerNameWidgetClass;
 
 	UPROPERTY()
@@ -74,5 +81,4 @@ public:
 
     UPROPERTY(EditAnywhere, Category = "UI")
     int TestInt = 4;
-
 };

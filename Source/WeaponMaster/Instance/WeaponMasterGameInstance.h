@@ -22,7 +22,7 @@ enum class ESessionResultType : uint8
 	Unknown     UMETA(DisplayName = "Unknown")
 };
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(OnProcessReturnValue, EPlayerEOSStateType, ESessionResultType);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnProcessReturnValue, EPlayerEOSStateType, ESessionResultType);
 
 UCLASS()
 class WEAPONMASTER_API UWeaponMasterGameInstance : public UGameInstance
@@ -33,7 +33,7 @@ public:
 	// 플레이어 관리 필요
 	UWeaponMasterGameInstance();
 
-	OnProcessReturnValue OnProcessReturnValue;
+	FOnProcessReturnValue OnProcessReturnValue;
 
 	void Login();
 
