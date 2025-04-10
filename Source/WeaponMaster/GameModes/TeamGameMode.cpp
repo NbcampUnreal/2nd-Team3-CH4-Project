@@ -5,8 +5,18 @@
 #include "Characters/Components/IBattleSystemUser.h"
 #include "Characters/Components/ItemComponent/ItemComponent.h"
 
+bool ATeamGameMode::HasCharacterSpawner() const
+{
+	for (TActorIterator<ACharacterSpawner> It(GetWorld()); It; ++It)
+	{
+		return true; 
+	}
+	return false;
+}
+
 void ATeamGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
 {
+	if (!HasCharacterSpawner()) return;
 	bool bSuccessFlag = false;
 	while (true)
 	{

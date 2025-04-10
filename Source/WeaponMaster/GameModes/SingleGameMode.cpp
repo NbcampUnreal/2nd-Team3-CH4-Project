@@ -45,8 +45,18 @@ void ASingleGameMode::OnPlayerLose()
 	// 마찬가지로 패배 UI 처리
 }
 
+bool ASingleGameMode::HasCharacterSpawner() const
+{
+	for (TActorIterator<ACharacterSpawner> It(GetWorld()); It; ++It)
+	{
+		return true; 
+	}
+	return false;
+}
+
 void ASingleGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
 {
+	if (!HasCharacterSpawner()) return;
 	bool bSuccessFlag = false;
 	while (true)
 	{
