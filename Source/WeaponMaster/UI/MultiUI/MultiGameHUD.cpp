@@ -7,7 +7,8 @@
 #include "GameFramework/PlayerState.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
-
+#include "../CommonUI/OptionMenuWidget.h"
+#include "ChatWidget.h"
 
 void AMultiGameHUD::BeginPlay()
 {
@@ -18,8 +19,34 @@ void AMultiGameHUD::BeginPlay()
     }*/
     LogMessage("BeginPlay HUD");
     FTimerHandle TimerHandle;
-    GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMultiGameHUD::CreatePlayerWidgets, 5.0f, false);
+    GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMultiGameHUD::TestDummyModule, 5.0f, false);
 	//CreatePlayerWidgets();
+
+    if (OptionMenuWidgetClass)
+    {
+        OptionMenuWidget = CreateWidget<UOptionMenuWidget>(GetOwningPlayerController(), OptionMenuWidgetClass);
+        if (OptionMenuWidget)
+        {
+            OptionMenuWidget->SetVisibility(ESlateVisibility::Hidden);
+            OptionMenuWidget->AddToViewport();
+        }
+    }
+    if (ChatWidgetClass)
+    {
+        ChatWidget = CreateWidget<UChatWidget>(GetOwningPlayerController(), ChatWidgetClass);
+        if (OptionMenuWidget)
+        {
+            ChatWidget->SetVisibility(ESlateVisibility::Visible);
+            ChatWidget->AddToViewport();
+        }
+    }
+    if (APlayerController* PC = GetOwningPlayerController())
+    {
+        FInputModeGameAndUI InputMode;
+        InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        PC->SetInputMode(InputMode);
+        PC->bShowMouseCursor = true;
+    }
 }
 
 void AMultiGameHUD::TestDummyModule()
@@ -31,7 +58,9 @@ void AMultiGameHUD::TestDummyModule()
     if (WrapStatusWidget)
     {
         WrapStatusWidget->InitializeDummyPlayerStatus(TestInt,1);
+        WrapStatusWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
         WrapStatusWidget->AddToViewport();
+        
     }
 }
 
@@ -103,3 +132,56 @@ void AMultiGameHUD::LogMessage(const FString& Message)
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, Message);
     }
 }
+void AMultiGameHUD::SetHPModule(float NewHP,int32 TargetCharacterID)
+{
+    LogMessage("TestChatModule Start");
+    if (!WrapStatusWidget)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("WrapStatusWidget 인스턴스가 존재하지 않습니다."));
+        return;
+    }
+
+    TArray<UWidget*> LeftWidgets = WrapStatusWidget->GetLeftTeamContainer()->GetAllChildren();
+    if (LeftWidgets.IsEmpty())
+    {
+        LogMessage("IsEmpty");
+    }
+    for (UWidget* Widget : LeftWidgets)
+    {
+        LogMessage("Update Start");
+        if (UPlayerStatusWidget* PSWidget = Cast<UPlayerStatusWidget>(Widget))
+        {
+            if (PSWidget->GetCharacterID() == TargetCharacterID)
+            {
+                PSWidget->UpdateHealth(NewHP,100.f);
+                UE_LOG(LogTemp, Warning, TEXT("CharacterID %d의 PlayerStatusWidget에서 채팅 업데이트됨"), TargetCharacterID);
+                LogMessage(" Left Update");
+                return;
+            }
+        }
+
+    }
+
+    TArray<UWidget*> RightWidgets = WrapStatusWidget->GetRightTeamContainer()->GetAllChildren();
+    for (UWidget* Widget : RightWidgets)
+    {
+        LogMessage("Update Start");
+        if (UPlayerStatusWidget* PSWidget = Cast<UPlayerStatusWidget>(Widget))
+        {
+            if (PSWidget->GetCharacterID() == TargetCharacterID)
+            {
+                PSWidget->UpdateHealth(NewHP, 100.f);
+                LogMessage("Right Update");
+                UE_LOG(LogTemp, Warning, TEXT("CharacterID %d의 PlayerStatusWidget에서 채팅 업데이트됨"), TargetCharacterID);
+                return;
+            }
+        }
+    }
+
+}
+
+void AMultiGameHUD::SetMenuWidget(bool bIsOpen)
+{
+    OptionMenuWidget->SetVisibility(bIsOpen ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+}
+

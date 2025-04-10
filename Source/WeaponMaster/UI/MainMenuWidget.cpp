@@ -19,45 +19,33 @@ void UMainMenuWidget::NativeConstruct()
 	{
 		MenuButtons.Add(Button_Single);
 		Button_Single->OnClicked.AddDynamic(this, &UMainMenuWidget::OnSingleButtonClicked);
-        SavedStyle = Button_Single->WidgetStyle;
-		//Button_Single->OnHovered.AddDynamic(this, &UMainMenuWidget::OnButtonHovered);
+		Button_Single->OnHovered.AddDynamic(this, &UMainMenuWidget::OnButtonHovered);
         Button_Single->SetUserFocus(GetOwningPlayer());
 	}
-	if (Button_Cooperation)
+	if (Button_Multi)
 	{
-		MenuButtons.Add(Button_Cooperation);
-		Button_Cooperation->OnClicked.AddDynamic(this, &UMainMenuWidget::OnCoopButtonClicked);
-		//Button_Cooperation->OnHovered.AddDynamic(this, &UMainMenuWidget::OnButtonHovered);
-        Button_Cooperation->SetUserFocus(GetOwningPlayer());
+		MenuButtons.Add(Button_Multi);
+        Button_Multi->OnClicked.AddDynamic(this, &UMainMenuWidget::OnMultiButtonClicked);
+        Button_Multi->OnHovered.AddDynamic(this, &UMainMenuWidget::OnButtonHovered);
+        SavedStyle = Button_Multi->WidgetStyle;
+        Button_Multi->SetUserFocus(GetOwningPlayer());
 	}
-    if (Button_VS)
-    {
-        MenuButtons.Add(Button_VS);
-        Button_VS->OnClicked.AddDynamic(this, &UMainMenuWidget::OnVsButtonClicked);
-       // Button_VS->OnHovered.AddDynamic(this, &UMainMenuWidget::OnButtonHovered);
-        Button_VS->SetUserFocus(GetOwningPlayer());
-    }
     if (Button_Shop)
     {
         MenuButtons.Add(Button_Shop);
         Button_Shop->OnClicked.AddDynamic(this, &UMainMenuWidget::OnShopButtonClicked);
-       // Button_Shop->OnHovered.AddDynamic(this, &UMainMenuWidget::OnButtonHovered);
+        Button_Shop->OnHovered.AddDynamic(this, &UMainMenuWidget::OnButtonHovered);
         Button_Shop->SetUserFocus(GetOwningPlayer());
     }
     if (Button_Exit)
     {
-        MenuButtons.Add(Button_Exit);
+       MenuButtons.Add(Button_Exit);
        Button_Exit->OnClicked.AddDynamic(this, &UMainMenuWidget::OnExitButtonClicked);
-       // Button_Exit->OnHovered.AddDynamic(this, &UMainMenuWidget::OnButtonHovered);
+       Button_Exit->OnHovered.AddDynamic(this, &UMainMenuWidget::OnButtonHovered);
        Button_Exit->SetUserFocus(GetOwningPlayer());
     }
     CurrentButtonIndex = 0;
     UpdateButtonFocus();
-
-
-    // Test Gold Text
-    UpdateGoldText(1600);
-    
 }
 //For Keyboard Event
 FReply UMainMenuWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
@@ -116,7 +104,16 @@ FReply UMainMenuWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyE
 //For Mouse
 void UMainMenuWidget::OnButtonHovered()
 {
-   
+    if (MenuButtons.IsValidIndex(CurrentButtonIndex))
+    {
+        UButton* FocusedButton = MenuButtons[CurrentButtonIndex];
+        if (FocusedButton)
+        {
+            FString TestText = FString::Printf(TEXT("Index: %d"), CurrentButtonIndex);
+            LogMessage(TestText);
+            UpdateButtonStyle(FocusedButton, false);
+        }
+    }
 }
 
 void UMainMenuWidget::UpdateButtonFocus()
@@ -151,21 +148,18 @@ void UMainMenuWidget::UpdateButtonStyle(UButton* Button, bool bIsHovered)
 	{
 		return;
 	}
-
-	FButtonStyle Style = Button->WidgetStyle;
 	if (bIsHovered)
 	{
-		Style.Normal.TintColor = FSlateColor(FLinearColor::Yellow);
-		//Style.Hovered.TintColor = FSlateColor(FLinearColor::Yellow);
-		Button->SetStyle(Style);
-		Button->SynchronizeProperties();
+        FButtonStyle TempStyle = SavedStyle; 
+        TempStyle.Normal = SavedStyle.Hovered; // Hover 상태 Brush를 Normal에 대입하여 보여줌.
+        Button->SetStyle(TempStyle);
+        Button->SynchronizeProperties();
 	}
 	else
 	{
 		Button->SetStyle(SavedStyle);
+        Button->SynchronizeProperties();
 	}
-
-
 }
 void UMainMenuWidget::PlaySound(TObjectPtr<USoundBase> Sound)
 {
@@ -174,16 +168,6 @@ void UMainMenuWidget::PlaySound(TObjectPtr<USoundBase> Sound)
         return;
     }
     UGameplayStatics::PlaySound2D(this, Sound);
-}
-
-void UMainMenuWidget::UpdateGoldText(int32 Gold)
-{
-    if (!ensure(GoldText))
-    {
-        return;
-    }
-    FString FormattedGold = FString::Printf(TEXT("Gold: %d"), Gold);
-    GoldText->SetText(FText::FromString(FormattedGold));
 }
 void UMainMenuWidget::LogMessage(const FString& Message)
 {
@@ -215,25 +199,16 @@ void UMainMenuWidget::OnSingleButtonClicked()
     LogMessage("SingleButtonClicked");
     OnSingleClicked.Broadcast();
 }
-
-void UMainMenuWidget::OnCoopButtonClicked()
+void UMainMenuWidget::OnMultiButtonClicked()
 {
     LogMessage("CoopButtonClicked");
-    OnCoopClicked.Broadcast();
+    OnMultiClicked.Broadcast();
 }
-
-void UMainMenuWidget::OnVsButtonClicked()
-{
-    LogMessage("VsButtonClicked");
-    OnVsClicked.Broadcast();
-}
-
 void UMainMenuWidget::OnShopButtonClicked()
 {
     LogMessage("ShopButtonClicked");
     OnShopClicked.Broadcast();
 }
-
 void UMainMenuWidget::OnExitButtonClicked()
 {
     LogMessage("ExitButtonClicked");
@@ -248,9 +223,10 @@ void UMainMenuWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const FPoi
        FInputModeUIOnly InputMode;
        InputMode.SetWidgetToFocus(this->TakeWidget());
        PC->SetInputMode(InputMode);
-       //테스트용
+       //테스트용//
        PC->bShowMouseCursor = true;
    }
-   LogMessage("Focus Reset");
-   
+    CurrentButtonIndex = 0;
+    UpdateButtonStyle(MenuButtons[CurrentButtonIndex], true);
+    LogMessage("Focus Reset");
 }

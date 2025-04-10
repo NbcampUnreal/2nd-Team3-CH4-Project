@@ -39,7 +39,7 @@ void ABongResultCharacter::Client_PlayRandomAnimation_Implementation(bool bIsWin
     GetWorld()->GetTimerManager().SetTimer(
         TimerHandle,
         FTimerDelegate::CreateUObject(this, &ABongResultCharacter::PlayRandomAnimation, bIsWinner),
-        0.2f, // 딜레이 시간 (필요에 따라 조정)
+        0.2f, 
         false
     );
 }

@@ -10,6 +10,103 @@
 
 void UWrapStatusWidget::InitializePlayerStatus()
 {
+
+    if (!LeftTeamContainer || !RightTeamContainer || !PlayerStatusWidgetClass)
+    {
+        return;
+    }
+
+    LeftTeamContainer->ClearChildren();
+    RightTeamContainer->ClearChildren();
+
+
+   /* if (APlayerController* PC = GetOwningPlayer())
+    {
+        PSID = Cast<AWeaponMasterPlayerState>(PC->PlayerState);
+        if (AWeaponMasterPlayerState* MyPS = Cast<AWeaponMasterPlayerState>(PC->PlayerState))
+        {
+            MyTeamNum = MyPS->GetTeamNumber();
+        }
+    }*/
+
+    // MyTeamPlayers와 EnemyTeamPlayers를 생성합니다.
+    //TArray<AWeaponMasterPlayerState*> MyTeamPlayers;
+    //TArray<AWeaponMasterPlayerState*> EnemyTeamPlayers;
+
+    //if (AGameStateBase* GS = GetWorld()->GetGameState())
+    //{
+    //    for (APlayerState* PS : GS->PlayerArray)
+    //    {
+    //        if (AWeaponMasterPlayerState* WPS = Cast<AWeaponMasterPlayerState>(PS))
+    //        {
+    //            // 로컬 플레이어와 동일한 경우, 배열의 0번째 인덱스에 삽입합니다.
+    //            if (WPS->GetPlayerId() == PSID)
+    //            {
+    //                MyTeamPlayers.Insert(WPS, 0);
+    //            }
+    //            // 같은 팀이지만 내 캐릭터가 아닌 경우
+    //            else if (WPS->GetTeamNumber() == MyTeamNum)
+    //            {
+    //                MyTeamPlayers.Add(WPS);
+    //            }
+    //            else
+    //            {
+    //                // 적 팀의 경우
+    //                EnemyTeamPlayers.Add(WPS);
+    //            }
+    //        }
+    //    }
+    //}
+
+    /*auto ApplySlotSettings = [this](UHorizontalBoxSlot* BoxSlot)
+        {
+            if (BoxSlot)
+            {
+                BoxSlot->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));
+                BoxSlot->SetHorizontalAlignment(HAlign_Fill);
+                BoxSlot->SetVerticalAlignment(VAlign_Top);
+                BoxSlot->SetPadding(FMargin(0, WidgetSpacing, 0, 0));
+            }
+        };
+    for (int32 i = 0; i < MyTeamPlayers.Num(); ++i)
+    {
+        UPlayerStatusWidget* NewItem = CreateWidget<UPlayerStatusWidget>(GetWorld(), PlayerStatusWidgetClass);
+        if (!NewItem)
+        {
+            continue;
+        }
+
+        NewItem->SetPlayerName(FString::Printf(TEXT("Player %d"), i + 1));
+        NewItem->UpdateHealth(100.f, 100.f);  
+        NewItem->SetID(MyTeamPlayers[i]->GetPlayerId());
+        NewItem->SetVisibility(ESlateVisibility::Visible);
+
+        if (UHorizontalBoxSlot* BoxSlot = LeftTeamContainer->AddChildToHorizontalBox(NewItem))
+        {
+            ApplySlotSettings(BoxSlot);
+            UE_LOG(LogTemp, Warning, TEXT("Player %d가 LeftTeamContainer에 추가됨"), i + 1);
+        }
+    }
+
+    for (int32 i = 0; i < EnemyTeamPlayers.Num(); ++i)
+    {
+        UPlayerStatusWidget* NewItem = CreateWidget<UPlayerStatusWidget>(GetWorld(), PlayerStatusWidgetClass);
+        if (!NewItem)
+        {
+            continue;
+        }
+
+        NewItem->SetPlayerName(FString::Printf(TEXT("Enemy Player %d"), i + 1));
+        NewItem->UpdateHealth(100.f, 100.f);
+        NewItem->SetID(EnemyTeamPlayers[i]->GetPlayerId());
+        NewItem->SetVisibility(ESlateVisibility::Visible);
+
+        if (UHorizontalBoxSlot* BoxSlot = RightTeamContainer->AddChildToHorizontalBox(NewItem))
+        {
+            ApplySlotSettings(BoxSlot);
+            UE_LOG(LogTemp, Warning, TEXT("Enemy Player %d가 RightTeamContainer에 추가됨"), i + 1);
+        }
+    }*/
 }
 
 //void UWrapStatusWidget::InitializePlayerStatus()
@@ -103,7 +200,7 @@ void UWrapStatusWidget::InitializeDummyPlayerStatus(int32 TotalPlayers, int32 My
             }
 
             NewItem->SetPlayerName(FString::Printf(TEXT("Dummy Player %d"), i + 1));
-            NewItem->UpdateHealth(20.f * i,100.f);
+            NewItem->UpdateHealth(100.f,100.f);
             NewItem->SetID(i);
             NewItem->SetVisibility(ESlateVisibility::Visible);
 
@@ -124,7 +221,7 @@ void UWrapStatusWidget::InitializeDummyPlayerStatus(int32 TotalPlayers, int32 My
 
             NewItem->SetPlayerName(FString::Printf(TEXT("Dummy Player %d"), i + 1 + Team1Target));
             NewItem->SetVisibility(ESlateVisibility::Visible);
-            NewItem->UpdateHealth(10.f * i, 100.f);
+            NewItem->UpdateHealth(100.f, 100.f);
             NewItem->SetID(i + 1 + Team1Target);
             if (UHorizontalBoxSlot* BoxSlot = RightTeamContainer->AddChildToHorizontalBox(NewItem))
             {
@@ -132,5 +229,9 @@ void UWrapStatusWidget::InitializeDummyPlayerStatus(int32 TotalPlayers, int32 My
                 UE_LOG(LogTemp, Warning, TEXT("Dummy Player %d가 RightTeamContainer에 추가됨"), i + 1 + Team1Target);
             }
         }
+    }
+    if (MyTeamNum == 0)
+    {
+        
     }
 }
