@@ -10,6 +10,9 @@ enum class ECCSkillCategory : uint8;
 class ATestCharacter;
 class UItemDataAsset;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillStartedDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillEndedDelegate);
+
 /**
  * 스킬 타입 열거형
  */
@@ -162,7 +165,14 @@ public:
      */
     UFUNCTION(BlueprintPure, Category = "Skill")
     float GetItemAttackSpeed() const;
-    
+
+    // 스킬 시작 델리게이트
+    UPROPERTY(BlueprintAssignable, Category = "Skill")
+    FOnSkillStartedDelegate OnSkillStarted;
+
+    // 스킬 종료 델리게이트
+    UPROPERTY(BlueprintAssignable, Category = "Skill")
+    FOnSkillEndedDelegate OnSkillEnded;
 protected:
     // 스킬 ID
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Info")
