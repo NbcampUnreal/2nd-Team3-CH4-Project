@@ -23,6 +23,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateTotalPlayerNum(int16 PlayerNum);
 
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateTimer(int32 TimerCountDown);
+
 protected:
 	UFUNCTION(Server, Reliable)
 	void Server_RegisterPlayer(APlayerController* PlayerController);
@@ -30,9 +33,21 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_StartSession();
 
+	UFUNCTION(Server, Reliable)
+	void Server_SetCooperationMapSelected(bool IsVoted);
+
+	UFUNCTION(Server, Reliable)
+	void Server_SetDeathMatchMapSelected(bool IsVoted);
+
 private:
 	UPROPERTY()
-	int32 TimerCountDown = 100;
+	bool bIsVoted = false;
+
+	UPROPERTY()
+	bool bIsCooperateVoted = false;
+
+	UPROPERTY()
+	bool bIsDeathMatchVoted = false;
 	
 	UFUNCTION()
 	void HandleProcessResult(EPlayerEOSStateType State, ESessionResultType Result);
@@ -52,12 +67,6 @@ private:
 	UFUNCTION()
 	void HandleTimerAction();
 
-	UPROPERTY()
-	FTimerHandle PlayCountDownTimerHandle;
-
-	UFUNCTION()
-	void PlayCountDownTimerAction();
-
 	UFUNCTION()
 	void AddDelegate();
 
@@ -69,4 +78,7 @@ private:
 
 	UFUNCTION()
 	void SetTimer();
+
+	UFUNCTION()
+	void SetSelectedPlayerWidget();
 };

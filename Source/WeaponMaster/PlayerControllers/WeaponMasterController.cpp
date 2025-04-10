@@ -58,11 +58,12 @@ void AWeaponMasterController::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("AWeaponMasterController::BeginPlay : GameInstance Cast Failed."))
 	}
-	
 }
 
 void AWeaponMasterController::ServerSetPlayerCharacter_Implementation(TSubclassOf<ACharacter> CharacterClass, FName ItemName)
 {
-	auto CastedGameMode = Cast<IBattleGMInterface>(GetWorld()->GetAuthGameMode());
-	CastedGameMode->SetPlayerCharacter(CharacterClass, ItemName, this);
+	if (const auto CastedGameMode = Cast<IBattleGMInterface>(GetWorld()->GetAuthGameMode()))
+	{
+		CastedGameMode->SetPlayerCharacter(CharacterClass, ItemName, this);
+	}
 }

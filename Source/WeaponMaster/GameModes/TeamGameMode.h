@@ -12,5 +12,7 @@ class WEAPONMASTER_API ATeamGameMode : public AGameMode, public IBattleGMInterfa
 
 public:
 	virtual void SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController) override;
-	
+
+private:
+	bool HasCharacterSpawner() const;
 };
