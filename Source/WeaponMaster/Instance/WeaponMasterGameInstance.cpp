@@ -6,8 +6,6 @@
 #include "OnlineSubsystemTypes.h"
 #include "Interfaces/OnlineIdentityInterface.h"
 #include "Containers/Array.h"
-#include "Serialization/MemoryReader.h"
-#include "Serialization/MemoryWriter.h"
 
 UWeaponMasterGameInstance::UWeaponMasterGameInstance()
 {
