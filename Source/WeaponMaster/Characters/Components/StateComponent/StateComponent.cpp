@@ -70,12 +70,6 @@ void UStateComponent::PickingItem()
 	Cast<IBehaviorState>(CharacterBehaviorState.GetObject())->PickingItem();
 }
 
-void UStateComponent::MenuOnOff()
-{
-	Cast<IBehaviorState>(CharacterBehaviorState.GetObject())->MenuOnOff();
-}
-
-
 // Called when the game starts
 void UStateComponent::BeginPlay()
 {

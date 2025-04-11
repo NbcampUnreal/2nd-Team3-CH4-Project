@@ -103,7 +103,7 @@ void ABossCharacter::ApplyForwardCharge()
 	{
 		if (SkillComponent)
 		{
-			SkillComponent->ExecuteSkill(2); // 0번째 스킬 실행
+			SkillComponent->ExecuteSkill(2);
 			UE_LOG(LogTemp, Warning, TEXT("BossSkill 2"));
 		}
 	}
@@ -162,12 +162,19 @@ void ABossCharacter::Die()
 		PlayAnimMontage(DeathMontage);
 	}
 
-	// AI 멈춤
-	AAIController* AICon = Cast<AAIController>(GetController());
-	if (AICon)
+	// AI 중지
+	if (AAIController* AICon = Cast<AAIController>(GetController()))
 	{
 		AICon->StopMovement();
+
+		// 블랙보드에 사망 상태 기록
+		if (UBlackboardComponent* BB = AICon->GetBlackboardComponent())
+		{
+			BB->SetValueAsBool(TEXT("bIsDead"), true);
+		}
 	}
+
+	SetActorEnableCollision(false); // 피격 안되게
 }
 
 // !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
@@ -223,13 +230,16 @@ AActor* ABossCharacter::GetInteractableActor_Implementation() const
 
 void ABossCharacter::OnAttacked(const FAttackData& AttackData)
 {
+	UE_LOG(LogTemp, Warning, TEXT("OnAttacked Call"));
 	//LaunchCharacter(AttackData.LaunchVector, true, true);
 	if(CurrentHP - AttackData.Damage <= 0)
 	{
 		Die();
+		UE_LOG(LogTemp, Warning, TEXT("Die CurrentHP : %d"), CurrentHP);
 	}
 	else
 	{
 		CurrentHP -= AttackData.Damage;
+		UE_LOG(LogTemp, Warning, TEXT("AYA Boss CurrentHP : %d"), CurrentHP);
 	}
 }

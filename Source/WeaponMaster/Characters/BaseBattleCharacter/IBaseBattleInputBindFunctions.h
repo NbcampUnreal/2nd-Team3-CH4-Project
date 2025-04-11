@@ -26,5 +26,4 @@ public:
 	virtual void Identity() = 0;
 	virtual void Defence() = 0;
 	virtual void PickingItem() = 0;
-	virtual void MenuOnOff() = 0;
 };
