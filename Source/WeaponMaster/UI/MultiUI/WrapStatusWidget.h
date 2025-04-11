@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "WrapStatusWidget.generated.h"
 
+class UTextBlock;
 class UHorizontalBox;
 class UPlayerStatusWidget;
 
@@ -24,6 +25,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	UHorizontalBox* GetRightTeamContainer() const { return RightTeamContainer; }
+	
 protected:
 	/*UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UHorizontalBox> PlayerContainer;*/
@@ -33,6 +35,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UHorizontalBox> RightTeamContainer;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> RemainTimerTextBlock;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UPlayerStatusWidget> PlayerStatusWidgetClass;

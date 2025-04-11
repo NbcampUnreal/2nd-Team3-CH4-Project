@@ -38,22 +38,22 @@ public:
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* RemainTimeText;
+	TObjectPtr<UTextBlock> RemainTimeText;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* TotalPlayerText;
+	TObjectPtr<UTextBlock> TotalPlayerText;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* CooperateText;
+	TObjectPtr<UTextBlock> CooperateText;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* DeathMatchText;
+	TObjectPtr<UTextBlock> DeathMatchText;
 
 	UPROPERTY(meta = (BindWidget))
-	UButton* CooperateButton;
+	TObjectPtr<UButton> CooperateButton;
 
 	UPROPERTY(meta = (BindWidget))
-	UButton* DeathMatchButton;
+	TObjectPtr<UButton> DeathMatchButton;
 
 	UFUNCTION()
 	void OnCooperateButtonClicked();

@@ -10,6 +10,15 @@ enum class EGameModeType : uint8;
 class FOnlineSessionSearch;
 class FOnlineSessionSearchResult;
 
+// HUD & EOS & RPC
+UENUM(BlueprintType)
+enum class EMapType : uint8
+{
+	PVPMap     UMETA(DisplayName = "PVPMap"),
+	PVEMap        UMETA(DisplayName = "PVEMap"),
+	SessionMap     UMETA(DisplayName = "SessionMap")
+};
+
 UCLASS()
 class WEAPONMASTER_API AEOSPlayerController : public APlayerController
 {
@@ -26,6 +35,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateTimer(int32 TimerCountDown);
 
+	UFUNCTION()
+	void UpdateHUD(EMapType Map);
+	
 protected:
 	UFUNCTION(Server, Reliable)
 	void Server_RegisterPlayer(APlayerController* PlayerController);
@@ -40,6 +52,9 @@ protected:
 	void Server_SetDeathMatchMapSelected(bool IsVoted);
 
 private:
+	UPROPERTY()
+	EMapType CurrentMap;
+	
 	UPROPERTY()
 	bool bIsVoted = false;
 
@@ -59,7 +74,7 @@ private:
 	void OnStartSessionButtonClicked();
 
 	UFUNCTION()
-	void OnLoginButtonClicked();
+	void Login();
 
 	UPROPERTY()
 	FTimerHandle HUDTimerHandle;

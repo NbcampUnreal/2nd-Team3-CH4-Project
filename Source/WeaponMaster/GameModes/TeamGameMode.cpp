@@ -5,6 +5,13 @@
 #include "Characters/Components/IBattleSystemUser.h"
 #include "Characters/Components/ItemComponent/ItemComponent.h"
 
+void ATeamGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	
+}
+
 bool ATeamGameMode::HasCharacterSpawner() const
 {
 	for (TActorIterator<ACharacterSpawner> It(GetWorld()); It; ++It)
