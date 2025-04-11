@@ -27,7 +27,7 @@ ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectIniti
 		ACharacter::CharacterMovementComponentName))
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	// StateComponent
 	StateComponent = CreateDefaultSubobject<UStateComponent>(TEXT("StateComponent"));
@@ -61,6 +61,18 @@ void ABaseBattleCharacter::BeginPlay()
 		ItemComponent->OnItemEquipped.AddDynamic(this, &ABaseBattleCharacter::OnItemEquippedForBinding);
 		ItemComponent->OnItemUnequipped.AddDynamic(this, &ABaseBattleCharacter::OnItemUnequippedForBinding);
 	}
+}
+
+void ABaseBattleCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ABaseBattleCharacter, HP);
+	DOREPLIFETIME(ABaseBattleCharacter, EffectComponent);
+}
+
+void ABaseBattleCharacter::OnRep_HP()
+{
+	// UI 연결 로직
 }
 
 // Called every frame
@@ -244,23 +256,53 @@ void ABaseBattleCharacter::BindInputFunctions()
 
 void ABaseBattleCharacter::SetHP(float NewHP)
 {
-	// ㅈㅍㅈㅍ
 	UE_LOG(LogTemp, Display, TEXT("SetHP : NewHP : %f"), NewHP);
-	if (NewHP > MaxHP)
+	float ClampedHP = FMath::Clamp(NewHP, 0.f, MaxHP);
+
+	if (HasAuthority())
 	{
-		HP = 100;
-		UE_LOG(LogTemp, Display, TEXT("Max HP"));
-	}
-	if (NewHP > 0)
-	{
-		HP = NewHP;
-		UE_LOG(LogTemp, Display, TEXT("GetDamaged. HP: %f"), HP);
+		HP = ClampedHP;
+
+		if (HP <= 0.f)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Die!"));
+			OnDeath();
+		}
 	}
 	else
 	{
-		HP = 0;
-		// 죽는 로직
+		// HP Client Prediction
+		HP = ClampedHP;
+		
+		ServerSetHP(NewHP);
+	}
+}
+
+void ABaseBattleCharacter::ServerSetHP_Implementation(float NewHP)
+{
+	// ㅈㅍㅈㅍ
+	UE_LOG(LogTemp, Display, TEXT("ServerSetHP : NewHP : %f"), NewHP);
+	float ClampedHP = FMath::Clamp(NewHP, 0.f, MaxHP);
+	
+	HP = ClampedHP;
+
+	if (HP <= 0.f)
+	{
 		UE_LOG(LogTemp, Display, TEXT("Die!"));
+		OnDeath();
+	}
+
+	// for (auto Debuff : EffectComponent->GetActiveBehaviorEffects())
+	// {
+	// 	UE_LOG(LogTemp, Display, TEXT("Debuff name: %s"), *StaticEnum<EBehaviorEffect>()->GetNameStringByValue((uint8)Debuff))
+	// }
+}
+
+void ABaseBattleCharacter::OnDeath() const
+{
+	if (HasAuthority())
+	{
+		EffectComponent->ActivateBehaviorEffect(EBehaviorEffect::Death);
 	}
 }
 
@@ -383,16 +425,19 @@ AActor* ABaseBattleCharacter::GetInteractableActor_Implementation() const
 
 void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 {
-	// ㅈㅍㅈㅍ
-	LaunchCharacter(AttackData.LaunchVector, true, true);
-	UE_LOG(LogTemp, Display, TEXT("OnAttacked : %f"), AttackData.LaunchVector.Z);
-	
-	SetHP(HP - AttackData.Damage);
-
-	// 이펙트 적용
-	for (int32 i = 0 ; i < AttackData.BehaviorEffects.Num() ; i++)
+	if (HasAuthority())
 	{
-		EffectComponent->ActivateBehaviorEffect(AttackData.BehaviorEffects[i], AttackData.BehaviorEffectsDurations[i]);
+		// ㅈㅍㅈㅍ
+		LaunchCharacter(AttackData.LaunchVector, true, true);
+		UE_LOG(LogTemp, Display, TEXT("OnAttacked : %f"), AttackData.LaunchVector.Z);
+	
+		SetHP(HP - AttackData.Damage);
+
+		// 이펙트 적용
+		for (int32 i = 0 ; i < AttackData.BehaviorEffects.Num() ; i++)
+		{
+			EffectComponent->ActivateBehaviorEffectWithDuration(AttackData.BehaviorEffects[i], AttackData.BehaviorEffectsDurations[i]);
+		}
 	}
 }
 
@@ -440,6 +485,11 @@ void ABaseBattleCharacter::PickingItem()
 
 void ABaseBattleCharacter::MenuOnOff()
 {
+	for (auto Debuff : EffectComponent->GetActiveBehaviorEffects())
+	{
+		UE_LOG(LogTemp, Display, TEXT("Current Debuff name: %s"), *StaticEnum<EBehaviorEffect>()->GetNameStringByValue((uint8)Debuff))
+	}
+	
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::MenuOnOff !"));
 }
 

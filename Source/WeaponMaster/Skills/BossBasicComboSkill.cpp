@@ -55,10 +55,11 @@ int32 UBossBasicComboSkill::ProcessTargetActors(const TArray<AActor*>& TargetAct
 			
 			FAttackData AttackData
 			{
-				FinalDamage,
+				// FinalDamage,
+				50.0f,
 				LaunchVector,
-				{ EBehaviorEffect::Stun, EBehaviorEffect::Confused, EBehaviorEffect::Silence },
-				{ 1, 5, 3 },
+				{ EBehaviorEffect::Confused, EBehaviorEffect::Silence, EBehaviorEffect::Stun },
+				{ 5, 3, 1 },
 				{},
 				{}
 			};
