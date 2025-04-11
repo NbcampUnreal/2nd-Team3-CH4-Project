@@ -69,11 +69,6 @@ void AMultiGameHUD::TransferHUDBy(const EMapType MapType)
     {
         case EMapType::PVPMap:
             {
-                if (ChatWidgetClass)
-                {
-                    ChatWidget->SetVisibility(ESlateVisibility::Visible);
-                }
-                
                 if (MapSelectWidget)
                 {
                     MapSelectWidget->SetVisibility(ESlateVisibility::Hidden);
@@ -87,11 +82,6 @@ void AMultiGameHUD::TransferHUDBy(const EMapType MapType)
             }
         case EMapType::PVEMap:
             {
-                if (ChatWidgetClass)
-                {
-                    ChatWidget->SetVisibility(ESlateVisibility::Visible);
-                }
-                
                 if (MapSelectWidget)
                 {
                     MapSelectWidget->SetVisibility(ESlateVisibility::Hidden);

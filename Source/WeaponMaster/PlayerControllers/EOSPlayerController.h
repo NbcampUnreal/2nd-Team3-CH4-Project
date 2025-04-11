@@ -74,9 +74,6 @@ private:
 
 	UFUNCTION()
 	virtual void OnNetCleanup(class UNetConnection* Connection) override;
-	
-	UFUNCTION()
-	void OnStartSessionButtonClicked();
 
 	UFUNCTION()
 	void Login();

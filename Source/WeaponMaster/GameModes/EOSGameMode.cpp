@@ -19,8 +19,6 @@ void AEOSGameMode::BeginPlay()
 	{
 		EOSSession->OnSessionReturnValue.AddUObject(this, &AEOSGameMode::HandleProcessResult);
 	}
-
-	SetTimer();
 }
 
 void AEOSGameMode::PostLogin(APlayerController* NewPlayer)
@@ -85,9 +83,9 @@ void AEOSGameMode::PlayCountDownTimerAction()
 APlayerController* AEOSGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal,
 	const FString& Options, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
 {
+	SetTimer();
+	
 	return Super::Login(NewPlayer, InRemoteRole, Portal, Options, UniqueId, ErrorMessage);
-
-	// 로그인 검증 로직
 }
 
 void AEOSGameMode::Logout(AController* Exiting)
