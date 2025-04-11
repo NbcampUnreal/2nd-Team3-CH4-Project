@@ -6,7 +6,7 @@
 #include "CharacterBoxWidget.generated.h"
 
 // 클릭 시 캐릭터 클래스를 반환하는 델리게이트
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterBoxClicked, TSubclassOf<ACharacter>, CharacterClass);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCharacterBoxClicked, TSubclassOf<ACharacter>, CharacterClass, UCharacterBoxWidget*, Widget);
 
 /**
  * 캐릭터 클래스 데이터를 위한, 캐릭터 클래스 이름을 표시하는 위젯
@@ -30,7 +30,11 @@ public:
 	// 클릭 이벤트
 	UFUNCTION()
 	void OnItemClicked();
-    
+
+	// 캐릭터 클래스 반환 함수
+	UFUNCTION(BlueprintPure, Category = "Item|Data")
+	TSubclassOf<ACharacter> GetCharacterClass() const { return CharacterClass; }
+	
 	// 델리게이트
 	UPROPERTY(BlueprintAssignable, Category = "Item|Event")
 	FOnCharacterBoxClicked OnCharacterClassClicked;

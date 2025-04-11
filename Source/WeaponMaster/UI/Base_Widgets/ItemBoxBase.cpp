@@ -31,6 +31,15 @@ void UItemBoxBase::NativeConstruct()
 		Border->SetVerticalAlignment(VAlign_Bottom);
 		Border->SetBrushColor(NormalColor);
 	}
+	
+	// Border_Outline 초기 설정 - 처음에는 숨김
+	if (Border_Outline)
+	{
+	    Border_Outline->SetVisibility(ESlateVisibility::Hidden);
+	}
+	
+	// 초기 선택 상태 설정
+	bSelected = false;
 }
 
 void UItemBoxBase::SetItemBoxSize(float Width, float Height)
@@ -47,6 +56,7 @@ void UItemBoxBase::SetItemBoxSize(float Width, float Height)
 
 void UItemBoxBase::SetBorderImage(UTexture2D* Image)
 {
+	// 내부 Border에만 이미지 설정
 	if (!Border || !Image)
 	{
 		return;
@@ -71,6 +81,17 @@ void UItemBoxBase::SetBorderColor(const FLinearColor& Color)
 	{
 		Border->SetBrushColor(Color);
 	}
+}
+
+void UItemBoxBase::SetSelected(bool bInSelected)
+{
+    bSelected = bInSelected;
+    
+    // 선택 상태에 따라 테두리 보더 가시성 설정
+    if (Border_Outline)
+    {
+        Border_Outline->SetVisibility(bSelected ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+    }
 }
 
 FReply UItemBoxBase::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

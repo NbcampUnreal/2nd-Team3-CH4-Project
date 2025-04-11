@@ -43,8 +43,8 @@ void UCharacterBoxWidget::OnItemClicked()
 		UE_LOG(LogTemp, Log, TEXT("CharacterBoxWidget - 선택된 캐릭터 클래스: %s"), *ClassName);
 	}
     
-	// 델리게이트 브로드캐스트
-	OnCharacterClassClicked.Broadcast(CharacterClass);
+	// 델리게이트 브로드캐스트 (위젯 자신도 전달)
+	OnCharacterClassClicked.Broadcast(CharacterClass, this);
 }
 
 FReply UCharacterBoxWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

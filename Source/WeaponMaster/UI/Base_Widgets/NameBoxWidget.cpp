@@ -38,8 +38,8 @@ void UNameBoxWidget::OnItemClicked()
 	// 로그에 선택된 아이템 출력
 	UE_LOG(LogTemp, Log, TEXT("NameBoxWidget - 선택된 아이템: %s"), *ObjectName.ToString());
     
-	// 델리게이트 브로드캐스트
-	OnObjectNameClicked.Broadcast(ObjectName);
+	// 델리게이트 브로드캐스트 (위젯 자신도 전달)
+	OnObjectNameClicked.Broadcast(ObjectName, this);
 }
 
 FReply UNameBoxWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

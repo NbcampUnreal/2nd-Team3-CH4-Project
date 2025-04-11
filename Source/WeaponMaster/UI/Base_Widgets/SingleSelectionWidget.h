@@ -9,6 +9,7 @@
 #include "GameFramework/Character.h"
 #include "SingleSelectionWidget.generated.h"
 
+class UItemBoxBase;
 class UWeaponMasterGameInstance;
 // 전방 선언
 class UNameBoxWidget;
@@ -146,6 +147,9 @@ protected:
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
     TArray<TSubclassOf<ACharacter>> CharacterClasses;
+
+    UPROPERTY()
+    UItemBoxBase* SelectedItemBox;
     
     // 버튼 이벤트 핸들러
     UFUNCTION()
@@ -156,10 +160,10 @@ protected:
     
     // 아이템 클릭 이벤트 핸들러
     UFUNCTION()
-    void OnItemNameClicked(FName ItemName);
+    void OnItemNameClicked(FName ItemName, UNameBoxWidget* Widget);
     
     UFUNCTION()
-    void OnCharacterClassClicked(TSubclassOf<ACharacter> CharacterClass);
+    void OnCharacterClassClicked(TSubclassOf<ACharacter> CharacterClass, UCharacterBoxWidget* Widget);
     
     // 그리드 슬롯 패딩
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")

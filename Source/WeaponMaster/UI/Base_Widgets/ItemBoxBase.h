@@ -33,6 +33,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Item|Appearance")
 	void SetBorderColor(const FLinearColor& Color);
     
+    // 선택 상태 설정 함수 추가
+    UFUNCTION(BlueprintCallable, Category = "Item|Selection")
+    void SetSelected(bool bInSelected);
+    
+    // 선택 상태 확인 함수 추가
+    UFUNCTION(BlueprintPure, Category = "Item|Selection")
+    bool IsSelected() const { return bSelected; }
+    
 protected:
 	// 마우스 이벤트 핸들러
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
@@ -67,4 +75,8 @@ protected:
 	// 일반 상태의 Border 색상
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
 	FLinearColor NormalColor = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    
+    // 선택 상태 추적
+    UPROPERTY(BlueprintReadOnly, Category = "Selection")
+    bool bSelected = false;
 };

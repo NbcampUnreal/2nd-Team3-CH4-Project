@@ -13,6 +13,7 @@ USingleSelectionWidget::USingleSelectionWidget(const FObjectInitializer& ObjectI
     SlotPadding = FMargin(5.0f); // 슬롯 패딩 (기본값)
     GridColumns = 10; // 기본 열 수
     CurrentScreenType = ESelectionScreenType::Character; // 기본 화면은 캐릭터 선택
+    SelectedItemBox = nullptr; // 선택된 아이템 박스 초기화
 }
 
 void USingleSelectionWidget::NativeConstruct()
@@ -93,13 +94,14 @@ void USingleSelectionWidget::SetupItemBoxes(const TArray<FName>& _ItemNames, con
                     UTexture2D* IconTexture = ItemData->Icon.LoadSynchronous();
                     if (IconTexture)
                     {
+                        // 보더에 이미지 설정
                         NameBox->SetBorderImage(IconTexture);
                         
                         UE_LOG(LogTemp, Log, TEXT("아이템 %s의 이미지가 적용되었습니다."), *_ItemNames[i].ToString());
                     }
                 }
                 
-                // 이벤트 바인딩 및 아이템 이름 설정
+                // 이벤트 바인딩 및 아이템 이름 설정 (매개변수 추가)
                 NameBox->OnObjectNameClicked.AddDynamic(this, &USingleSelectionWidget::OnItemNameClicked);
                 NameBox->SetObjectName(_ItemNames[i]);
                 
@@ -118,6 +120,7 @@ void USingleSelectionWidget::SetupItemBoxes(const TArray<FName>& _ItemNames, con
             UCharacterBoxWidget* CharBox = CreateWidget<UCharacterBoxWidget>(this, CharacterBoxClass);
             if (CharBox)
             {
+                // 이벤트 바인딩 (매개변수 추가)
                 CharBox->OnCharacterClassClicked.AddDynamic(this, &USingleSelectionWidget::OnCharacterClassClicked);
                 CharBox->SetCharacterClass(_CharacterClasses[i]);
                 
@@ -211,6 +214,9 @@ void USingleSelectionWidget::SwitchToCharacterSelection()
     // 화면 상태 변경
     CurrentScreenType = ESelectionScreenType::Character;
     
+    // 선택된 아이템 박스 초기화
+    SelectedItemBox = nullptr;
+    
     // 그리드 패널 초기화
     if (UniformGridPanel)
     {
@@ -221,6 +227,24 @@ void USingleSelectionWidget::SwitchToCharacterSelection()
     TArray<FName> EmptyNames;
     SetupItemBoxes(EmptyNames, CharacterClasses);
     
+    // 저장된 캐릭터 클래스가 있으면 선택 상태 복원
+    UWeaponMasterGameInstance* GameInstance = GetWeaponMasterGameInstance();
+    if (GameInstance && GameInstance->CharacterClass)
+    {
+        // 위젯 목록을 순회하며 해당 캐릭터 클래스와 일치하는 위젯 찾기
+        for (int32 i = 0; i < UniformGridPanel->GetChildrenCount(); ++i)
+        {
+            UCharacterBoxWidget* CharBox = Cast<UCharacterBoxWidget>(UniformGridPanel->GetChildAt(i));
+            if (CharBox && CharBox->GetCharacterClass() == GameInstance->CharacterClass)
+            {
+                // 선택 상태 설정
+                CharBox->SetSelected(true);
+                SelectedItemBox = CharBox;
+                break;
+            }
+        }
+    }
+    
     // 화면 제목 업데이트
     UpdateScreenTitle();
 }
@@ -229,6 +253,9 @@ void USingleSelectionWidget::SwitchToItemSelection()
 {
     // 화면 상태 변경
     CurrentScreenType = ESelectionScreenType::Item;
+    
+    // 선택된 아이템 박스 초기화
+    SelectedItemBox = nullptr;
     
     // 그리드 패널 초기화
     if (UniformGridPanel)
@@ -239,6 +266,24 @@ void USingleSelectionWidget::SwitchToItemSelection()
     // 아이템 선택 UI 설정
     TArray<TSubclassOf<ACharacter>> EmptyClasses;
     SetupItemBoxes(ItemNames, EmptyClasses);
+    
+    // 저장된 아이템 이름이 있으면 선택 상태 복원
+    UWeaponMasterGameInstance* GameInstance = GetWeaponMasterGameInstance();
+    if (GameInstance && !GameInstance->ItemName.IsNone())
+    {
+        // 위젯 목록을 순회하며 해당 아이템 이름과 일치하는 위젯 찾기
+        for (int32 i = 0; i < UniformGridPanel->GetChildrenCount(); ++i)
+        {
+            UNameBoxWidget* NameBox = Cast<UNameBoxWidget>(UniformGridPanel->GetChildAt(i));
+            if (NameBox && NameBox->GetObjectName() == GameInstance->ItemName)
+            {
+                // 선택 상태 설정
+                NameBox->SetSelected(true);
+                SelectedItemBox = NameBox;
+                break;
+            }
+        }
+    }
     
     // 화면 제목 업데이트
     UpdateScreenTitle();
@@ -341,10 +386,23 @@ UUserWidget* USingleSelectionWidget::SwitchToPrevWidget()
     return PrevWidget;
 }
 
-void USingleSelectionWidget::OnItemNameClicked(FName ItemName)
+void USingleSelectionWidget::OnItemNameClicked(FName ItemName, UNameBoxWidget* Widget)
 {
     // 아이템 이름을 로그에 출력
     UE_LOG(LogTemp, Log, TEXT("선택된 아이템: %s"), *ItemName.ToString());
+    
+    // 기존에 선택된 아이템 박스가 있으면 선택 해제
+    if (SelectedItemBox)
+    {
+        SelectedItemBox->SetSelected(false);
+    }
+    
+    // 새로 선택된 아이템 박스 설정
+    if (Widget)
+    {
+        Widget->SetSelected(true);
+        SelectedItemBox = Widget;
+    }
     
     // 게임 인스턴스에 선택된 아이템 이름 저장
     UWeaponMasterGameInstance* GameInstance = GetWeaponMasterGameInstance();
@@ -362,13 +420,26 @@ void USingleSelectionWidget::OnItemNameClicked(FName ItemName)
     OnItemSelected.Broadcast(ItemName);
 }
 
-void USingleSelectionWidget::OnCharacterClassClicked(TSubclassOf<ACharacter> CharacterClass)
+void USingleSelectionWidget::OnCharacterClassClicked(TSubclassOf<ACharacter> CharacterClass, UCharacterBoxWidget* Widget)
 {
     // 캐릭터 클래스 이름을 로그에 출력
     if (CharacterClass)
     {
         FString ClassName = CharacterClass->GetName();
         UE_LOG(LogTemp, Log, TEXT("선택된 캐릭터 클래스: %s"), *ClassName);
+        
+        // 기존에 선택된 아이템 박스가 있으면 선택 해제
+        if (SelectedItemBox)
+        {
+            SelectedItemBox->SetSelected(false);
+        }
+        
+        // 새로 선택된 캐릭터 박스 설정
+        if (Widget)
+        {
+            Widget->SetSelected(true);
+            SelectedItemBox = Widget;
+        }
         
         // 게임 인스턴스에 선택된 캐릭터 클래스 저장
         UWeaponMasterGameInstance* GameInstance = GetWeaponMasterGameInstance();

@@ -4,8 +4,8 @@
 #include "ItemBoxBase.h"
 #include "NameBoxWidget.generated.h"
 
-// 클릭 시 FName을 반환하는 델리게이트
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNameBoxClicked, FName, ObjectName);
+// 클릭 시 FName과 위젯 자신을 반환하는 델리게이트
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnNameBoxClicked, FName, ObjectName, UNameBoxWidget*, Widget);
 
 /**
  * FName 데이터를 위한, 아이템 이름을 표시하는 위젯
@@ -29,7 +29,11 @@ public:
 	// 클릭 이벤트
 	UFUNCTION()
 	void OnItemClicked();
-    
+
+	// 객체 이름 반환 함수
+	UFUNCTION(BlueprintPure, Category = "Item|Data")
+	FName GetObjectName() const { return ObjectName; }
+	
 	// 델리게이트
 	UPROPERTY(BlueprintAssignable, Category = "Item|Event")
 	FOnNameBoxClicked OnObjectNameClicked;
