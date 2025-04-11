@@ -50,11 +50,14 @@ public:
 	FORCEINLINE_DEBUGGABLE bool IsVotedEqual() const { return CooperateVotedPlayerNum == DeathMatchVotedPlayerNum ? true : false; }
 
 private:
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_PlayerNumChanged)
 	int32 CooperateVotedPlayerNum;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_PlayerNumChanged)
 	int32 DeathMatchVotedPlayerNum;
+
+	UFUNCTION()
+	void OnRep_PlayerNumChanged() const;
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

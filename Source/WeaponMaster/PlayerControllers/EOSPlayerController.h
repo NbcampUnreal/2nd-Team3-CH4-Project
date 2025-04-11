@@ -43,6 +43,9 @@ public:
 	UFUNCTION()
 	void UpdateHUD(EMapType Map);
 	
+	UFUNCTION()
+	void SetSelectedPlayerWidget();
+	
 protected:
 	UFUNCTION(Server, Reliable)
 	void Server_RegisterPlayer(APlayerController* PlayerController);
@@ -74,9 +77,6 @@ private:
 
 	UFUNCTION()
 	virtual void OnNetCleanup(class UNetConnection* Connection) override;
-	
-	UFUNCTION()
-	void OnStartSessionButtonClicked();
 
 	UFUNCTION()
 	void Login();
@@ -98,7 +98,4 @@ private:
 
 	UFUNCTION()
 	void SetTimer();
-
-	UFUNCTION()
-	void SetSelectedPlayerWidget();
 };
