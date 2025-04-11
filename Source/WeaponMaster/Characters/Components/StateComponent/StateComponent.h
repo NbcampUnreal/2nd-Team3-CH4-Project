@@ -22,7 +22,6 @@ public:
 	UStateComponent();
 
 	FOnStateComponentReady OnStateComponentReady;
-
 	bool bIsComponentReady;
 	
 protected:
