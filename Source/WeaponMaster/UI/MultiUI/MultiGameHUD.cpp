@@ -59,8 +59,6 @@ void AMultiGameHUD::BeginPlay()
             WrapStatusWidget->AddToViewport();
         }
     }
-
-    TransferHUDBy(EMapType::SessionMap);
 }
 
 void AMultiGameHUD::TransferHUDBy(const EMapType MapType)
@@ -69,11 +67,6 @@ void AMultiGameHUD::TransferHUDBy(const EMapType MapType)
     {
         case EMapType::PVPMap:
             {
-                if (ChatWidgetClass)
-                {
-                    ChatWidget->SetVisibility(ESlateVisibility::Visible);
-                }
-                
                 if (MapSelectWidget)
                 {
                     MapSelectWidget->SetVisibility(ESlateVisibility::Hidden);
@@ -87,11 +80,6 @@ void AMultiGameHUD::TransferHUDBy(const EMapType MapType)
             }
         case EMapType::PVEMap:
             {
-                if (ChatWidgetClass)
-                {
-                    ChatWidget->SetVisibility(ESlateVisibility::Visible);
-                }
-                
                 if (MapSelectWidget)
                 {
                     MapSelectWidget->SetVisibility(ESlateVisibility::Hidden);
@@ -105,14 +93,14 @@ void AMultiGameHUD::TransferHUDBy(const EMapType MapType)
             }
         case EMapType::SessionMap:
             {
-                if (MapSelectWidget)
-                {
-                    ChatWidget->SetVisibility(ESlateVisibility::Visible);
-                }
-                
                 if (WrapStatusWidget)
                 {
                     WrapStatusWidget->SetVisibility(ESlateVisibility::Hidden);
+                }
+                
+                if (MapSelectWidget)
+                {
+                    MapSelectWidget->SetVisibility(ESlateVisibility::Visible);
                 }
                 break;
             }

@@ -163,12 +163,6 @@ void AEOSPlayerController::Client_UpdateTotalPlayerNum_Implementation(int16 Play
     }
 }
 
-void AEOSPlayerController::OnStartSessionButtonClicked()
-{
-    UE_LOG(LogTemp, Warning, TEXT("StartSessionButton clicked!"));
-    Server_StartSession();
-}
-
 void AEOSPlayerController::Login()
 {
     bool bIsPlayerLoggedin = false;;
