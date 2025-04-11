@@ -35,7 +35,7 @@ void ATeamGameMode::SetTimer()
 
 void ATeamGameMode::PlayCountDownTimerAction()
 {
-	if (TimerCountDown < 0)
+	if (TimerCountDown > 0 || TimerCountDown != 0)
 	{
 		--TimerCountDown;
 	}

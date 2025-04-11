@@ -43,6 +43,9 @@ public:
 	UFUNCTION()
 	void UpdateHUD(EMapType Map);
 	
+	UFUNCTION()
+	void SetSelectedPlayerWidget();
+	
 protected:
 	UFUNCTION(Server, Reliable)
 	void Server_RegisterPlayer(APlayerController* PlayerController);
@@ -95,7 +98,4 @@ private:
 
 	UFUNCTION()
 	void SetTimer();
-
-	UFUNCTION()
-	void SetSelectedPlayerWidget();
 };
