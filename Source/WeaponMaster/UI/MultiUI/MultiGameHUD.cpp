@@ -5,23 +5,17 @@
 #include "Components/HorizontalBoxSlot.h"
 #include "../CommonUI/OptionMenuWidget.h"
 #include "ChatWidget.h"
-#include "PlayerNameWidget.h"
-#include "SessionLobbyWidget.h"
 #include "SessionWidget.h"
+#include "PlayerControllers/EOSPlayerController.h"
 
 void AMultiGameHUD::BeginPlay()
 {
 	Super::BeginPlay();
     
-    if (WrapStatusWidgetClass)
-    {
-        //CreatePlayerWidgets();
-        // 맵 넘어가면 생성
-    }
-    
     FTimerHandle TimerHandle;
     GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMultiGameHUD::TestDummyModule, 5.0f, false);
 
+    // 환경설정
     if (OptionMenuWidgetClass)
     {
         OptionMenuWidget = CreateWidget<UOptionMenuWidget>(GetOwningPlayerController(), OptionMenuWidgetClass);
@@ -31,40 +25,97 @@ void AMultiGameHUD::BeginPlay()
             OptionMenuWidget->AddToViewport();
         }
     }
-    
+
+    // 채팅 (PVP, PVE)
     if (ChatWidgetClass)
     {
         ChatWidget = CreateWidget<UChatWidget>(GetOwningPlayerController(), ChatWidgetClass);
-        if (OptionMenuWidget)
+        if (ChatWidget)
         {
             ChatWidget->SetVisibility(ESlateVisibility::Hidden);
             ChatWidget->AddToViewport();
         }
     }
 
-    if (SessionLobbyWidgetClass)
-    {
-        SessionLobbyWidget = CreateWidget<USessionLobbyWidget>(GetWorld(), SessionLobbyWidgetClass);
-        if (SessionLobbyWidget)
-        {
-            SessionLobbyWidget->AddToViewport();
-            SessionLobbyWidget->SetVisibility(ESlateVisibility::Hidden);
-        }
-    }
-
+    // 맵선택
     if (MapSelectWidgetClass)
     {
         MapSelectWidget = CreateWidget<USessionWidget>(GetWorld(), MapSelectWidgetClass);
         if (MapSelectWidget)
         {
+            ChatWidget->SetVisibility(ESlateVisibility::Hidden);
             MapSelectWidget->AddToViewport();
         }
-    } 
-    
-    // 임시
-    if (PlayerNameWidgetClass)
+    }
+
+    // 플레이어 상태 위젯
+    if (WrapStatusWidgetClass)
     {
-        PlayerNameWidget = CreateWidget<UPlayerNameWidget>(GetWorld(), PlayerNameWidgetClass);
+        WrapStatusWidget = CreateWidget<UWrapStatusWidget>(GetOwningPlayerController(), WrapStatusWidgetClass);
+        if (WrapStatusWidget)
+        {
+            WrapStatusWidget->SetVisibility(ESlateVisibility::Hidden);
+            WrapStatusWidget->InitializePlayerStatus();
+            WrapStatusWidget->AddToViewport();
+        }
+    }
+
+    TransferHUDBy(EMapType::SessionMap);
+}
+
+void AMultiGameHUD::TransferHUDBy(const EMapType MapType)
+{
+    switch (MapType)
+    {
+        case EMapType::PVPMap:
+            {
+                if (ChatWidgetClass)
+                {
+                    ChatWidget->SetVisibility(ESlateVisibility::Visible);
+                }
+                
+                if (MapSelectWidget)
+                {
+                    MapSelectWidget->SetVisibility(ESlateVisibility::Hidden);
+                }
+
+                if (WrapStatusWidget)
+                {
+                    WrapStatusWidget->SetVisibility(ESlateVisibility::Visible);
+                }
+                break;
+            }
+        case EMapType::PVEMap:
+            {
+                if (ChatWidgetClass)
+                {
+                    ChatWidget->SetVisibility(ESlateVisibility::Visible);
+                }
+                
+                if (MapSelectWidget)
+                {
+                    MapSelectWidget->SetVisibility(ESlateVisibility::Hidden);
+                }
+
+                if (WrapStatusWidget)
+                {
+                    WrapStatusWidget->SetVisibility(ESlateVisibility::Visible);
+                }
+                break;
+            }
+        case EMapType::SessionMap:
+            {
+                if (MapSelectWidget)
+                {
+                    ChatWidget->SetVisibility(ESlateVisibility::Visible);
+                }
+                
+                if (WrapStatusWidget)
+                {
+                    WrapStatusWidget->SetVisibility(ESlateVisibility::Hidden);
+                }
+                break;
+            }
     }
 }
 
@@ -127,18 +178,6 @@ void AMultiGameHUD::TestChatModule(FString TestString,int32 TargetCharacterID)
     }
 }
 
-void AMultiGameHUD::CreatePlayerWidgets()
-{
-    if (!WrapStatusWidgetClass) return;
-
-    UWrapStatusWidget* NewItem = CreateWidget<UWrapStatusWidget>(GetWorld(), WrapStatusWidgetClass);
-    if (NewItem)
-    {
-        NewItem->InitializePlayerStatus();
-        NewItem->AddToViewport();
-    }
-}
-
 void AMultiGameHUD::LogMessage(const FString& Message)
 {
     if (GEngine)
@@ -146,6 +185,7 @@ void AMultiGameHUD::LogMessage(const FString& Message)
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, Message);
     }
 }
+
 void AMultiGameHUD::SetHPModule(float NewHP,int32 TargetCharacterID)
 {
     LogMessage("TestChatModule Start");
@@ -173,7 +213,6 @@ void AMultiGameHUD::SetHPModule(float NewHP,int32 TargetCharacterID)
                 return;
             }
         }
-
     }
 
     TArray<UWidget*> RightWidgets = WrapStatusWidget->GetRightTeamContainer()->GetAllChildren();

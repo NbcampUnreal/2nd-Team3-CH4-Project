@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "BattleGMInterface.h"
 #include "GameFramework/GameModeBase.h"
+#include "Instance/WeaponMasterGameInstance.h"
 #include "SingleGameMode.generated.h"
 
 UCLASS()
@@ -19,6 +20,11 @@ public:
 	
 	virtual void SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController) override;
 
+	UFUNCTION(BlueprintCallable, Category = "Instance")
+	FORCEINLINE_DEBUGGABLE UWeaponMasterGameInstance* GetInstance() const
+	{
+		return Cast<UWeaponMasterGameInstance>(GetGameInstance());
+	}
 private:
 	bool HasCharacterSpawner() const;
 };
