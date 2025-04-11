@@ -69,8 +69,3 @@ void UDeathEffect::Defence()
 void UDeathEffect::PickingItem()
 {
 }
-
-void UDeathEffect::MenuOnOff()
-{
-	Super::MenuOnOff();
-}

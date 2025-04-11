@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -13,6 +11,7 @@ class UPlayerStatusWidget;
 class UWrapStatusWidget;
 class UChatWidget;
 class UOptionMenuWidget;
+class AEOSPlayerController;
 
 UCLASS()
 class WEAPONMASTER_API AMultiGameHUD : public AHUD
@@ -35,41 +34,30 @@ public:
 
     UPROPERTY(EditDefaultsOnly, Category = "UI")
     TSubclassOf<UWrapStatusWidget> WrapStatusWidgetClass;
-
+	UPROPERTY()
     TObjectPtr<UWrapStatusWidget> WrapStatusWidget;
 
     UPROPERTY(EditDefaultsOnly, Category = "UI")
     TSubclassOf<UChatWidget> ChatWidgetClass;
-
+	UPROPERTY()
     TObjectPtr<UChatWidget> ChatWidget;
 
     UPROPERTY(EditDefaultsOnly, Category = "UI")
     TSubclassOf<UOptionMenuWidget> OptionMenuWidgetClass;
-
+	UPROPERTY()
     TObjectPtr<UOptionMenuWidget> OptionMenuWidget;
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UUserWidget> SessionLobbyWidgetClass;
-
-	UPROPERTY()
-	TObjectPtr<USessionLobbyWidget> SessionLobbyWidget;
-
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> MapSelectWidgetClass;
-
 	UPROPERTY()
 	TObjectPtr<USessionWidget> MapSelectWidget;
 
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UUserWidget> PlayerNameWidgetClass;
-
-	UPROPERTY()
-	TObjectPtr<UPlayerNameWidget> PlayerNameWidget;
-
-    void CreatePlayerWidgets();
-
     void LogMessage(const FString& Message);
 
+	UFUNCTION()
+	void TransferHUDBy(const EMapType MapType);
+
+private:
     UPROPERTY(EditAnywhere, Category = "UI")
     float BaseX = 50.f;
 

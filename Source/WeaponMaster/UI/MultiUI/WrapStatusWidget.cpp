@@ -1,16 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "WrapStatusWidget.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "../CommonUI/PlayerStatusWidget.h"
-#include "GameFramework/GameStateBase.h"
+#include "Components/TextBlock.h"
 #include "Engine/World.h"
 
 void UWrapStatusWidget::InitializePlayerStatus()
 {
-
     if (!LeftTeamContainer || !RightTeamContainer || !PlayerStatusWidgetClass)
     {
         return;
@@ -18,148 +14,17 @@ void UWrapStatusWidget::InitializePlayerStatus()
 
     LeftTeamContainer->ClearChildren();
     RightTeamContainer->ClearChildren();
-
-
-   /* if (APlayerController* PC = GetOwningPlayer())
-    {
-        PSID = Cast<AWeaponMasterPlayerState>(PC->PlayerState);
-        if (AWeaponMasterPlayerState* MyPS = Cast<AWeaponMasterPlayerState>(PC->PlayerState))
-        {
-            MyTeamNum = MyPS->GetTeamNumber();
-        }
-    }*/
-
-    // MyTeamPlayers와 EnemyTeamPlayers를 생성합니다.
-    //TArray<AWeaponMasterPlayerState*> MyTeamPlayers;
-    //TArray<AWeaponMasterPlayerState*> EnemyTeamPlayers;
-
-    //if (AGameStateBase* GS = GetWorld()->GetGameState())
-    //{
-    //    for (APlayerState* PS : GS->PlayerArray)
-    //    {
-    //        if (AWeaponMasterPlayerState* WPS = Cast<AWeaponMasterPlayerState>(PS))
-    //        {
-    //            // 로컬 플레이어와 동일한 경우, 배열의 0번째 인덱스에 삽입합니다.
-    //            if (WPS->GetPlayerId() == PSID)
-    //            {
-    //                MyTeamPlayers.Insert(WPS, 0);
-    //            }
-    //            // 같은 팀이지만 내 캐릭터가 아닌 경우
-    //            else if (WPS->GetTeamNumber() == MyTeamNum)
-    //            {
-    //                MyTeamPlayers.Add(WPS);
-    //            }
-    //            else
-    //            {
-    //                // 적 팀의 경우
-    //                EnemyTeamPlayers.Add(WPS);
-    //            }
-    //        }
-    //    }
-    //}
-
-    /*auto ApplySlotSettings = [this](UHorizontalBoxSlot* BoxSlot)
-        {
-            if (BoxSlot)
-            {
-                BoxSlot->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));
-                BoxSlot->SetHorizontalAlignment(HAlign_Fill);
-                BoxSlot->SetVerticalAlignment(VAlign_Top);
-                BoxSlot->SetPadding(FMargin(0, WidgetSpacing, 0, 0));
-            }
-        };
-    for (int32 i = 0; i < MyTeamPlayers.Num(); ++i)
-    {
-        UPlayerStatusWidget* NewItem = CreateWidget<UPlayerStatusWidget>(GetWorld(), PlayerStatusWidgetClass);
-        if (!NewItem)
-        {
-            continue;
-        }
-
-        NewItem->SetPlayerName(FString::Printf(TEXT("Player %d"), i + 1));
-        NewItem->UpdateHealth(100.f, 100.f);  
-        NewItem->SetID(MyTeamPlayers[i]->GetPlayerId());
-        NewItem->SetVisibility(ESlateVisibility::Visible);
-
-        if (UHorizontalBoxSlot* BoxSlot = LeftTeamContainer->AddChildToHorizontalBox(NewItem))
-        {
-            ApplySlotSettings(BoxSlot);
-            UE_LOG(LogTemp, Warning, TEXT("Player %d가 LeftTeamContainer에 추가됨"), i + 1);
-        }
-    }
-
-    for (int32 i = 0; i < EnemyTeamPlayers.Num(); ++i)
-    {
-        UPlayerStatusWidget* NewItem = CreateWidget<UPlayerStatusWidget>(GetWorld(), PlayerStatusWidgetClass);
-        if (!NewItem)
-        {
-            continue;
-        }
-
-        NewItem->SetPlayerName(FString::Printf(TEXT("Enemy Player %d"), i + 1));
-        NewItem->UpdateHealth(100.f, 100.f);
-        NewItem->SetID(EnemyTeamPlayers[i]->GetPlayerId());
-        NewItem->SetVisibility(ESlateVisibility::Visible);
-
-        if (UHorizontalBoxSlot* BoxSlot = RightTeamContainer->AddChildToHorizontalBox(NewItem))
-        {
-            ApplySlotSettings(BoxSlot);
-            UE_LOG(LogTemp, Warning, TEXT("Enemy Player %d가 RightTeamContainer에 추가됨"), i + 1);
-        }
-    }*/
 }
 
-//void UWrapStatusWidget::InitializePlayerStatus()
-//{
-//	if (!PlayerContainer || !PlayerStatusWidgetClass) return;
-//
-//	PlayerContainer->ClearChildren();
-//
-//
-//	AGameStateBase* GS = GetWorld()->GetGameState<AGameStateBase>();
-//	if (!GS) return;
-//	int16 PlayerNum = GS->PlayerArray.Num();
-//	UE_LOG(LogTemp, Warning, TEXT("%d"),PlayerNum);
-//	for (int i = 0; i < PlayerNum; i++)
-//	{
-//
-//		UPlayerStatusWidget* NewItem = CreateWidget<UPlayerStatusWidget>(GetWorld(), PlayerStatusWidgetClass);
-//		if (!NewItem)
-//		{
-//			UE_LOG(LogTemp, Error, TEXT("Failed to create PlayerStatusWidget for index %d"), i);
-//			continue;
-//		}
-//
-//		/*if (GS->PlayerArray[i])
-//		{
-//			FString PlayerName = GS->PlayerArray[i]->GetPlayerName();
-//			if (PlayerName.IsEmpty())
-//			{
-//				PlayerName = FString::Printf(TEXT("Player %d"), i + 1);
-//			}
-//			NewItem->SetPlayerName(PlayerName);
-//			NewItem->UpdateHealth(100.0f, 100.0f);
-//		}*/
-//
-//		NewItem->SetVisibility(ESlateVisibility::Visible);
-//
-//		UHorizontalBoxSlot* BoxSlot = PlayerContainer->AddChildToHorizontalBox(NewItem);
-//		if (BoxSlot)
-//		{
-//			BoxSlot->SetSize(ESlateSizeRule::Fill);
-//			BoxSlot->SetPadding(FMargin(WidgetSpacing, 0, 0, 0));
-//			BoxSlot->SetHorizontalAlignment(HAlign_Left);
-//			//BoxSlot->SetVerticalAlignment(VAlign_Top);
-//			UE_LOG(LogTemp, Warning, TEXT("Added player widget at index %d"), i);
-//		}
-//		else
-//		{
-//			UE_LOG(LogTemp, Error, TEXT("Failed to get HorizontalBoxSlot for index %d"), i);
-//		}
-//
-//	}
-//}
-//
+void UWrapStatusWidget::SetRemainTimer(const int32 TimeRemain) const
+{
+    if (!RemainTimerTextBlock) return;
+    RemainTimerTextBlock->SetText( FText::Format(
+        NSLOCTEXT("SessionWidget", "PlayerCount", "{0}"),
+        FText::AsNumber(TimeRemain)
+    ));
+}
+    
 void UWrapStatusWidget::InitializeDummyPlayerStatus(int32 TotalPlayers, int32 MyTeamNum)
 {
     if (!LeftTeamContainer || !RightTeamContainer || !PlayerStatusWidgetClass)
@@ -230,6 +95,7 @@ void UWrapStatusWidget::InitializeDummyPlayerStatus(int32 TotalPlayers, int32 My
             }
         }
     }
+    
     if (MyTeamNum == 0)
     {
         

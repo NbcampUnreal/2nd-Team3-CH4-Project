@@ -27,7 +27,6 @@ public:
 	virtual void Identity() override = 0;
 	virtual void Defence() override = 0;
 	virtual void PickingItem() override = 0;
-	virtual void MenuOnOff() override = 0;
 
 	/** Called for movement input */
 	virtual void Move(const FInputActionValue& Value) override = 0;

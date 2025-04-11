@@ -1,11 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "WrapStatusWidget.generated.h"
 
+class UTextBlock;
 class UHorizontalBox;
 class UPlayerStatusWidget;
 
@@ -24,6 +23,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	UHorizontalBox* GetRightTeamContainer() const { return RightTeamContainer; }
+
+	UFUNCTION()
+	void SetRemainTimer(int32 TimeRemain) const;
+	
 protected:
 	/*UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UHorizontalBox> PlayerContainer;*/
@@ -33,6 +36,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UHorizontalBox> RightTeamContainer;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> RemainTimerTextBlock;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UPlayerStatusWidget> PlayerStatusWidgetClass;

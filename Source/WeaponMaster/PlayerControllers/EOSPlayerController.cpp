@@ -1,14 +1,12 @@
 #include "EOSPlayerController.h"
 
-#include "Blueprint/UserWidget.h"
 #include "GameModes/EOSGameMode.h"
 #include "GameState/WeaponMasterGameState.h"
 #include "Instance/WeaponMasterGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/MultiUI/MultiGameHUD.h"
-#include "UI/MultiUI/PlayerNameWidget.h"
-#include "UI/MultiUI/SessionLobbyWidget.h"
 #include "UI/MultiUI/SessionWidget.h"
+#include "UI/MultiUI/WrapStatusWidget.h"
 
 AEOSPlayerController::AEOSPlayerController()
 {
@@ -27,9 +25,47 @@ void AEOSPlayerController::BeginPlay()
 
     SetInputMode(InputMode);
     bShowMouseCursor = true;
+
+    FString MapName = FPackageName::GetShortName(GetWorld()->GetMapName());
+    
+    if (MapName == "MainSessionMap")
+    {
+        CurrentMap = EMapType::SessionMap;
+    }
+    else if (MapName == "PVPMap")
+    {
+        CurrentMap = EMapType::PVPMap;
+    }
+    else if (MapName == "PVEMap")
+    {
+        CurrentMap = EMapType::PVEMap;
+    }
+
+    UpdateHUD(CurrentMap);
+    
+    if (MapName == "MainSessionMap" || MapName == "PVPMap" || MapName == "PVEMap")
+    {
+        Login();
+    }
 }
 
-void AEOSPlayerController::Client_UpdateTimer_Implementation(int32 TimerCountDown)
+void AEOSPlayerController::Client_UpdateInGameTimer_Implementation(const int32 TimerCountDown)
+{
+    if (const AMultiGameHUD* MultiGameHUD = Cast<AMultiGameHUD>(GetHUD()))
+    {
+        MultiGameHUD->WrapStatusWidget->SetRemainTimer(TimerCountDown);
+    }
+}
+
+void AEOSPlayerController::UpdateHUD(EMapType Map)
+{
+    if (AMultiGameHUD* MultiHUD = Cast<AMultiGameHUD>(GetHUD()))
+    {
+        MultiHUD->TransferHUDBy(Map);
+    }
+}
+
+void AEOSPlayerController::Client_UpdateTimer_Implementation(const int32 TimerCountDown)
 {
     if (const AMultiGameHUD* MultiGameHUD = Cast<AMultiGameHUD>(GetHUD()))
     {
@@ -68,15 +104,6 @@ void AEOSPlayerController::AddDelegate()
         
         MultiGameHUD->MapSelectWidget->OnCooperateButtonClickedDelegate.AddDynamic(this, &AEOSPlayerController::OnCooperateButtonClicked);
         MultiGameHUD->MapSelectWidget->OnDeathMatchButtonClickedDelegate.AddDynamic(this, &AEOSPlayerController::OnDeathMatchButtonClicked);
-        
-        MultiGameHUD->SessionLobbyWidget->OnStartSessionClicked.AddDynamic(this, &AEOSPlayerController::OnStartSessionButtonClicked);
-        MultiGameHUD->SessionLobbyWidget->OnLoginClicked.AddDynamic(this, &AEOSPlayerController::OnLoginButtonClicked);
-        
-        if (MultiGameHUD->PlayerNameWidget)
-        {        
-            MultiGameHUD->PlayerNameWidget->SetPlayerName(PlayerName);
-            MultiGameHUD->PlayerNameWidget->PlayerNameText->SetVisibility(ESlateVisibility::Visible);
-        }
     }
 }
 
@@ -136,13 +163,7 @@ void AEOSPlayerController::Client_UpdateTotalPlayerNum_Implementation(int16 Play
     }
 }
 
-void AEOSPlayerController::OnStartSessionButtonClicked()
-{
-    UE_LOG(LogTemp, Warning, TEXT("StartSessionButton clicked!"));
-    Server_StartSession();
-}
-
-void AEOSPlayerController::OnLoginButtonClicked()
+void AEOSPlayerController::Login()
 {
     bool bIsPlayerLoggedin = false;;
     if (const UWeaponMasterGameInstance* MyGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))

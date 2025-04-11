@@ -75,8 +75,3 @@ void USilenceEffect::PickingItem()
 {
 }
 
-void USilenceEffect::MenuOnOff()
-{
-	// UE_LOG(LogTemp, Display, TEXT("USilenceEffect::MenuOnOff"));
-	Super::MenuOnOff();
-}

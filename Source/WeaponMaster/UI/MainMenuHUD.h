@@ -7,20 +7,24 @@
 #include "MainMenuHUD.generated.h"
 
 class UMainMenuWidget;
-class UChoiceWidget;
-class UUserWidget;
 
 UCLASS()
 class WEAPONMASTER_API AMainMenuHUD : public AHUD
 {
 	GENERATED_BODY()
+	
 public:
+	virtual void BeginPlay() override;
+
+	// 메인 메뉴 관련 함수
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ShowMainMenu();
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void HideMainMenu();
 
+protected:
+	// 이벤트 핸들러 (델리게이트 콜백)
 	UFUNCTION()
 	void HandleSingleClicked();
 
@@ -33,37 +37,13 @@ public:
 	UFUNCTION()
 	void HandleExitClicked();
 
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	void ShowChoiceMenu();
-
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	void HideChoiceMenu();
-
-	UFUNCTION()
-	void HandleNextClicked();
-
-	UFUNCTION()
-	void HandlePrevClicked();
-
-
-protected:
+	// 유틸리티 함수
 	void LogMessage(const FString& Message);
-	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	// 위젯 클래스 및 인스턴스
+	UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
 	TSubclassOf<UMainMenuWidget> MainMenuWidgetClass;
 
-	UPROPERTY(VisibleAnywhere, Category = "UI")
+	UPROPERTY(VisibleAnywhere, Category = "UI|Widgets")
 	TObjectPtr<UMainMenuWidget> MainMenuWidget;
-
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UChoiceWidget> ChoiceWidgetClass;
-
-	UPROPERTY(VisibleAnywhere, Category = "UI")
-	TObjectPtr<UChoiceWidget> ChoiceWidget;
-
-	void PlaySound(const TObjectPtr<USoundBase>& Sound);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
-	TObjectPtr<USoundBase> SelectSound;
 };

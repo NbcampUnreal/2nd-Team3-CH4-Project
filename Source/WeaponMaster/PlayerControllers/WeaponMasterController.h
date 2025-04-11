@@ -57,6 +57,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> MenuOnOffAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> ChatAction;
 	
 	UFUNCTION(Server, Reliable)
 	void ServerSetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName);

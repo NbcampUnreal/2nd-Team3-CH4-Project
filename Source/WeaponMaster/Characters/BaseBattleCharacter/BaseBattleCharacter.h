@@ -59,7 +59,10 @@ protected:
 	virtual void Identity() override;
 	virtual void Defence() override;
 	virtual void PickingItem() override;
-	virtual void MenuOnOff() override;
+
+	// UI Input Binding Function
+	void MenuOnOff();
+	void Chat();
 
 	void BindInputFunctions();
 

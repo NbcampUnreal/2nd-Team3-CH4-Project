@@ -178,7 +178,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	else
 	{
 		UE_LOG(LogTemp, Warning,
-		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->WeakAttackAction"));
+		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->StrongAttackAction"));
 	}
 
 	// Identity
@@ -190,7 +190,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	else
 	{
 		UE_LOG(LogTemp, Warning,
-		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->WeakAttackAction"));
+		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->IdentityAction"));
 	}
 
 	// Defence
@@ -202,7 +202,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 	else
 	{
 		UE_LOG(LogTemp, Warning,
-		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->WeakAttackAction"));
+		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->DefenceAction"));
 	}
 
 	// PickingItem
@@ -214,19 +214,31 @@ void ABaseBattleCharacter::BindInputFunctions()
 	else
 	{
 		UE_LOG(LogTemp, Warning,
-		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->WeakAttackAction"));
+		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->PickingItemAction"));
 	}
 
 	// MenuOnOff
 	if (WeaponMasterController->MenuOnOffAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->MenuOnOffAction, ETriggerEvent::Started,
-		                                   StateComponent.Get(), &UStateComponent::MenuOnOff);
+		                                   this, &ABaseBattleCharacter::MenuOnOff);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning,
-		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->WeakAttackAction"));
+		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->MenuOnOffAction"));
+	}
+
+	// Chat
+	if (WeaponMasterController->ChatAction)
+	{
+		EnhancedInputComponent->BindAction(WeaponMasterController->ChatAction, ETriggerEvent::Started,
+										   this, &ABaseBattleCharacter::Chat);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning,
+			   TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->ChatAction"));
 	}
 }
 
@@ -429,4 +441,9 @@ void ABaseBattleCharacter::PickingItem()
 void ABaseBattleCharacter::MenuOnOff()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::MenuOnOff !"));
+}
+
+void ABaseBattleCharacter::Chat()
+{
+	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Chat"));
 }

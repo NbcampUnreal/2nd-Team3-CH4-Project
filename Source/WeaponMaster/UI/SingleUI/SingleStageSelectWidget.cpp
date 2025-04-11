@@ -79,10 +79,11 @@ void USingleStageSelectWidget::HandleStageSelected(const FStageInfo& SelectedInf
 
 void USingleStageSelectWidget::OnConfirmClicked()
 {
-	FName MapID = TEXT("JCH_TestMap");
+	FName MapID = TEXT("SinglePlayMap");
 
 	if (!MapID.IsNone())
 	{
+		RemoveFromParent();
 		// 해당 맵으로 이동
 		UGameplayStatics::OpenLevel(this, MapID);
 	}
