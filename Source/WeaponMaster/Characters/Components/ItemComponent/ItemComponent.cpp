@@ -126,6 +126,20 @@ bool UItemComponent::EquipItem(FName ItemID)
     // 이제 새 아이템 설정
     EquippedItem = NewItem;
     
+    // 모든 클라이언트에 알림 (아이템이 변경되었음을 알림)
+    ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+    if (OwnerCharacter)
+    {
+        for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+        {
+            APlayerController* PC = It->Get();
+            if (PC && PC->GetPawn() != OwnerCharacter)
+            {
+                Client_OnItemEquipped(NewItem);
+            }
+        }
+    }
+    
     // 아이템 메시 비동기 로드
     if (!NewItem->EquippedMesh.IsNull())
     {
@@ -151,11 +165,7 @@ bool UItemComponent::EquipItem(FName ItemID)
         OnItemEquipped.Broadcast(NewItem);
         
         // 클라이언트에게 알림
-        ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
-        if (OwnerCharacter && OwnerCharacter->GetLocalRole() == ROLE_Authority)
-        {
-            Client_OnItemEquipped(NewItem);
-        }
+        Client_OnItemEquipped(NewItem);
         
         return true;
     }
@@ -387,9 +397,8 @@ void UItemComponent::OnMeshLoadCompleted()
         // 이벤트 발생
         OnItemEquipped.Broadcast(EquippedItem);
         
-        // 클라이언트에게 알림
-        ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
-        if (OwnerCharacter && OwnerCharacter->GetLocalRole() == ROLE_Authority)
+        // 모든 클라이언트에게 알림
+        if (GetOwnerRole() == ROLE_Authority)
         {
             Client_OnItemEquipped(EquippedItem);
         }
@@ -437,24 +446,35 @@ void UItemComponent::AttachItemToSocket(UItemDataAsset* Item)
         return;
     }
 
-    // 무기용 새 스테틱 메시 컴포넌트 생성
-    UStaticMeshComponent* WeaponMeshComp = NewObject<UStaticMeshComponent>(OwnerCharacter, FName(*FString::Printf(TEXT("Weapon_Mesh_%s"), *Item->ItemID.ToString()))); 
-    WeaponMeshComp->SetStaticMesh(ItemMesh); 
+    // 기존 무기 메시 컴포넌트 제거 (중복 방지)
+    TArray<USceneComponent*> ChildComponents;
+    MeshComp->GetChildrenComponents(true, ChildComponents);
+    for (USceneComponent* Child : ChildComponents)
+    {
+        UStaticMeshComponent* StaticMeshComp = Cast<UStaticMeshComponent>(Child);
+        if (StaticMeshComp && StaticMeshComp->GetName().Contains(TEXT("Weapon_Mesh")))
+        {
+            StaticMeshComp->DestroyComponent();
+        }
+    }
+
+    // 복제 가능한 무기 메시 컴포넌트 생성
+    FName ComponentName = FName(*FString::Printf(TEXT("Weapon_Mesh_%s"), *Item->ItemID.ToString()));
+    UStaticMeshComponent* WeaponMeshComp = NewObject<UStaticMeshComponent>(OwnerCharacter, ComponentName);
+    WeaponMeshComp->SetStaticMesh(ItemMesh);
     WeaponMeshComp->SetCollisionProfileName(TEXT("Weapon"));
     WeaponMeshComp->SetGenerateOverlapEvents(true);
+    WeaponMeshComp->SetIsReplicated(true); // 복제 활성화
     WeaponMeshComp->AttachToComponent(MeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Item->SocketName);
     WeaponMeshComp->RegisterComponent();
 
     // 스케일 적용
     WeaponMeshComp->SetRelativeScale3D(Item->Scale);
     
-    // 아이템 시각 효과 처리
-    HandleItemVisualEffects(Item, true);
-    
-    // 무기 충돌 이벤트 등록  // 사용위치 확인 필요
+    // 무기 충돌 이벤트 등록
     WeaponMeshComp->OnComponentBeginOverlap.AddDynamic(this, &UItemComponent::HandleWeaponCollision);
     
-    // 기본적으로 충돌 비활성화 (스킬 사용시에만 활성화)
+    // 기본적으로 충돌 비활성화
     SetWeaponCollisionEnabled(false);
 }
 
