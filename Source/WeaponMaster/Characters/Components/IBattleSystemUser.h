@@ -68,4 +68,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Animation")
 	void SetupMontageEndedDelegate();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Item")
+	void RequestItemPickup(AActor* ItemActor);
 };

@@ -9,7 +9,10 @@
 
 APickupableItem::APickupableItem()
 {
-    // 루트 컴포넌트로 메시 생성
+    // 액터 설정
+    PrimaryActorTick.bCanEverTick = true;
+
+    // 메시 컴포넌트 설정
     MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
     RootComponent = MeshComponent;
     
@@ -29,6 +32,11 @@ APickupableItem::APickupableItem()
     
     // 네트워크 복제 설정
     bReplicates = true;
+    SetReplicateMovement(true); // 이동(물리) 복제도 활성화
+    
+    // 복제 관련 추가 설정
+    MeshComponent->SetIsReplicated(true);
+    InteractionSphere->SetIsReplicated(true);
 }
 
 void APickupableItem::BeginPlay()
@@ -91,29 +99,31 @@ void APickupableItem::LoadItemData()
     }
 }
 
-void APickupableItem::OnPickup(AActor* Interactor)
+void APickupableItem::ProcessPickup(AActor* Interactor)
 {
+    // 서버에서만 처리되어야 함
+    if (!HasAuthority())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("ProcessPickup: 클라이언트에서 호출됨, 무시"));
+        return;
+    }
     
-    // ACharacter로 캐스팅 후 IBattleSystemUser 인터페이스 확인
     ACharacter* Character = Cast<ACharacter>(Interactor);
     if (!Character || !ItemData)
     {
         return;
     }
-   
+    
     if (Character->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
     {
-        UE_LOG(LogTemp, Warning, TEXT("[%s] 플레이어 %s가 아이템 %s 획득 시도 (권한: %d)"), 
-    HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
-    *Interactor->GetName(), 
-    *ItemData->ItemName,
-    (int32)Character->GetLocalRole());
-        // 아이템 장착 시도
+        UE_LOG(LogTemp, Warning, TEXT("[서버] %s의 아이템 %s 획득 처리 중"), 
+            *Character->GetName(), *ItemData->ItemName);
+            
         bool bPickedUp = IBattleSystemUser::Execute_EquipItem(Character, ItemID);
-    
+        
         if (bPickedUp)
         {
-            // 획득 효과음 재생
+            // 효과음 재생
             if (!ItemData->PickupSound.IsNull())
             {
                 USoundBase* Sound = ItemData->PickupSound.LoadSynchronous();
@@ -122,19 +132,44 @@ void APickupableItem::OnPickup(AActor* Interactor)
                     UGameplayStatics::PlaySoundAtLocation(this, Sound, GetActorLocation());
                 }
             }
-        
-            // 서버에서만 아이템 제거 (권한 확인)
-            if (HasAuthority())
-            {
-                Destroy();
-            }
+            
+            // 모든 클라이언트에게 아이템 파괴 전파
+            UE_LOG(LogTemp, Warning, TEXT("[서버] 아이템 %s 파괴"), *GetName());
+            Destroy();
         }
     }
 }
 
+void APickupableItem::Server_OnPickedUp_Implementation(AActor* Interactor)
+{
+    OnPickup(Interactor);
+}
+
+void APickupableItem::OnPickup(AActor* Interactor)
+{
+    // 캐릭터를 통해 아이템 획득 요청 처리
+    ACharacter* Character = Cast<ACharacter>(Interactor);
+    if (!Character || !ItemData)
+    {
+        return;
+    }
+    
+    if (Character->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
+    {
+        IBattleSystemUser::Execute_RequestItemPickup(Character, this);
+    }
+}
+
+void APickupableItem::Client_OnPickupSuccess_Implementation()
+{
+    // 클라이언트에서 시각적으로 아이템 숨김 (보이지 않게 처리)
+    SetActorHiddenInGame(true);
+    SetActorEnableCollision(false);
+}
+
 void APickupableItem::OnInteractionBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
-                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
-                                        bool bFromSweep, const FHitResult& SweepResult)
+                                         UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
+                                         bool bFromSweep, const FHitResult& SweepResult)
 {
     // ACharacter로 캐스팅 후 IBattleSystemUser 인터페이스 확인
     ACharacter* Character = Cast<ACharacter>(OtherActor);

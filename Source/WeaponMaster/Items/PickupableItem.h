@@ -46,6 +46,15 @@ public:
 	// 아이템 데이터 로드
 	UFUNCTION()
 	void LoadItemData();
+
+	UFUNCTION(BlueprintCallable, Category = "Pickup")
+	void ProcessPickup(AActor* Interactor);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_OnPickedUp(AActor* Interactor);
+
+	UFUNCTION(Client, Reliable)
+	void Client_OnPickupSuccess();
 protected:
     
 	// 오버랩 시작 이벤트

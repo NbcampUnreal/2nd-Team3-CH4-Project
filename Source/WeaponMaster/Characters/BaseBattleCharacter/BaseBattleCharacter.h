@@ -117,10 +117,14 @@ public:
 
 	virtual void PlaySkillMontage_Implementation(UAnimMontage* Montage, float PlayRate) override;
 	virtual void SetupMontageEndedDelegate_Implementation() override;
+	virtual void RequestItemPickup_Implementation(AActor* ItemActor) override;
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_PlayMontage(UAnimMontage* Montage, float PlayRate);
 
 	UFUNCTION()
 	void OnLocalMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	UFUNCTION(Server, Reliable)
+	void Server_RequestItemPickup(AActor* ItemActor);
 };

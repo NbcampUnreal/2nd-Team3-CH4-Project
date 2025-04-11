@@ -20,6 +20,7 @@
 #include "Items/InteractionComponent/InteractionComponent.h"
 #include "WeaponMaster/PlayerControllers/WeaponMasterController.h"
 #include "Data/StatusTypes.h"
+#include "Items/PickupableItem.h"
 
 // Sets default values
 ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer)
@@ -423,6 +424,11 @@ void ABaseBattleCharacter::OnLocalMontageEnded(UAnimMontage* Montage, bool bInte
 	}
 }
 
+void ABaseBattleCharacter::Server_RequestItemPickup_Implementation(AActor* ItemActor)
+{
+	RequestItemPickup_Implementation(ItemActor);
+}
+
 void ABaseBattleCharacter::WeakAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::WeakAttack !"));
@@ -449,20 +455,22 @@ void ABaseBattleCharacter::Defence()
 void ABaseBattleCharacter::PickingItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::PickingItem !"));
-	// 상호작용 가능한 아이템이 있는지 확인
-
+    
 	if (GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	{
 		AActor* interactableActor = IBattleSystemUser::Execute_GetInteractableActor(this);
 		if (interactableActor)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("상호작용 가능한 아이템 찾음: %s"), *interactableActor->GetName());
+            
 			UInteractionComponent* InteractionComp = interactableActor->FindComponentByClass<UInteractionComponent>();
 			if (InteractionComp)
 			{
-				InteractionComp->Interact( this);
+				InteractionComp->Interact(this);
 			}
 		}
 	}
+
 }
 
 void ABaseBattleCharacter::MenuOnOff()
@@ -496,5 +504,22 @@ void ABaseBattleCharacter::SetupMontageEndedDelegate_Implementation()
 	if (GetMesh() && GetMesh()->GetAnimInstance())
 	{
 		GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ABaseBattleCharacter::OnLocalMontageEnded);
+	}
+}
+
+void ABaseBattleCharacter::RequestItemPickup_Implementation(AActor* ItemActor)
+{
+	if (!HasAuthority())
+	{
+		Server_RequestItemPickup(ItemActor);
+	}
+	else
+	{
+		// 서버에서 직접 처리
+		APickupableItem* PickupItem = Cast<APickupableItem>(ItemActor);
+		if (PickupItem)
+		{
+			PickupItem->ProcessPickup(this);
+		}
 	}
 }

@@ -35,6 +35,10 @@ void UInteractionComponent::SetInteractionPrompt(const FText& NewPrompt)
 
 void UInteractionComponent::Interact(AActor* Interactor)
 {
+    UE_LOG(LogTemp, Warning, TEXT("[%s] %s의 상호작용 요청"), 
+        GetOwner() && GetOwner()->HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
+        *Interactor->GetName());
+    
     // 상호작용 이벤트 발생
     OnInteract.Broadcast(Interactor);
 }
