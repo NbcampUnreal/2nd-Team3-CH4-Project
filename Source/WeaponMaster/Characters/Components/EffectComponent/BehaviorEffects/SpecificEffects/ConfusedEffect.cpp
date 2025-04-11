@@ -85,9 +85,3 @@ void UConfusedEffect::PickingItem()
 {
 	Super::PickingItem();
 }
-
-void UConfusedEffect::MenuOnOff()
-{
-	// UE_LOG(LogTemp, Display, TEXT("UConfusedEffect::MenuOnOff"));
-	Super::MenuOnOff();
-}

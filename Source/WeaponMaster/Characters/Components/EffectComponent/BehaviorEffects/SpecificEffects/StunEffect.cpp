@@ -73,10 +73,3 @@ void UStunEffect::Defence()
 void UStunEffect::PickingItem()
 {
 }
-
-// 원래 동작 유지
-void UStunEffect::MenuOnOff()
-{
-	// UE_LOG(LogTemp, Display, TEXT("UStunEffect::MenuOnOff"));
-	Super::MenuOnOff();
-}
