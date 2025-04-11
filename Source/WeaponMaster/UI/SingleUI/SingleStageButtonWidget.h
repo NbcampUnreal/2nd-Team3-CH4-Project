@@ -48,6 +48,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Event")
 	FOnStageSelected OnStageSelected;
 
+	UFUNCTION(BlueprintCallable)
+	void SimulateClick();
+
 protected:
 	virtual void NativeConstruct() override;
 

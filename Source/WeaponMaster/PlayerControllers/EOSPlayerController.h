@@ -10,6 +10,15 @@ enum class EGameModeType : uint8;
 class FOnlineSessionSearch;
 class FOnlineSessionSearchResult;
 
+// HUD & EOS & RPC
+UENUM(BlueprintType)
+enum class EMapType : uint8
+{
+	PVPMap     UMETA(DisplayName = "PVPMap"),
+	PVEMap        UMETA(DisplayName = "PVEMap"),
+	SessionMap     UMETA(DisplayName = "SessionMap")
+};
+
 UCLASS()
 class WEAPONMASTER_API AEOSPlayerController : public APlayerController
 {
@@ -23,9 +32,20 @@ public:
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateTotalPlayerNum(int16 PlayerNum);
 
+	// 세션 타이머
 	UFUNCTION(Client, Reliable)
-	void Client_UpdateTimer(int32 TimerCountDown);
+	void Client_UpdateTimer(const int32 TimerCountDown);
 
+	// 인게임 타이머
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateInGameTimer(const int32 TimerCountDown);
+
+	UFUNCTION()
+	void UpdateHUD(EMapType Map);
+	
+	UFUNCTION()
+	void SetSelectedPlayerWidget();
+	
 protected:
 	UFUNCTION(Server, Reliable)
 	void Server_RegisterPlayer(APlayerController* PlayerController);
@@ -41,6 +61,9 @@ protected:
 
 private:
 	UPROPERTY()
+	EMapType CurrentMap;
+	
+	UPROPERTY()
 	bool bIsVoted = false;
 
 	UPROPERTY()
@@ -54,12 +77,9 @@ private:
 
 	UFUNCTION()
 	virtual void OnNetCleanup(class UNetConnection* Connection) override;
-	
-	UFUNCTION()
-	void OnStartSessionButtonClicked();
 
 	UFUNCTION()
-	void OnLoginButtonClicked();
+	void Login();
 
 	UPROPERTY()
 	FTimerHandle HUDTimerHandle;
@@ -78,7 +98,4 @@ private:
 
 	UFUNCTION()
 	void SetTimer();
-
-	UFUNCTION()
-	void SetSelectedPlayerWidget();
 };

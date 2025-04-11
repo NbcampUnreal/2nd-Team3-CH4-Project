@@ -2,7 +2,6 @@
 
 #include "GameState/WeaponMasterGameState.h"
 #include "Session/EOSGameSession.h"
-#include "UI/MultiUI/MultiGameHUD.h"
 #include "WeaponMaster/PlayerControllers/EOSPlayerController.h"
 
 // 세션 로비 게임모드
@@ -20,15 +19,13 @@ void AEOSGameMode::BeginPlay()
 	{
 		EOSSession->OnSessionReturnValue.AddUObject(this, &AEOSGameMode::HandleProcessResult);
 	}
-
-	SetTimer();
 }
 
 void AEOSGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	TimerCountDown = FMath::Clamp(TimerCountDown + 20, 0, 100);
+	TimerCountDown = FMath::Clamp(TimerCountDown + 20, 0, TimerCountDown);
 }
 
 void AEOSGameMode::SetTimer()
@@ -77,6 +74,7 @@ void AEOSGameMode::PlayCountDownTimerAction()
 				}
 			}
 		}
+		
 		TravelMap();
 		GetWorldTimerManager().ClearTimer(PlayCountDownTimerHandle);
 	}
@@ -85,14 +83,13 @@ void AEOSGameMode::PlayCountDownTimerAction()
 APlayerController* AEOSGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal,
 	const FString& Options, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
 {
+	SetTimer();
+	
 	return Super::Login(NewPlayer, InRemoteRole, Portal, Options, UniqueId, ErrorMessage);
-
-	// 로그인 검증 로직
 }
 
 void AEOSGameMode::Logout(AController* Exiting)
 {
-	UE_LOG(LogTemp, Display, TEXT("Logout"));
 	Super::Logout(Exiting);
 
 	FUniqueNetIdRepl UniqueNetIdRepl;
@@ -174,7 +171,6 @@ void AEOSGameMode::RegisterPlayer(APlayerController* NewPlayer)
 				MyGameSession->RegisterPlayer(NewPlayer, UniqueNetId, false);
 			}
 		}
-		
 	}
 }
 

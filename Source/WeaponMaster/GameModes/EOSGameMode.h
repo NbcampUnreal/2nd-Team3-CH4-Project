@@ -66,6 +66,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Session")
 	FORCEINLINE_DEBUGGABLE AEOSGameSession* GetEOSGameSession() const { return Cast<AEOSGameSession>(GameSession); }
 
+	UFUNCTION(BlueprintCallable, Category = "Instance")
+	FORCEINLINE_DEBUGGABLE UWeaponMasterGameInstance* GetInstance() const
+	{
+		return Cast<UWeaponMasterGameInstance>(GetGameInstance());
+	}
+	
 	UFUNCTION()
 	void RegisterPlayer(APlayerController* NewPlayer);
 	

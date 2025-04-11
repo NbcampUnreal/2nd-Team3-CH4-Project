@@ -4,6 +4,14 @@
 #include "EngineUtils.h"
 #include "Characters/Components/IBattleSystemUser.h"
 #include "Characters/Components/ItemComponent/ItemComponent.h"
+#include "PlayerControllers/EOSPlayerController.h"
+
+void ATeamGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SetTimer();
+}
 
 bool ATeamGameMode::HasCharacterSpawner() const
 {
@@ -12,6 +20,40 @@ bool ATeamGameMode::HasCharacterSpawner() const
 		return true; 
 	}
 	return false;
+}
+
+void ATeamGameMode::SetTimer()
+{
+	GetWorldTimerManager().SetTimer(
+		PlayCountDownTimerHandle,
+		this,
+		&ATeamGameMode::PlayCountDownTimerAction,
+		1.0f,
+		true
+	);
+}
+
+void ATeamGameMode::PlayCountDownTimerAction()
+{
+	if (TimerCountDown > 0 || TimerCountDown != 0)
+	{
+		--TimerCountDown;
+	}
+
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		if (AEOSPlayerController* PlayerController = Cast<AEOSPlayerController>(Iterator->Get()))
+		{
+			PlayerController->Client_UpdateTimer(TimerCountDown);
+		}
+	}
+
+	if (TimerCountDown == 0)
+	{
+		// Score Board 이동
+	}
+	
+	GetWorldTimerManager().ClearTimer(PlayCountDownTimerHandle);
 }
 
 void ATeamGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
