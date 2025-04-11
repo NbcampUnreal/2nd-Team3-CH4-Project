@@ -1,12 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "MainMenuHUD.h"
 #include "MainMenuWidget.h"
-#include "ChoiceWidget.h"
-#include "SelectWidget.h"
 #include "Engine/Engine.h"
-#include "Kismet/GameplayStatics.h"
 
 void AMainMenuHUD::BeginPlay()
 {
@@ -26,19 +22,29 @@ void AMainMenuHUD::ShowMainMenu()
 {
     if (!ensure(MainMenuWidgetClass))
     {
+        LogMessage("MainMenuWidgetClass가 설정되지 않았습니다!");
         return;
     }
-    if (MainMenuWidgetClass)
+    
+    // 기존 위젯이 있으면 제거
+    if (MainMenuWidget)
     {
-        MainMenuWidget = CreateWidget<UMainMenuWidget>(GetWorld(), MainMenuWidgetClass);
-        if (MainMenuWidget)
-        {
-            MainMenuWidget->AddToViewport();
-            MainMenuWidget->OnSingleClicked.AddDynamic(this, &AMainMenuHUD::HandleSingleClicked);
-            MainMenuWidget->OnMultiClicked.AddDynamic(this, &AMainMenuHUD::HandleMultiClicked);
-            MainMenuWidget->OnShopClicked.AddDynamic(this, &AMainMenuHUD::HandleShopClicked);
-            MainMenuWidget->OnExitClicked.AddDynamic(this, &AMainMenuHUD::HandleExitClicked);
-        }
+        MainMenuWidget->RemoveFromParent();
+        MainMenuWidget = nullptr;
+    }
+    
+    MainMenuWidget = CreateWidget<UMainMenuWidget>(GetWorld(), MainMenuWidgetClass);
+    if (MainMenuWidget)
+    {
+        MainMenuWidget->AddToViewport();
+        
+        // 델리게이트 연결 (MainMenuWidget에서 자체적으로 처리하지만 호환성을 위해 유지)
+        MainMenuWidget->OnSingleClicked.AddDynamic(this, &AMainMenuHUD::HandleSingleClicked);
+        MainMenuWidget->OnMultiClicked.AddDynamic(this, &AMainMenuHUD::HandleMultiClicked);
+        MainMenuWidget->OnShopClicked.AddDynamic(this, &AMainMenuHUD::HandleShopClicked);
+        MainMenuWidget->OnExitClicked.AddDynamic(this, &AMainMenuHUD::HandleExitClicked);
+        
+        LogMessage("메인 메뉴 위젯 표시됨");
     }
 }
 
@@ -46,88 +52,48 @@ void AMainMenuHUD::HideMainMenu()
 {
     if (MainMenuWidget)
     {
-        MainMenuWidget->RemoveFromViewport();
+        // 델리게이트 연결 해제
+        if (MainMenuWidget->OnSingleClicked.IsAlreadyBound(this, &AMainMenuHUD::HandleSingleClicked))
+        {
+            MainMenuWidget->OnSingleClicked.RemoveDynamic(this, &AMainMenuHUD::HandleSingleClicked);
+        }
+        if (MainMenuWidget->OnMultiClicked.IsAlreadyBound(this, &AMainMenuHUD::HandleMultiClicked))
+        {
+            MainMenuWidget->OnMultiClicked.RemoveDynamic(this, &AMainMenuHUD::HandleMultiClicked);
+        }
+        if (MainMenuWidget->OnShopClicked.IsAlreadyBound(this, &AMainMenuHUD::HandleShopClicked))
+        {
+            MainMenuWidget->OnShopClicked.RemoveDynamic(this, &AMainMenuHUD::HandleShopClicked);
+        }
+        if (MainMenuWidget->OnExitClicked.IsAlreadyBound(this, &AMainMenuHUD::HandleExitClicked))
+        {
+            MainMenuWidget->OnExitClicked.RemoveDynamic(this, &AMainMenuHUD::HandleExitClicked);
+        }
+        
+        MainMenuWidget->RemoveFromParent();
         MainMenuWidget = nullptr;
+        
+        LogMessage("메인 메뉴 위젯 제거됨");
     }
 }
 
+// 이벤트 핸들러 (이제는 거의 사용되지 않지만 호환성을 위해 유지)
 void AMainMenuHUD::HandleSingleClicked()
 {
-    HideMainMenu();
-    ShowChoiceMenu();
+    LogMessage("MainMenuHUD::HandleSingleClicked - 이 함수는 더 이상 필요하지 않습니다");
 }
 
 void AMainMenuHUD::HandleMultiClicked()
 {
-    LogMessage("In Hud HandleMultiClicked");
-    UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("MainSessionMap")));
+    LogMessage("MainMenuHUD::HandleMultiClicked - 이 함수는 더 이상 필요하지 않습니다");
 }
 
 void AMainMenuHUD::HandleShopClicked()
 {
-    LogMessage("In Hud HandleShopClicked");
+    LogMessage("MainMenuHUD::HandleShopClicked - 이 함수는 더 이상 필요하지 않습니다");
 }
 
 void AMainMenuHUD::HandleExitClicked()
 {
-    APlayerController* PC = GetOwningPlayerController();
-    if (PC)
-    {
-        PC->ConsoleCommand("quit");
-    }
-}
-
-void AMainMenuHUD::ShowChoiceMenu()
-{
-    if (!ensure(ChoiceWidgetClass))
-    {
-        return;
-    }
-    if (ChoiceWidgetClass)
-    {
-        ChoiceWidget = CreateWidget<UChoiceWidget>(GetWorld(), ChoiceWidgetClass);
-        if (ChoiceWidget)
-        {
-            ChoiceWidget->AddToViewport();
-            ChoiceWidget->NextButtonClicked.AddDynamic(this, &AMainMenuHUD::HandleNextClicked);
-            ChoiceWidget->PrevButtonClicked.AddDynamic(this, &AMainMenuHUD::HandlePrevClicked);
-        }
-    }
-}
-
-void AMainMenuHUD::HideChoiceMenu()
-{
-    if (ChoiceWidget)
-    {
-        //가비지 컬렉터에 의해 사라지지만 혹시몰라서 강제로 들어가서 삭제 
-        TArray<TObjectPtr<USelectWidget>> TempWidgets = ChoiceWidget->GetSelectWidgets();
-        for (USelectWidget* Widget : TempWidgets)
-        {
-            Widget->RemoveFromViewport();
-        }
-
-        ChoiceWidget->RemoveFromViewport();
-        ChoiceWidget = nullptr;
-    }
-}
-
-void AMainMenuHUD::HandleNextClicked()
-{
-    PlaySound(SelectSound);
-    UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_TravelBong")));
-}
-
-void AMainMenuHUD::HandlePrevClicked()
-{
-    HideChoiceMenu();
-    ShowMainMenu();
-}
-
-void AMainMenuHUD::PlaySound(const TObjectPtr<USoundBase>& Sound)
-{
-    if (!ensure(Sound))
-    {
-        return;
-    }
-    UGameplayStatics::PlaySound2D(this, Sound);
+    LogMessage("MainMenuHUD::HandleExitClicked - 이 함수는 더 이상 필요하지 않습니다");
 }
