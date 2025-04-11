@@ -45,6 +45,34 @@ void UItemBoxBase::SetItemBoxSize(float Width, float Height)
 	}
 }
 
+void UItemBoxBase::SetBorderImage(UTexture2D* Image)
+{
+	if (!Border || !Image)
+	{
+		return;
+	}
+    
+	// 이미지 브러시 생성 및 설정
+	FSlateBrush Brush;
+	Brush.SetResourceObject(Image);
+	Brush.ImageSize = FVector2D(Image->GetSizeX(), Image->GetSizeY());
+	Brush.DrawAs = ESlateBrushDrawType::Image;
+	
+	// 보더에 브러시 설정
+	Border->SetBrushFromTexture(Image);
+	
+	// 디버깅용 로그
+	UE_LOG(LogTemp, Log, TEXT("ItemBoxBase - 보더 이미지 설정: %s"), *Image->GetName());
+}
+
+void UItemBoxBase::SetBorderColor(const FLinearColor& Color)
+{
+	if (Border)
+	{
+		Border->SetBrushColor(Color);
+	}
+}
+
 FReply UItemBoxBase::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	// 자식 클래스에서 이벤트 처리 로직 구현

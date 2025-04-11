@@ -1,6 +1,8 @@
 #include "SingleSelectionWidget.h"
 #include "NameBoxWidget.h"
 #include "CharacterBoxWidget.h"
+#include "Data/GameDataManager.h"
+#include "Data/ItemDataAsset.h"
 #include "Instance/WeaponMasterGameInstance.h"
 #include "Kismet/GameplayStatics.h" // GameplayStatics 추가
 
@@ -58,7 +60,22 @@ void USingleSelectionWidget::SetupItemBoxes(const TArray<FName>& _ItemNames, con
         UniformGridPanel->ClearChildren();
     }
     
-    // 이름 위젯 추가
+    // 게임 인스턴스 가져오기 (데이터 매니저 접근용)
+    UWeaponMasterGameInstance* GameInstance = GetWeaponMasterGameInstance();
+    if (!GameInstance)
+    {
+        UE_LOG(LogTemp, Error, TEXT("GameInstance를 찾을 수 없습니다."));
+        return;
+    }
+    
+    UGameDataManager* GameDataManager = GameInstance->GetSubsystem<UGameDataManager>();
+    if (!GameDataManager)
+    {
+        UE_LOG(LogTemp, Error, TEXT("GameDataManager를 찾을 수 없습니다."));
+        return;
+    }
+    
+    // 이름 위젯 추가 (아이템)
     for (int32 i = 0; i < _ItemNames.Num(); ++i)
     {
         if (NameBoxClass)
@@ -66,6 +83,24 @@ void USingleSelectionWidget::SetupItemBoxes(const TArray<FName>& _ItemNames, con
             UNameBoxWidget* NameBox = CreateWidget<UNameBoxWidget>(this, NameBoxClass);
             if (NameBox)
             {
+                // 아이템 데이터 에셋에서 이미지 가져오기
+                UItemDataAsset* ItemData = GameDataManager->GetItemData(_ItemNames[i]);
+                
+                // 아이템 이미지가 있으면 Border 브러시에 설정
+                if (ItemData && !ItemData->Icon.IsNull())
+                {
+                    // 아이콘 로드
+                    UTexture2D* IconTexture = ItemData->Icon.LoadSynchronous();
+                    if (IconTexture)
+                    {
+                        // 보더에 이미지 설정 (새로 추가한 메서드 사용)
+                        NameBox->SetBorderImage(IconTexture);
+                        
+                        UE_LOG(LogTemp, Log, TEXT("아이템 %s의 이미지가 적용되었습니다."), *_ItemNames[i].ToString());
+                    }
+                }
+                
+                // 이벤트 바인딩 및 아이템 이름 설정
                 NameBox->OnObjectNameClicked.AddDynamic(this, &USingleSelectionWidget::OnItemNameClicked);
                 NameBox->SetObjectName(_ItemNames[i]);
                 
@@ -122,8 +157,16 @@ void USingleSelectionWidget::OnNextButtonClicked()
         UWeaponMasterGameInstance* GameInstance = GetWeaponMasterGameInstance();
         if (GameInstance && !GameInstance->ItemName.IsNone())
         {
-            // 게임 레벨로 이동
-            UGameplayStatics::OpenLevel(GetWorld(), GameLevelName);
+            if (bUseUITransition)
+            {
+                // UI 위젯 전환 모드
+                SwitchToNextWidget();
+            }
+            else
+            {
+                // 기존 레벨 전환 모드
+                UGameplayStatics::OpenLevel(GetWorld(), GameLevelName);
+            }
         }
         else
         {
@@ -143,12 +186,20 @@ void USingleSelectionWidget::OnPrevButtonClicked()
 {
     if (CurrentScreenType == ESelectionScreenType::Character)
     {
-        // 이전 레벨(메인 메뉴 등)로 이동
-        UGameplayStatics::OpenLevel(GetWorld(), PreviousLevelName);
+        if (bUseUITransition && PrevWidgetClass)
+        {
+            // UI 위젯 전환 모드
+            SwitchToPrevWidget();
+        }
+        else
+        {
+            // 기존 레벨 전환 모드
+            UGameplayStatics::OpenLevel(GetWorld(), PreviousLevelName);
+        }
     }
     else if (CurrentScreenType == ESelectionScreenType::Item)
     {
-        // 캐릭터 선택 화면으로 돌아가기
+        // 아이템 선택 화면에서는 항상 캐릭터 선택 화면으로 돌아감
         SwitchToCharacterSelection();
     }
     
@@ -196,7 +247,6 @@ void USingleSelectionWidget::SwitchToItemSelection()
 
 void USingleSelectionWidget::UpdateScreenTitle()
 {
-    // 제목 텍스트 블록이 있으면 업데이트
     if (TitleTextBlock)
     {
         if (CurrentScreenType == ESelectionScreenType::Character)
@@ -208,6 +258,88 @@ void USingleSelectionWidget::UpdateScreenTitle()
             TitleTextBlock->SetText(ItemSelectionTitle);
         }
     }
+}
+
+UUserWidget* USingleSelectionWidget::SwitchToNextWidget()
+{
+    if (!NextWidgetClass)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("다음 위젯 클래스가 설정되지 않았습니다."));
+        return nullptr;
+    }
+    
+    // 새 위젯 생성
+    UUserWidget* NextWidget = CreateWidget<UUserWidget>(GetWorld(), NextWidgetClass);
+    if (!NextWidget)
+    {
+        UE_LOG(LogTemp, Error, TEXT("다음 위젯을 생성하는데 실패했습니다."));
+        return nullptr;
+    }
+    
+    // 현재 위젯 숨기기
+    SetVisibility(ESlateVisibility::Collapsed);
+    
+    // 새 위젯 화면에 추가
+    NextWidget->AddToViewport();
+    
+    // 입력 모드 설정 (UI만 입력 받음)
+    APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+    if (PlayerController)
+    {
+        FInputModeUIOnly InputMode;
+        InputMode.SetWidgetToFocus(NextWidget->TakeWidget());
+        InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        PlayerController->SetInputMode(InputMode);
+        PlayerController->bShowMouseCursor = true;
+    }
+    
+    // 델리게이트 호출
+    OnSwitchToNextUI.Broadcast(NextWidget);
+    
+    return NextWidget;
+}
+
+UUserWidget* USingleSelectionWidget::SwitchToPrevWidget()
+{
+    if (!PrevWidgetClass)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("이전 위젯 클래스가 설정되지 않았습니다."));
+        return nullptr;
+    }
+    
+    // 새 위젯 생성 (현재 위젯과 동일한 소유자 사용)
+    UUserWidget* PrevWidget = CreateWidget<UUserWidget>(this->GetOwningPlayer(), PrevWidgetClass);
+    if (!PrevWidget)
+    {
+        UE_LOG(LogTemp, Error, TEXT("이전 위젯을 생성하는데 실패했습니다."));
+        return nullptr;
+    }
+    
+    // 이전 위젯 화면에 추가
+    PrevWidget->AddToViewport();
+    
+    // 입력 모드 설정 (UI만 입력 받음)
+    APlayerController* PlayerController = this->GetOwningPlayer();
+    if (PlayerController)
+    {
+        FInputModeUIOnly InputMode;
+        InputMode.SetWidgetToFocus(PrevWidget->TakeWidget());
+        InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        PlayerController->SetInputMode(InputMode);
+        PlayerController->bShowMouseCursor = true;
+    }
+    
+    // 현재 위젯을 뷰포트에서 완전히 제거
+    this->RemoveFromParent();
+    
+    // 델리게이트 호출
+    OnSwitchToPrevUI.Broadcast(PrevWidget);
+    
+    UE_LOG(LogTemp, Log, TEXT("위젯 전환 완료 (이전): %s → %s"), 
+        *this->GetClass()->GetName(), 
+        *PrevWidget->GetClass()->GetName());
+    
+    return PrevWidget;
 }
 
 void USingleSelectionWidget::OnItemNameClicked(FName ItemName)

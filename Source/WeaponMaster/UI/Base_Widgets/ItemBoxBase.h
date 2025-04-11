@@ -24,7 +24,15 @@ public:
 	// 아이템 크기 설정 함수
 	UFUNCTION(BlueprintCallable, Category = "Item")
 	void SetItemBoxSize(float Width, float Height);
-    
+	
+	// 보더에 이미지 설정 함수 추가
+	UFUNCTION(BlueprintCallable, Category = "Item|Appearance")
+	void SetBorderImage(UTexture2D* Image);
+	
+	// 보더 배경색 설정
+	UFUNCTION(BlueprintCallable, Category = "Item|Appearance")
+	void SetBorderColor(const FLinearColor& Color);
+	
 protected:
 	// 마우스 이벤트 핸들러
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
@@ -34,10 +42,8 @@ protected:
 	// 위젯 컴포넌트들
 	UPROPERTY(meta = (BindWidget))
 	USizeBox* SizeBox;
-    
-	UPROPERTY(meta = (BindWidget))
+    UPROPERTY(meta = (BindWidget))
 	UBorder* Border;
-    
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* TextBlock;
     

@@ -53,6 +53,16 @@ public:
     UPROPERTY(BlueprintAssignable, Category = "Events")
     FOnPrevMenu OnPrevMenu;
     
+    // 다음 UI로 전환 시 호출될 델리게이트
+    DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSwitchToNextUI, UUserWidget*, NextWidget);
+    UPROPERTY(BlueprintAssignable, Category = "Events")
+    FOnSwitchToNextUI OnSwitchToNextUI;
+    
+    // 이전 UI로 전환 시 호출될 델리게이트
+    DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSwitchToPrevUI, UUserWidget*, PrevWidget);
+    UPROPERTY(BlueprintAssignable, Category = "Events")
+    FOnSwitchToPrevUI OnSwitchToPrevUI;
+    
     // 아이템 선택 시 호출될 델리게이트
     DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemSelected, FName, SelectedItemName);
     UPROPERTY(BlueprintAssignable, Category = "Events")
@@ -66,13 +76,25 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Selection")
     ESelectionScreenType CurrentScreenType;
     
-    // 다음 화면으로 이동할 레벨 이름
+    // 다음 화면으로 이동할 레벨 이름 (레벨 이동 모드에서 사용)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Navigation")
     FName GameLevelName;
     
     // 이전 화면으로 돌아갈 레벨 이름
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Navigation")
     FName PreviousLevelName;
+    
+    // UI 모드 설정 (true: 위젯 전환 / false: 레벨 전환)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Navigation")
+    bool bUseUITransition = false;
+    
+    // 다음으로 전환할 위젯 클래스 (UI 모드에서 사용)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Navigation")
+    TSubclassOf<UUserWidget> NextWidgetClass;
+    
+    // 이전으로 전환할 위젯 클래스 (UI 모드에서 사용)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Navigation")
+    TSubclassOf<UUserWidget> PrevWidgetClass;
     
     // 화면 전환 함수
     UFUNCTION(BlueprintCallable, Category = "Navigation")
@@ -84,6 +106,14 @@ public:
     // 화면 전환시 제목 업데이트
     UFUNCTION(BlueprintCallable, Category = "UI")
     void UpdateScreenTitle();
+    
+    // 다음 UI 위젯으로 전환하는 함수
+    UFUNCTION(BlueprintCallable, Category = "Navigation")
+    UUserWidget* SwitchToNextWidget();
+    
+    // 이전 UI 위젯으로 전환하는 함수
+    UFUNCTION(BlueprintCallable, Category = "Navigation")
+    UUserWidget* SwitchToPrevWidget();
     
 protected:
     // 위젯 컴포넌트들
