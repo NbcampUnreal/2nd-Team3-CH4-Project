@@ -24,24 +24,24 @@ AWeaponMasterAIController::AWeaponMasterAIController()
 	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AWeaponMasterAIController::OnTargetPerceptionUpdated);
 }
 
-void AWeaponMasterAIController::BeginPlay()
+void AWeaponMasterAIController::OnPossess(APawn* InPawn)
 {
-	Super::BeginPlay();
+	Super::OnPossess(InPawn);
 
 	if (BehaviorTreeAsset)
 	{
 		RunBehaviorTree(BehaviorTreeAsset);
-		UE_LOG(LogTemp, Warning, TEXT("Behavior Tree started"));
+		UE_LOG(LogTemp, Warning, TEXT("Behavior Tree started in OnPossess"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("BehaviorTreeAsset is NULL!"));
+		UE_LOG(LogTemp, Error, TEXT("BehaviorTreeAsset is NULL in OnPossess"));
 	}
 }
 
+
 void AWeaponMasterAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OKOK"))
 	EvaluateTargetPriority();
 }
 

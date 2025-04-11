@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "Perception/AIPerceptionTypes.h" // Stimulus
+#include "Perception/AIPerceptionTypes.h"
 #include "WeaponMasterAIController.generated.h"
 
 class UAIPerceptionComponent;
@@ -17,7 +17,7 @@ public:
 	AWeaponMasterAIController();
 
 protected:
-	virtual void BeginPlay() override;
+	virtual void OnPossess(APawn* InPawn) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	UBehaviorTree* BehaviorTreeAsset;
