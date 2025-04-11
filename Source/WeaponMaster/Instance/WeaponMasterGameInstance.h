@@ -57,7 +57,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "EOS")
 	bool IsPlayerLoggedIn() const;
-  
 	// 언리얼 서버 디버그 에디터에 프로세스 연결
 	
 	
@@ -67,4 +66,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	FName ItemName;
+
+private:
 };

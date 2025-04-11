@@ -44,16 +44,16 @@ void ATeamGameMode::PlayCountDownTimerAction()
 	{
 		if (AEOSPlayerController* PlayerController = Cast<AEOSPlayerController>(Iterator->Get()))
 		{
-			PlayerController->Client_UpdateTimer(TimerCountDown);
+			PlayerController->Client_UpdateInGameTimer(TimerCountDown);
 		}
 	}
 
 	if (TimerCountDown == 0)
 	{
 		// Score Board 이동
+
+		GetWorldTimerManager().ClearTimer(PlayCountDownTimerHandle);
 	}
-	
-	GetWorldTimerManager().ClearTimer(PlayCountDownTimerHandle);
 }
 
 void ATeamGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
