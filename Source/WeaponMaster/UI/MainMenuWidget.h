@@ -93,9 +93,6 @@ protected:
     // SingleSelectionWidget 관련 함수
     UFUNCTION(BlueprintCallable, Category = "UI")
     void ShowSingleSelectionMenu();
-    
-    UFUNCTION()
-    void HandleSingleSelectionPrevClicked();
 
     // UI 입력 모드 설정
     void SetupUIInputMode(UUserWidget* Widget);

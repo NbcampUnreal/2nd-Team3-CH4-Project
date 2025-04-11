@@ -243,49 +243,16 @@ void UMainMenuWidget::ShowSingleSelectionMenu()
         SingleSelectionWidget->CurrentScreenType = ESelectionScreenType::Character;
         
         // 메인 메뉴 위젯 숨기기
-        this->SetVisibility(ESlateVisibility::Collapsed);
+        this->RemoveFromParent();
         
         // 싱글 선택 위젯 표시
         SingleSelectionWidget->AddToViewport();
-        
-        // 이벤트 연결
-        SingleSelectionWidget->OnPrevMenu.AddDynamic(this, &UMainMenuWidget::HandleSingleSelectionPrevClicked);
         
         // UI 입력 모드 설정
         SetupUIInputMode(SingleSelectionWidget);
         
         LogMessage("싱글 선택 메뉴 위젯 표시됨");
     }
-}
-
-// SingleSelectionWidget 뒤로가기 처리
-void UMainMenuWidget::HandleSingleSelectionPrevClicked()
-{
-    LogMessage("SingleSelectionWidget에서 메인 메뉴로 돌아갑니다");
-    
-    if (SelectSound)
-    {
-        PlaySound(SelectSound);
-    }
-    
-    if (SingleSelectionWidget)
-    {
-        // 델리게이트 연결 해제
-        if (SingleSelectionWidget->OnPrevMenu.IsAlreadyBound(this, &UMainMenuWidget::HandleSingleSelectionPrevClicked))
-        {
-            SingleSelectionWidget->OnPrevMenu.RemoveDynamic(this, &UMainMenuWidget::HandleSingleSelectionPrevClicked);
-        }
-        
-        // 싱글 선택 위젯 제거
-        SingleSelectionWidget->RemoveFromParent();
-        SingleSelectionWidget = nullptr;
-    }
-    
-    // 메인 메뉴 위젯 다시 표시
-    this->SetVisibility(ESlateVisibility::Visible);
-    
-    // UI 입력 모드 재설정
-    SetupUIInputMode(this);
 }
 
 //////////////////////
