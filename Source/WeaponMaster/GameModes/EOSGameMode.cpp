@@ -76,6 +76,7 @@ void AEOSGameMode::PlayCountDownTimerAction()
 				}
 			}
 		}
+		
 		TravelMap();
 		GetWorldTimerManager().ClearTimer(PlayCountDownTimerHandle);
 	}
@@ -91,7 +92,6 @@ APlayerController* AEOSGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole
 
 void AEOSGameMode::Logout(AController* Exiting)
 {
-	UE_LOG(LogTemp, Display, TEXT("Logout"));
 	Super::Logout(Exiting);
 
 	FUniqueNetIdRepl UniqueNetIdRepl;
@@ -173,7 +173,6 @@ void AEOSGameMode::RegisterPlayer(APlayerController* NewPlayer)
 				MyGameSession->RegisterPlayer(NewPlayer, UniqueNetId, false);
 			}
 		}
-		
 	}
 }
 

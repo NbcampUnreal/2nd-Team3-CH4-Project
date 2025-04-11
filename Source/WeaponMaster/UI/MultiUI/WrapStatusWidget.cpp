@@ -1,11 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "WrapStatusWidget.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "../CommonUI/PlayerStatusWidget.h"
-#include "GameFramework/GameStateBase.h"
+#include "Components/TextBlock.h"
 #include "Engine/World.h"
 
 void UWrapStatusWidget::InitializePlayerStatus()
@@ -17,6 +14,15 @@ void UWrapStatusWidget::InitializePlayerStatus()
 
     LeftTeamContainer->ClearChildren();
     RightTeamContainer->ClearChildren();
+}
+
+void UWrapStatusWidget::SetRemainTimer(const int32 TimeRemain) const
+{
+    if (!RemainTimerTextBlock) return;
+    RemainTimerTextBlock->SetText( FText::Format(
+        NSLOCTEXT("SessionWidget", "PlayerCount", "{0}"),
+        FText::AsNumber(TimeRemain)
+    ));
 }
     
 void UWrapStatusWidget::InitializeDummyPlayerStatus(int32 TotalPlayers, int32 MyTeamNum)

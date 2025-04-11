@@ -32,8 +32,13 @@ public:
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateTotalPlayerNum(int16 PlayerNum);
 
+	// 세션 타이머
 	UFUNCTION(Client, Reliable)
-	void Client_UpdateTimer(int32 TimerCountDown);
+	void Client_UpdateTimer(const int32 TimerCountDown);
+
+	// 인게임 타이머
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateInGameTimer(const int32 TimerCountDown);
 
 	UFUNCTION()
 	void UpdateHUD(EMapType Map);
