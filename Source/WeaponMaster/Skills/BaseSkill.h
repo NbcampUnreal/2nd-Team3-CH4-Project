@@ -166,6 +166,19 @@ public:
     UFUNCTION(BlueprintPure, Category = "Skill")
     float GetItemAttackSpeed() const;
 
+    virtual bool IsSupportedForNetworking() const override
+    {
+        return true;
+    }
+
+    UFUNCTION()
+    virtual void UpdateFromReplicatedData(float NewRemainingCooldown, bool bNewIsActive)
+    {
+        RemainingCooldown = NewRemainingCooldown;
+        bIsActive = bNewIsActive;
+    }
+    
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     // 스킬 시작 델리게이트
     UPROPERTY(BlueprintAssignable, Category = "Skill")
     FOnSkillStartedDelegate OnSkillStarted;

@@ -93,6 +93,7 @@ void APickupableItem::LoadItemData()
 
 void APickupableItem::OnPickup(AActor* Interactor)
 {
+    
     // ACharacter로 캐스팅 후 IBattleSystemUser 인터페이스 확인
     ACharacter* Character = Cast<ACharacter>(Interactor);
     if (!Character || !ItemData)
@@ -102,6 +103,11 @@ void APickupableItem::OnPickup(AActor* Interactor)
    
     if (Character->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
     {
+        UE_LOG(LogTemp, Warning, TEXT("[%s] 플레이어 %s가 아이템 %s 획득 시도 (권한: %d)"), 
+    HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
+    *Interactor->GetName(), 
+    *ItemData->ItemName,
+    (int32)Character->GetLocalRole());
         // 아이템 장착 시도
         bool bPickedUp = IBattleSystemUser::Execute_EquipItem(Character, ItemID);
     

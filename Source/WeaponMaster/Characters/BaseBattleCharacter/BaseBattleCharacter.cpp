@@ -61,6 +61,11 @@ void ABaseBattleCharacter::BeginPlay()
 		ItemComponent->OnItemEquipped.AddDynamic(this, &ABaseBattleCharacter::OnItemEquippedForBinding);
 		ItemComponent->OnItemUnequipped.AddDynamic(this, &ABaseBattleCharacter::OnItemUnequippedForBinding);
 	}
+
+	if (!HasAuthority())
+	{
+		SetupMontageEndedDelegate_Implementation(); 
+	}
 }
 
 // Called every frame
@@ -396,6 +401,28 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 	}
 }
 
+void ABaseBattleCharacter::PlaySkillMontage_Implementation(UAnimMontage* Montage, float PlayRate)
+{
+	if (HasAuthority()) // 서버에서만 RPC 호출
+	{
+		Multicast_PlayMontage(Montage, PlayRate);
+	}
+}
+
+void ABaseBattleCharacter::OnLocalMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	// 현재 활성화된 스킬 찾기
+	if (SkillComponent)
+	{
+		UBaseSkill* ActiveSkill = SkillComponent->GetActiveSkill();
+		if (ActiveSkill)
+		{
+			// 클라이언트에서도 스킬 종료 처리
+			ActiveSkill->EndSkill();
+		}
+	}
+}
+
 void ABaseBattleCharacter::WeakAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::WeakAttack !"));
@@ -446,4 +473,28 @@ void ABaseBattleCharacter::MenuOnOff()
 void ABaseBattleCharacter::Chat()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Chat"));
+}
+
+void ABaseBattleCharacter::Multicast_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate)
+{
+	if (!Montage || !IsValid(GetMesh()) || !GetMesh()->GetAnimInstance())
+	{
+		return;
+	}
+    
+	UE_LOG(LogTemp, Warning, TEXT("[%s] 몽타주 %s 재생 시작 (재생속도: %.2f)"), 
+		HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
+		*Montage->GetName(), 
+		PlayRate);
+        
+	// 모든 클라이언트(및 서버)에서 몽타주 재생
+	GetMesh()->GetAnimInstance()->Montage_Play(Montage, PlayRate);
+}
+
+void ABaseBattleCharacter::SetupMontageEndedDelegate_Implementation()
+{
+	if (GetMesh() && GetMesh()->GetAnimInstance())
+	{
+		GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ABaseBattleCharacter::OnLocalMontageEnded);
+	}
 }

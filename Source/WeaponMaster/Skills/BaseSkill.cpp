@@ -5,6 +5,7 @@
 #include "Animation/AnimMontage.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
+#include "Characters/Components/IBattleSystemUser.h"
 #include "WeaponMaster/Data/StatusTypes.h"
 
 UBaseSkill::UBaseSkill()
@@ -45,25 +46,7 @@ void UBaseSkill::Initialize(ACharacter* Owner, UItemDataAsset* OwnerItem)
  */
 bool UBaseSkill::ActivateSkill()
 {
-    // 쿨다운 체크
-    if (!IsSkillReady())
-    {
-        return false;
-    }
-    
-    // 이미 활성화된 스킬이면 중복 실행 방지
-    if (bIsActive)
-    {
-        return false;
-    }
-    
-    // 소유자 캐릭터 검증
-    if (!OwnerCharacter)
-    {
-        return false;
-    }
-
-    OnSkillStarted.Broadcast();
+    // 기존 코드 (쿨다운 체크 등)
     
     // 스킬 활성화 상태로 변경
     bIsActive = true;
@@ -75,31 +58,24 @@ bool UBaseSkill::ActivateSkill()
         UAnimMontage* Montage = SkillMontage.LoadSynchronous();
         if (Montage)
         {
-            // 소유자 메시 가져오기
-            USkeletalMeshComponent* OwnerMesh = OwnerCharacter->GetMesh();
-            if (OwnerMesh)
+            // 재생 속도 계산
+            float PlayRate = ItemData ? ItemData->AttackSpeed : DefaultAttackSpeed;
+            
+            // IBattleSystemUser 인터페이스를 통해 몽타주 재생
+            if (OwnerCharacter && OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
             {
-                // 아이템 AttackSpeed에 따른 재생 속도 계산
-                float PlayRate = 1.0f;
-                if (ItemData)
-                {
-                    // 아이템의 AttackSpeed를 몽타주 재생 속도에 적용
-                    PlayRate = ItemData->AttackSpeed;
-                }
-                else
-                {
-                    // ItemData가 없으면 기본 공격 속도 사용
-                    PlayRate = DefaultAttackSpeed;
-                }
+                IBattleSystemUser::Execute_PlaySkillMontage(OwnerCharacter, Montage, PlayRate);
                 
-                // 애니메이션 몽타주 재생 (PlayRate 적용)
-                float MontageLength = OwnerMesh->GetAnimInstance()->Montage_Play(Montage, PlayRate);
-                if (MontageLength > 0.0f)
+                // 몽타주 종료 델리게이트는 여전히 필요 (서버에서만)
+                if (OwnerCharacter->HasAuthority())
                 {
-                    // 몽타주 종료 시 호출될 델리게이트 바인딩
-                    FOnMontageEnded EndDelegate;
-                    EndDelegate.BindUObject(this, &UBaseSkill::OnMontageEnded);
-                    OwnerMesh->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate, Montage);
+                    USkeletalMeshComponent* OwnerMesh = OwnerCharacter->GetMesh();
+                    if (OwnerMesh && OwnerMesh->GetAnimInstance())
+                    {
+                        FOnMontageEnded EndDelegate;
+                        EndDelegate.BindUObject(this, &UBaseSkill::OnMontageEnded);
+                        OwnerMesh->GetAnimInstance()->Montage_SetEndDelegate(EndDelegate, Montage);
+                    }
                 }
             }
         }
@@ -111,6 +87,8 @@ bool UBaseSkill::ActivateSkill()
     // 쿨다운 설정
     RemainingCooldown = CooldownTime;
     
+    OnSkillStarted.Broadcast();
+    
     return true;
 }
 
@@ -119,7 +97,7 @@ bool UBaseSkill::ActivateSkill()
  */
 void UBaseSkill::ExecuteSkill()
 {
-    
+   
 }
 
 void UBaseSkill::EndSkill()
@@ -209,6 +187,11 @@ float UBaseSkill::GetItemAttackSpeed() const
         return ItemData->AttackSpeed;
     }
     return DefaultAttackSpeed;
+}
+
+void UBaseSkill::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    UObject::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
 int32 UBaseSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage)

@@ -8,7 +8,7 @@
 void ASingleGameMode::BeginPlay()
 {
     Super::BeginPlay();
-
+	UE_LOG(LogTemp, Warning, TEXT("===== 멀티플레이어 테스트 시작 ====="));
    // if (PlayerCharacterClass && WeaponClass)
    // {
         //플레이어 캐릭터 스폰

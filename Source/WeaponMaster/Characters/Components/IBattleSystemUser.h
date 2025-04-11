@@ -62,4 +62,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
 	AActor* GetInteractableActor() const;
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Animation")
+	void PlaySkillMontage(UAnimMontage* Montage, float PlayRate);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Animation")
+	void SetupMontageEndedDelegate();
 };

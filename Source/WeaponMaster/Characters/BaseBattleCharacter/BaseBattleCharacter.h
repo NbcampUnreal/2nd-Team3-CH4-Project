@@ -114,4 +114,13 @@ public:
 
 	// Event when Attacked
 	virtual void OnAttacked(const FAttackData& AttackData) override;
+
+	virtual void PlaySkillMontage_Implementation(UAnimMontage* Montage, float PlayRate) override;
+	virtual void SetupMontageEndedDelegate_Implementation() override;
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayMontage(UAnimMontage* Montage, float PlayRate);
+
+	UFUNCTION()
+	void OnLocalMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 };

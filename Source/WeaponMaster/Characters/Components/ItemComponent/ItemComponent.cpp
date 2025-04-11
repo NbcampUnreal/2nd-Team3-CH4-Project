@@ -107,7 +107,8 @@ bool UItemComponent::EquipItem(FName ItemID)
             for (USceneComponent* ChildComp : ChildComponents)
             {
                 UStaticMeshComponent* StaticMeshComp = Cast<UStaticMeshComponent>(ChildComp);
-                if (StaticMeshComp && StaticMeshComp->GetName().Contains(PreviousItem->ItemID.ToString()))
+                // NULL 체크 추가
+                if (StaticMeshComp && !PreviousItem->ItemID.IsNone() && StaticMeshComp->GetName().Contains(PreviousItem->ItemID.ToString()))
                 {
                     UE_LOG(LogTemp, Warning, TEXT("[SERVER] Found weapon mesh component, will destroy: %s"), *StaticMeshComp->GetName());
                     StaticMeshComp->DestroyComponent();
@@ -130,18 +131,15 @@ bool UItemComponent::EquipItem(FName ItemID)
     ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
     if (OwnerCharacter)
     {
-        for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+        // 클라이언트에게 알림 - 오류 방지를 위해 NULL 체크 추가
+        if (NewItem)
         {
-            APlayerController* PC = It->Get();
-            if (PC && PC->GetPawn() != OwnerCharacter)
-            {
-                Client_OnItemEquipped(NewItem);
-            }
+            Client_OnItemEquipped(NewItem);
         }
     }
     
     // 아이템 메시 비동기 로드
-    if (!NewItem->EquippedMesh.IsNull())
+    if (NewItem && !NewItem->EquippedMesh.IsNull())
     {
         UE_LOG(LogTemp, Warning, TEXT("[SERVER] Loading mesh asynchronously for item: %s"), *NewItem->ItemName);
         
@@ -158,16 +156,19 @@ bool UItemComponent::EquipItem(FName ItemID)
     }
     else
     {
-        UE_LOG(LogTemp, Warning, TEXT("[SERVER] No mesh to load for item: %s"), *NewItem->ItemName);
+        UE_LOG(LogTemp, Warning, TEXT("[SERVER] No mesh to load for item: %s"), NewItem ? *NewItem->ItemName : TEXT("INVALID"));
         
         // 메시가 없는 경우 바로 장착 완료
-        AttachItemToSocket(NewItem);
-        OnItemEquipped.Broadcast(NewItem);
+        if (NewItem)
+        {
+            AttachItemToSocket(NewItem);
+            OnItemEquipped.Broadcast(NewItem);
+            
+            // 클라이언트에게 알림
+            Client_OnItemEquipped(NewItem);
+        }
         
-        // 클라이언트에게 알림
-        Client_OnItemEquipped(NewItem);
-        
-        return true;
+        return NewItem != nullptr;
     }
 }
 
@@ -190,6 +191,11 @@ void UItemComponent::UnequipItem()
     
     // 로그 추가
     UE_LOG(LogTemp, Warning, TEXT("Unequipping item: %s"), *EquippedItem->ItemName);
+
+    UE_LOG(LogTemp, Warning, TEXT("[%s] 아이템 %s 해제 시도 (권한: %d)"), 
+    GetOwnerRole() == ROLE_Authority ? TEXT("서버") : TEXT("클라이언트"),
+    EquippedItem ? *EquippedItem->ItemName : TEXT("없음"),
+    (int32)GetOwnerRole());
     
     // Store reference to the item being unequipped
     UItemDataAsset* ItemToSpawn = EquippedItem;
@@ -421,6 +427,7 @@ void UItemComponent::AttachItemToSocket(UItemDataAsset* Item)
 {
     if (!Item)
     {
+        UE_LOG(LogTemp, Error, TEXT("AttachItemToSocket: NULL 아이템 전달됨"));
         return;
     }
     
@@ -428,6 +435,7 @@ void UItemComponent::AttachItemToSocket(UItemDataAsset* Item)
     ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
     if (!OwnerCharacter)
     {
+        UE_LOG(LogTemp, Error, TEXT("AttachItemToSocket: 소유자 캐릭터가 NULL"));
         return;
     }
     
@@ -435,6 +443,7 @@ void UItemComponent::AttachItemToSocket(UItemDataAsset* Item)
     USkeletalMeshComponent* MeshComp = OwnerCharacter->GetMesh();
     if (!MeshComp)
     {
+        UE_LOG(LogTemp, Error, TEXT("AttachItemToSocket: 메시 컴포넌트가 NULL"));
         return;
     }
     
@@ -446,6 +455,12 @@ void UItemComponent::AttachItemToSocket(UItemDataAsset* Item)
         return;
     }
 
+    UE_LOG(LogTemp, Warning, TEXT("[%s] 아이템 %s 소켓 %s에 부착 (권한: %d)"), 
+    GetOwner()->HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
+    *Item->ItemName, 
+    *Item->SocketName.ToString(),
+    (int32)GetOwnerRole());
+    
     // 기존 무기 메시 컴포넌트 제거 (중복 방지)
     TArray<USceneComponent*> ChildComponents;
     MeshComp->GetChildrenComponents(true, ChildComponents);
@@ -467,7 +482,7 @@ void UItemComponent::AttachItemToSocket(UItemDataAsset* Item)
     WeaponMeshComp->SetIsReplicated(true); // 복제 활성화
     WeaponMeshComp->AttachToComponent(MeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Item->SocketName);
     WeaponMeshComp->RegisterComponent();
-
+    
     // 스케일 적용
     WeaponMeshComp->SetRelativeScale3D(Item->Scale);
     
@@ -579,6 +594,12 @@ void UItemComponent::SetWeaponCollisionEnabled(bool bEnabled)
  */
 void UItemComponent::Server_EquipItem_Implementation(FName ItemID)
 {
+    if (ItemID.IsNone())
+    {
+        UE_LOG(LogTemp, Error, TEXT("[SERVER] RPC received invalid item ID"));
+        return;
+    }
+    
     UE_LOG(LogTemp, Warning, TEXT("[SERVER] RPC received to equip item: %s"), *ItemID.ToString());
     EquipItem(ItemID);
 }

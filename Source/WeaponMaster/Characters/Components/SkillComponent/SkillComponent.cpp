@@ -143,6 +143,95 @@ UBaseSkill* USkillComponent::GetActiveSkill() const
     return nullptr;
 }
 
+void USkillComponent::OnRep_SkillData()
+{
+    // 복제된 데이터를 받으면 로컬 스킬 객체 업데이트
+    UpdateLocalSkillsFromReplicatedData();
+    
+    // UI 등에 스킬 업데이트 알림
+    OnSkillsUpdated.Broadcast(Skills);
+}
+
+void USkillComponent::UpdateReplicatedData()
+{
+    // 서버에서만 실행
+    if (!GetOwner()->HasAuthority())
+        return;
+        
+    // 복제 데이터 배열 초기화
+    ReplicatedSkillData.Empty(Skills.Num());
+    
+    // 각 스킬에서 필요한 데이터만 추출하여 복제 배열에 추가
+    for (UBaseSkill* Skill : Skills)
+    {
+        if (!Skill) continue;
+        
+        FReplicatedSkillData SkillData;
+        SkillData.SkillClass = Skill->GetClass();
+        SkillData.SkillID = Skill->GetSkillID();
+        SkillData.RemainingCooldown = Skill->GetRemainingCooldown();
+        SkillData.bIsActive = Skill->IsSkillActive();
+        
+        // 필요시 추가 커스텀 데이터 저장
+        // ...
+        
+        ReplicatedSkillData.Add(SkillData);
+    }
+}
+
+void USkillComponent::UpdateLocalSkillsFromReplicatedData()
+{
+    // 클라이언트에서만 의미 있음
+    if (GetOwner()->HasAuthority())
+        return;
+        
+    // 기존 스킬 객체와 새 데이터 매칭
+    // 새 스킬이 필요하면 생성, 기존 스킬은 업데이트
+    
+    TArray<UBaseSkill*> NewSkills;
+    
+    for (const FReplicatedSkillData& SkillData : ReplicatedSkillData)
+    {
+        // 기존 스킬 찾기
+        UBaseSkill* ExistingSkill = nullptr;
+        for (UBaseSkill* Skill : Skills)
+        {
+            if (Skill && Skill->GetSkillID() == SkillData.SkillID)
+            {
+                ExistingSkill = Skill;
+                break;
+            }
+        }
+        
+        // 스킬이 없으면 새로 생성
+        if (!ExistingSkill)
+        {
+            if (SkillData.SkillClass)
+            {
+                ExistingSkill = NewObject<UBaseSkill>(this, SkillData.SkillClass);
+                if (ExistingSkill)
+                {
+                    // 스킬 초기화
+                    ExistingSkill->Initialize(Cast<ACharacter>(GetOwner()), nullptr);
+                }
+            }
+        }
+        
+        // 스킬이 있으면 데이터 업데이트
+        if (ExistingSkill)
+        {
+            // 여기서 스킬 상태 업데이트 (복제된 데이터 적용)
+            // 직접 멤버 변수를 수정하는 대신 아래와 같은 헬퍼 함수 추가하는 것이 좋음
+            ExistingSkill->UpdateFromReplicatedData(SkillData.RemainingCooldown, SkillData.bIsActive);
+            
+            NewSkills.Add(ExistingSkill);
+        }
+    }
+    
+    // 로컬 스킬 목록 업데이트
+    Skills = NewSkills;
+}
+
 UBaseSkill* USkillComponent::CreateSkill(TSubclassOf<UBaseSkill> SkillClass, UItemDataAsset* OwnerItem)
 {
     if (!SkillClass || !OwnerCharacter)
@@ -165,6 +254,10 @@ UBaseSkill* USkillComponent::CreateSkill(TSubclassOf<UBaseSkill> SkillClass, UIt
 
 bool USkillComponent::ExecuteSkill(int32 GroupIndex)
 {
+    UE_LOG(LogTemp, Warning, TEXT("[%s] 스킬 그룹 %d 실행 시도 (권한: %d)"), 
+    GetOwnerRole() == ROLE_Authority ? TEXT("서버") : TEXT("클라이언트"),
+    GroupIndex,
+    (int32)GetOwnerRole());
     // 클라이언트에서 호출되면 서버로 전달
     if (GetOwnerRole() < ROLE_Authority)
     {
@@ -241,6 +334,8 @@ bool USkillComponent::ExecuteSkill(int32 GroupIndex)
             GroupReadyToReset[GroupIndex] = true;
             UE_LOG(LogTemp, Log, TEXT("그룹 %d의 마지막 스킬 사용됨, 다음 사용 시 첫 번째 스킬부터 시작합니다."), GroupIndex);
         }
+
+        UpdateReplicatedData();
     }
     
     return Success;
@@ -395,6 +490,11 @@ void USkillComponent::UpdateSkillCooldowns()
             }
         }
     }
+
+    if (GetOwner()->HasAuthority())
+    {
+        UpdateReplicatedData();
+    }
 }
 
 int32 USkillComponent::GetNextSkillIndexInGroup(int32 GroupIndex)
@@ -474,7 +574,7 @@ void USkillComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     
     // 스킬 목록 복제
-    DOREPLIFETIME(USkillComponent, Skills);
+    DOREPLIFETIME(USkillComponent, ReplicatedSkillData);
 }
 
 void USkillComponent::InitializeSkills(USkillDataAsset* NewSkill)
