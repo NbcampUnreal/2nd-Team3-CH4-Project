@@ -35,3 +35,8 @@ void USingleStageButtonWidget::HandleClicked()
 {
 	OnStageSelected.Broadcast(CurrentStageInfo);
 }
+
+void USingleStageButtonWidget::SimulateClick()
+{
+	HandleClicked(); // 실제 클릭 처리 함수 직접 호출
+}
