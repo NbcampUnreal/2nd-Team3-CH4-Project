@@ -55,11 +55,11 @@ void USingleStageSelectWidget::CreateStageButtons()
 		NewButton->OnStageSelected.AddDynamic(this, &USingleStageSelectWidget::HandleStageSelected);
 		LeftPanel->AddChild(NewButton);
 
-		//// 첫 번째 버튼을 자동으로 선택된 상태로 설정
-		//if (i == 0)
-		//{
-		//	NewButton->OnClicked();  // 첫 번째 버튼 클릭
-		//}
+		// 첫 번째 버튼을 자동으로 선택된 상태로 설정
+		if (i == 0)
+		{
+			NewButton->SimulateClick(); // 강제 클릭
+		}
 	}
 }
 
@@ -98,6 +98,15 @@ void USingleStageSelectWidget::OnConfirmClicked()
 
 void USingleStageSelectWidget::OnBackButtonClicked()
 {
-	//위젯 제거
-	RemoveFromParent();
+	RemoveFromParent();  // 현재 위젯 제거
+
+	if (WBP_SingleSelectionClass)
+	{
+		UUserWidget* SelectionWidget = CreateWidget<UUserWidget>(GetWorld(), WBP_SingleSelectionClass);
+		if (SelectionWidget)
+		{
+			SelectionWidget->AddToViewport();
+		}
+	}
 }
+

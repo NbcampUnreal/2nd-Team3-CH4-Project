@@ -12,7 +12,7 @@ class UHorizontalBox;
 class UTextBlock;
 class UImage;
 class UButton;
-
+class USingleSelectionWidget;
 
 UCLASS()
 class WEAPONMASTER_API USingleStageSelectWidget : public UUserWidget
@@ -45,6 +45,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MapInfo", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<USingleStageButtonWidget> StageButtonClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> WBP_SingleSelectionClass;
 
 private:
 	UFUNCTION()

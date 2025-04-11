@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "UI/MultiUI/MultiGameHUD.h"
 #include "UI/MultiUI/SessionWidget.h"
+#include "UI/MultiUI/WrapStatusWidget.h"
 
 AEOSPlayerController::AEOSPlayerController()
 {
@@ -48,6 +49,14 @@ void AEOSPlayerController::BeginPlay()
     }
 }
 
+void AEOSPlayerController::Client_UpdateInGameTimer_Implementation(const int32 TimerCountDown)
+{
+    if (const AMultiGameHUD* MultiGameHUD = Cast<AMultiGameHUD>(GetHUD()))
+    {
+        MultiGameHUD->WrapStatusWidget->SetRemainTimer(TimerCountDown);
+    }
+}
+
 void AEOSPlayerController::UpdateHUD(EMapType Map)
 {
     if (AMultiGameHUD* MultiHUD = Cast<AMultiGameHUD>(GetHUD()))
@@ -56,7 +65,7 @@ void AEOSPlayerController::UpdateHUD(EMapType Map)
     }
 }
 
-void AEOSPlayerController::Client_UpdateTimer_Implementation(int32 TimerCountDown)
+void AEOSPlayerController::Client_UpdateTimer_Implementation(const int32 TimerCountDown)
 {
     if (const AMultiGameHUD* MultiGameHUD = Cast<AMultiGameHUD>(GetHUD()))
     {
