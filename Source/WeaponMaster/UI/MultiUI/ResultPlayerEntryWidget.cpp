@@ -14,6 +14,8 @@ void UResultPlayerEntryWidget::NativeConstruct()
 
 void UResultPlayerEntryWidget::SetPlayerResultInfo(UTexture2D* InIcon, const FText& InNickname, int32 InKills, int32 InDamage, int32 InGold)
 {
+
+	UE_LOG(LogTemp, Warning, TEXT("SetPlayerResultInfo 호출됨 - %s, Kills: %d, Damage: %d, Gold: %d"), *InNickname.ToString(), InKills, InDamage, InGold);
 	if (PlayerIconImage)
 	{
 		PlayerIconImage->SetBrushFromTexture(InIcon);
