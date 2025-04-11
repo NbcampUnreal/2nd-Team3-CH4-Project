@@ -9,6 +9,7 @@
 class UButton;
 class UTextBlock;
 class USoundBase;
+class USingleSelectionWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMainMenuAction);
 
@@ -34,8 +35,8 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> Button_Exit;
 
-
 public:
+    // 기존 델리게이트 (필요한 경우 HUD와의 통신용)
     UPROPERTY(BlueprintAssignable)
     FOnMainMenuAction OnSingleClicked;
 
@@ -48,6 +49,23 @@ public:
     UPROPERTY(BlueprintAssignable)
     FOnMainMenuAction OnExitClicked;
 
+    // SingleSelectionWidget 직접 생성 및 관리를 위한 속성
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI|Widgets")
+    TSubclassOf<USingleSelectionWidget> SingleSelectionWidgetClass;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI|Widgets")
+    TObjectPtr<USingleSelectionWidget> SingleSelectionWidget;
+
+    // 레벨 이름
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Levels")
+    FName MultiplayerLevelName = TEXT("MainSessionMap");
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Levels")
+    FName MainMenuLevelName = TEXT("MainMenuMap");
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Levels")
+    FName GameLevelName = TEXT("Test_TravelBong");
+
 protected:
     TArray<TObjectPtr<UButton>> MenuButtons;
 
@@ -59,6 +77,7 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
     TObjectPtr<USoundBase> SelectSound;
 
+    // 버튼 클릭 핸들러
     UFUNCTION()
     void OnSingleButtonClicked();
 
@@ -70,6 +89,16 @@ protected:
     
     UFUNCTION()
     void OnExitButtonClicked();
+
+    // SingleSelectionWidget 관련 함수
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    void ShowSingleSelectionMenu();
+    
+    UFUNCTION()
+    void HandleSingleSelectionPrevClicked();
+
+    // UI 입력 모드 설정
+    void SetupUIInputMode(UUserWidget* Widget);
 
     UFUNCTION()
     void OnButtonHovered();
