@@ -58,11 +58,11 @@ void UItemBoxBase::SetBorderImage(UTexture2D* Image)
 	Brush.ImageSize = FVector2D(Image->GetSizeX(), Image->GetSizeY());
 	Brush.DrawAs = ESlateBrushDrawType::Image;
 	
-	// 보더에 브러시 설정
+	// 내부 보더에 브러시 설정
 	Border->SetBrushFromTexture(Image);
 	
 	// 디버깅용 로그
-	UE_LOG(LogTemp, Log, TEXT("ItemBoxBase - 보더 이미지 설정: %s"), *Image->GetName());
+	UE_LOG(LogTemp, Log, TEXT("ItemBoxBase - 아이템 이미지 설정: %s"), *Image->GetName());
 }
 
 void UItemBoxBase::SetBorderColor(const FLinearColor& Color)

@@ -93,7 +93,6 @@ void USingleSelectionWidget::SetupItemBoxes(const TArray<FName>& _ItemNames, con
                     UTexture2D* IconTexture = ItemData->Icon.LoadSynchronous();
                     if (IconTexture)
                     {
-                        // 보더에 이미지 설정 (새로 추가한 메서드 사용)
                         NameBox->SetBorderImage(IconTexture);
                         
                         UE_LOG(LogTemp, Log, TEXT("아이템 %s의 이미지가 적용되었습니다."), *_ItemNames[i].ToString());
