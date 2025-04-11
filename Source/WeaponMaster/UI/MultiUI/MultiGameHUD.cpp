@@ -7,18 +7,20 @@
 #include "ChatWidget.h"
 #include "PlayerNameWidget.h"
 #include "SessionLobbyWidget.h"
+#include "SessionWidget.h"
 
 void AMultiGameHUD::BeginPlay()
 {
 	Super::BeginPlay();
-   /* if (WrapStatusWidgetClass)
+    
+    if (WrapStatusWidgetClass)
     {
-        CreatePlayerWidgets();
-    }*/
-    LogMessage("BeginPlay HUD");
+        //CreatePlayerWidgets();
+        // 맵 넘어가면 생성
+    }
+    
     FTimerHandle TimerHandle;
     GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMultiGameHUD::TestDummyModule, 5.0f, false);
-	//CreatePlayerWidgets();
 
     if (OptionMenuWidgetClass)
     {
@@ -35,7 +37,7 @@ void AMultiGameHUD::BeginPlay()
         ChatWidget = CreateWidget<UChatWidget>(GetOwningPlayerController(), ChatWidgetClass);
         if (OptionMenuWidget)
         {
-            ChatWidget->SetVisibility(ESlateVisibility::Visible);
+            ChatWidget->SetVisibility(ESlateVisibility::Hidden);
             ChatWidget->AddToViewport();
         }
     }
@@ -46,9 +48,20 @@ void AMultiGameHUD::BeginPlay()
         if (SessionLobbyWidget)
         {
             SessionLobbyWidget->AddToViewport();
+            SessionLobbyWidget->SetVisibility(ESlateVisibility::Hidden);
         }
     }
 
+    if (MapSelectWidgetClass)
+    {
+        MapSelectWidget = CreateWidget<USessionWidget>(GetWorld(), MapSelectWidgetClass);
+        if (MapSelectWidget)
+        {
+            MapSelectWidget->AddToViewport();
+        }
+    } 
+    
+    // 임시
     if (PlayerNameWidgetClass)
     {
         PlayerNameWidget = CreateWidget<UPlayerNameWidget>(GetWorld(), PlayerNameWidgetClass);
@@ -95,7 +108,6 @@ void AMultiGameHUD::TestChatModule(FString TestString,int32 TargetCharacterID)
                 return;
             }
         }
-
     }
 
     TArray<UWidget*> RightWidgets = WrapStatusWidget->GetRightTeamContainer()->GetAllChildren();
@@ -113,7 +125,6 @@ void AMultiGameHUD::TestChatModule(FString TestString,int32 TargetCharacterID)
             }
         }
     }
-
 }
 
 void AMultiGameHUD::CreatePlayerWidgets()
@@ -126,7 +137,6 @@ void AMultiGameHUD::CreatePlayerWidgets()
         NewItem->InitializePlayerStatus();
         NewItem->AddToViewport();
     }
- 
 }
 
 void AMultiGameHUD::LogMessage(const FString& Message)

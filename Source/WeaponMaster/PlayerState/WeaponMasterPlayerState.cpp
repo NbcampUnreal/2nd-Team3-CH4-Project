@@ -3,6 +3,4 @@
 
 #include "WeaponMasterPlayerState.h"
 
-//AWeaponMasterPlayerState::AWeaponMasterPlayerState()
-//{
-//}
+

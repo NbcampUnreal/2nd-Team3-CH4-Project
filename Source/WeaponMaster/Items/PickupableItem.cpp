@@ -99,7 +99,6 @@ void APickupableItem::OnPickup(AActor* Interactor)
     {
         return;
     }
-    
    
     if (Character->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
     {
@@ -118,8 +117,11 @@ void APickupableItem::OnPickup(AActor* Interactor)
                 }
             }
         
-            // 아이템 제거
-            Destroy();
+            // 서버에서만 아이템 제거 (권한 확인)
+            if (HasAuthority())
+            {
+                Destroy();
+            }
         }
     }
 }

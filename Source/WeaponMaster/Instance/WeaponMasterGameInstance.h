@@ -22,7 +22,7 @@ enum class ESessionResultType : uint8
 	Unknown     UMETA(DisplayName = "Unknown")
 };
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(OnProcessReturnValue, EPlayerEOSStateType, ESessionResultType);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnProcessReturnValue, EPlayerEOSStateType, ESessionResultType);
 
 UCLASS()
 class WEAPONMASTER_API UWeaponMasterGameInstance : public UGameInstance
@@ -33,7 +33,7 @@ public:
 	// 플레이어 관리 필요
 	UWeaponMasterGameInstance();
 
-	OnProcessReturnValue OnProcessReturnValue;
+	FOnProcessReturnValue OnProcessReturnValue;
 
 	void Login();
 
@@ -57,6 +57,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "EOS")
 	bool IsPlayerLoggedIn() const;
-
+  
 	// 언리얼 서버 디버그 에디터에 프로세스 연결
+
+	// 선택한 캐릭터, 아이템 정보
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	TSubclassOf<ACharacter> CharacterClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	FName ItemName;
 };

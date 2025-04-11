@@ -61,7 +61,7 @@ public:
 	void StartSession();
 
 	UFUNCTION(BlueprintCallable, Category = "EOS")
-	int32 GetPlayerNum();
+	int32 GetPlayerNum() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Session")
 	FORCEINLINE_DEBUGGABLE AEOSGameSession* GetEOSGameSession() const { return Cast<AEOSGameSession>(GameSession); }
@@ -70,6 +70,21 @@ public:
 	void RegisterPlayer(APlayerController* NewPlayer);
 	
 private:
+	UPROPERTY()
+	FString MapURL = "";
+
+	UPROPERTY()
+	int32 TimerCountDown = 100;
+
+	UFUNCTION()
+	void SetTimer();
+
+	UPROPERTY()
+	FTimerHandle PlayCountDownTimerHandle;
+
+	UFUNCTION()
+	void PlayCountDownTimerAction();
+	
 	UFUNCTION()
 	void HandleProcessResult(ESessionStateType State, ESessionResultType Result);
 };

@@ -38,14 +38,6 @@ void AMainMenuHUD::ShowMainMenu()
             MainMenuWidget->OnMultiClicked.AddDynamic(this, &AMainMenuHUD::HandleMultiClicked);
             MainMenuWidget->OnShopClicked.AddDynamic(this, &AMainMenuHUD::HandleShopClicked);
             MainMenuWidget->OnExitClicked.AddDynamic(this, &AMainMenuHUD::HandleExitClicked);
-
-            if (APlayerController* PC = GetOwningPlayerController())
-            {
-                FInputModeUIOnly InputMode;
-                InputMode.SetWidgetToFocus(MainMenuWidget->TakeWidget());
-                PC->SetInputMode(InputMode);
-                PC->bShowMouseCursor = true;
-            }
         }
     }
 }
@@ -57,7 +49,6 @@ void AMainMenuHUD::HideMainMenu()
         MainMenuWidget->RemoveFromViewport();
         MainMenuWidget = nullptr;
     }
-    //여기에서 다시 pc의 입력모드를 전환시켜야할까? 안해도 될것같은데 
 }
 
 void AMainMenuHUD::HandleSingleClicked()
@@ -69,10 +60,7 @@ void AMainMenuHUD::HandleSingleClicked()
 void AMainMenuHUD::HandleMultiClicked()
 {
     LogMessage("In Hud HandleMultiClicked");
-  //  UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_VSLobby")));
-    
-
-
+    UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("MainSessionMap")));
 }
 
 void AMainMenuHUD::HandleShopClicked()
@@ -103,13 +91,6 @@ void AMainMenuHUD::ShowChoiceMenu()
             ChoiceWidget->AddToViewport();
             ChoiceWidget->NextButtonClicked.AddDynamic(this, &AMainMenuHUD::HandleNextClicked);
             ChoiceWidget->PrevButtonClicked.AddDynamic(this, &AMainMenuHUD::HandlePrevClicked);
-           /* if (APlayerController* PC = GetOwningPlayerController())
-            {
-                FInputModeUIOnly InputMode;
-                InputMode.SetWidgetToFocus(ChoiceWidget->TakeWidget());
-                PC->SetInputMode(InputMode);
-                PC->bShowMouseCursor = true;
-            }*/
         }
     }
 }
@@ -133,16 +114,6 @@ void AMainMenuHUD::HideChoiceMenu()
 void AMainMenuHUD::HandleNextClicked()
 {
     PlaySound(SelectSound);
-    /**플레이어 단일만 한 맵으로 */
-    //if (APlayerController* PC = GetOwningPlayerController())
-    //{
-    //    PC->ClientTravel(TEXT("Test_TravelBong"), ETravelType::TRAVEL_Absolute);
-    //// OpenLevel? ClientTravel?
-    //}
-
-    /**플레이어 모두를 한 맵으로 */
-
-
     UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Test_TravelBong")));
 }
 
@@ -151,7 +122,8 @@ void AMainMenuHUD::HandlePrevClicked()
     HideChoiceMenu();
     ShowMainMenu();
 }
-void AMainMenuHUD::PlaySound(TObjectPtr<USoundBase> Sound)
+
+void AMainMenuHUD::PlaySound(const TObjectPtr<USoundBase>& Sound)
 {
     if (!ensure(Sound))
     {

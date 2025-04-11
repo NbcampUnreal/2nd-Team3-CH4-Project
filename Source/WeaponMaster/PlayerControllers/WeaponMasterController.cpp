@@ -2,6 +2,9 @@
 
 #include "WeaponMasterController.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameModes/BattleGMInterface.h"
+#include "GameFramework/GameModeBase.h"
+
 
 AWeaponMasterController::AWeaponMasterController()
 {
@@ -42,5 +45,24 @@ void AWeaponMasterController::BeginPlay()
 	}
 	
 	Subsystem->AddMappingContext(DefaultMappingContext, 0);
+
+	if (auto CastedGameInstance = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
+	{
+		TSubclassOf<ACharacter> CharacterClass = CastedGameInstance->CharacterClass;
+		FName ItemName = CastedGameInstance->ItemName;
+	
+		ServerSetPlayerCharacter(CharacterClass, ItemName);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("AWeaponMasterController::BeginPlay : GameInstance Cast Failed."))
+	}
 }
 
+void AWeaponMasterController::ServerSetPlayerCharacter_Implementation(TSubclassOf<ACharacter> CharacterClass, FName ItemName)
+{
+	if (const auto CastedGameMode = Cast<IBattleGMInterface>(GetWorld()->GetAuthGameMode()))
+	{
+		CastedGameMode->SetPlayerCharacter(CharacterClass, ItemName, this);
+	}
+}
