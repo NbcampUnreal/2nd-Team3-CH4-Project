@@ -28,20 +28,20 @@ void AEOSPlayerController::BeginPlay()
 
     FString MapName = FPackageName::GetShortName(GetWorld()->GetMapName());
     
-    if (MapName == "MainSessionMap")
+    if (MapName.Contains("MainSessionMap"))
     {
         CurrentMap = EMapType::SessionMap;
     }
-    else if (MapName == "PVPMap")
+    else if (MapName.Contains("PVPMap"))
     {
         CurrentMap = EMapType::PVPMap;
     }
-    else if (MapName == "PVEMap")
+    else if (MapName.Contains("PVEMap"))
     {
         CurrentMap = EMapType::PVEMap;
     }
 
-    UpdateHUD(CurrentMap);
+    UE_LOG(LogTemp, Warning, TEXT("Map Name ==> [%d]"), CurrentMap);
     
     if (MapName == "MainSessionMap" || MapName == "PVPMap" || MapName == "PVEMap")
     {
@@ -79,7 +79,7 @@ void AEOSPlayerController::SetTimer()
         HUDTimerHandle,
         this,
         &AEOSPlayerController::HandleTimerAction,
-        5.0f,
+        2.0f,
         false
     );
 }
@@ -188,6 +188,7 @@ void AEOSPlayerController::HandleTimerAction()
     UE_LOG(LogTemp, Warning, TEXT("HandleTimerAction"));
     if (!IsRunningDedicatedServer())
     {
+        UpdateHUD(CurrentMap);
         AddDelegate();
     }
 
