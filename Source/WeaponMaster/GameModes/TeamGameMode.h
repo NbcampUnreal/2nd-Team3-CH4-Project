@@ -23,4 +23,16 @@ public:
 	
 private:
 	bool HasCharacterSpawner() const;
+
+	UPROPERTY()
+	int32 TimerCountDown = 300;
+
+	UFUNCTION()
+	void SetTimer();
+
+	UPROPERTY()
+	FTimerHandle PlayCountDownTimerHandle;
+
+	UFUNCTION()
+	void PlayCountDownTimerAction();
 };

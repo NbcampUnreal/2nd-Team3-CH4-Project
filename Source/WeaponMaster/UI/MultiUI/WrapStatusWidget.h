@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -25,6 +23,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	UHorizontalBox* GetRightTeamContainer() const { return RightTeamContainer; }
+
+	UFUNCTION()
+	void SetRemainTimer(int32 TimeRemain) const;
 	
 protected:
 	/*UPROPERTY(meta = (BindWidget))
