@@ -58,6 +58,8 @@ void AWeaponMasterController::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("AWeaponMasterController::BeginPlay : GameInstance Cast Failed."))
 	}
+
+	
 }
 
 void AWeaponMasterController::ServerSetPlayerCharacter_Implementation(TSubclassOf<ACharacter> CharacterClass, FName ItemName)

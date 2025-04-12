@@ -49,6 +49,10 @@ struct FAttackData
 {
     GENERATED_BODY()
 
+    // 어태커
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    ACharacter* Attacker; 
+    
     // 데미지
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float Damage;

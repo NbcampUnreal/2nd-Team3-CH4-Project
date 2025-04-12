@@ -76,6 +76,7 @@ int32 UMeleeSlashSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors,
 			
             FAttackData AttackData
             {
+                OwnerCharacter,
                 FinalDamage,
                 LaunchVector,
                 { EBehaviorEffect::Stun, EBehaviorEffect::Stiffness },

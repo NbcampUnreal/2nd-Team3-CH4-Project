@@ -4,7 +4,6 @@
 #include "CharacterSpawner.h"
 #include "GameFramework/Character.h"
 
-
 // Sets default values
 ACharacterSpawner::ACharacterSpawner()
 {

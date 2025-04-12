@@ -6,6 +6,7 @@
 #include "Characters/Components/ItemComponent/ItemComponent.h"
 #include "PlayerControllers/EOSPlayerController.h"
 
+
 void ATeamGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -60,6 +61,7 @@ void ATeamGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, F
 {
 	if (!HasCharacterSpawner()) return;
 	bool bSuccessFlag = false;
+	
 	while (true)
 	{
 		for (TActorIterator<ACharacterSpawner> It(GetWorld()); It; ++It)
@@ -82,7 +84,7 @@ void ATeamGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, F
 				{
 					UE_LOG(LogTemp, Error, TEXT("ATeamGameMode::SetPlayerCharacter : SpawnCharacter doesn't implement IBattleSystemUser."));
 				}
-				
+
 				break;
 			}
 		}
