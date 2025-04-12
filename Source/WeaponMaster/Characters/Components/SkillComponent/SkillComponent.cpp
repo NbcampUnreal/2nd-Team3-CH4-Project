@@ -232,6 +232,26 @@ void USkillComponent::UpdateLocalSkillsFromReplicatedData()
     Skills = NewSkills;
 }
 
+void USkillComponent::HandleSkillStarted(UBaseSkill* Skill)
+{
+    if (Skill)
+    {
+        // 스킬 시작 이벤트 브로드캐스트
+        OnSkillStarted.Broadcast(Skill);
+        UE_LOG(LogTemp, Log, TEXT("스킬 시작: %s"), *Skill->GetSkillName());
+    }
+}
+
+void USkillComponent::HandleSkillEnded(UBaseSkill* Skill)
+{
+    if (Skill)
+    {
+        // 스킬 종료 이벤트 브로드캐스트
+        OnSkillEnded.Broadcast(Skill);
+        UE_LOG(LogTemp, Log, TEXT("스킬 종료: %s"), *Skill->GetSkillName());
+    }
+}
+
 UBaseSkill* USkillComponent::CreateSkill(TSubclassOf<UBaseSkill> SkillClass, UItemDataAsset* OwnerItem)
 {
     if (!SkillClass || !OwnerCharacter)
@@ -245,6 +265,10 @@ UBaseSkill* USkillComponent::CreateSkill(TSubclassOf<UBaseSkill> SkillClass, UIt
     {
         // 스킬 초기화
         NewSkill->Initialize(OwnerCharacter, OwnerItem);
+        
+        // 스킬 이벤트 바인딩
+        NewSkill->OnSkillStarted.AddDynamic(this, &USkillComponent::HandleSkillStarted);
+        NewSkill->OnSkillEnded.AddDynamic(this, &USkillComponent::HandleSkillEnded);
     }
     
     return NewSkill;

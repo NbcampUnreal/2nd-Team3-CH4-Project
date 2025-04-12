@@ -10,8 +10,8 @@ enum class ECCSkillCategory : uint8;
 class ATestCharacter;
 class UItemDataAsset;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillStartedDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillEndedDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillStartedDelegate, UBaseSkill*, Skill);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillEndedDelegate, UBaseSkill*, Skill);
 
 /**
  * 스킬 타입 열거형

@@ -38,6 +38,8 @@ struct FReplicatedSkillData
 
 // 스킬 장착 이벤트 델리게이트
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillsUpdated, const TArray<UBaseSkill*>&, Skills);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillStarted, UBaseSkill*, Skill);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillEnded, UBaseSkill*, Skill);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class WEAPONMASTER_API USkillComponent : public UActorComponent
@@ -158,7 +160,24 @@ public:
     
     // 복제 데이터에서 로컬 스킬 객체 업데이트하는 함수
     void UpdateLocalSkillsFromReplicatedData();
+
+    // 스킬 시작 이벤트
+    UPROPERTY(BlueprintAssignable, Category = "Skills|Events")
+    FOnSkillStarted OnSkillStarted;
+
+    // 스킬 종료 이벤트
+    UPROPERTY(BlueprintAssignable, Category = "Skills|Events")
+    FOnSkillEnded OnSkillEnded;
 protected:
+
+    // 스킬 시작 이벤트 핸들러
+    UFUNCTION()
+    void HandleSkillStarted(UBaseSkill* Skill);
+
+    // 스킬 종료 이벤트 핸들러
+    UFUNCTION()
+    void HandleSkillEnded(UBaseSkill* Skill);
+    
     /**
      * 스킬 생성 및 초기화
      * @param SkillClass 생성할 스킬 클래스
