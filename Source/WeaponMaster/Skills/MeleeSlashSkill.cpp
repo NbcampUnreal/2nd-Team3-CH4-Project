@@ -71,7 +71,8 @@ int32 UMeleeSlashSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors,
         if (auto CastedTarget = Cast<IDamageSystemUser>(TargetActor))
         {
             UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Success!"));
-            FVector LaunchVector = {1000.0f, 0.0f, 0.0f};
+            FVector LaunchDirection = OwnerCharacter->GetActorForwardVector();
+            FVector LaunchVector = { LaunchDirection.X * 1000, 0.f, 100.f };
 			
             FAttackData AttackData
             {
