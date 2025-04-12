@@ -1,6 +1,7 @@
 #include "SingleSelectionWidget.h"
 #include "NameBoxWidget.h"
 #include "CharacterBoxWidget.h"
+#include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
 #include "Data/GameDataManager.h"
 #include "Data/ItemDataAsset.h"
 #include "Instance/WeaponMasterGameInstance.h"
@@ -120,11 +121,27 @@ void USingleSelectionWidget::SetupItemBoxes(const TArray<FName>& _ItemNames, con
             UCharacterBoxWidget* CharBox = CreateWidget<UCharacterBoxWidget>(this, CharacterBoxClass);
             if (CharBox)
             {
+                // 캐릭터 클래스의 기본 객체 가져오기
+                if (_CharacterClasses[i])
+                {
+                    ABaseBattleCharacter* DefaultChar = Cast<ABaseBattleCharacter>(_CharacterClasses[i]->GetDefaultObject());
+                    if (DefaultChar)
+                    {
+                        // 캐릭터 썸네일 가져오기
+                        UTexture2D* CharacterThumbnail = DefaultChar->GetCharacterThumbnail();
+                        if (CharacterThumbnail)
+                        {
+                            // 보더에 이미지 설정
+                            CharBox->SetBorderImage(CharacterThumbnail);
+                            UE_LOG(LogTemp, Log, TEXT("캐릭터 %s의 이미지가 적용되었습니다."), *_CharacterClasses[i]->GetName());
+                        }
+                    }
+                }
+            
                 // 이벤트 바인딩 (매개변수 추가)
                 CharBox->OnCharacterClassClicked.AddDynamic(this, &USingleSelectionWidget::OnCharacterClassClicked);
                 CharBox->SetCharacterClass(_CharacterClasses[i]);
-                
-                // 여기에서는 별도의 행에 캐릭터 클래스 위젯을 추가합니다
+            
                 int32 Row = (_ItemNames.Num() + i) / GridColumns;
                 int32 Column = (_ItemNames.Num() + i) % GridColumns;
                 UniformGridPanel->AddChildToUniformGrid(CharBox, Row, Column);

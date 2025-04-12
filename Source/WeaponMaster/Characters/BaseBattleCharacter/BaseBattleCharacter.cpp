@@ -495,6 +495,15 @@ void ABaseBattleCharacter::OnLocalMontageEnded(UAnimMontage* Montage, bool bInte
 	}
 }
 
+UTexture2D* ABaseBattleCharacter::GetCharacterThumbnail() const
+{
+	if (!CharacterThumbnail.IsNull())
+	{
+		return CharacterThumbnail.LoadSynchronous();
+	}
+	return nullptr;
+}
+
 void ABaseBattleCharacter::Server_RequestItemPickup_Implementation(AActor* ItemActor)
 {
 	RequestItemPickup_Implementation(ItemActor);

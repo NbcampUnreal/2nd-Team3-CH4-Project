@@ -6,11 +6,12 @@
 #include "GameFramework/PlayerController.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/Pawn.h"
 
 UInteractionComponent::UInteractionComponent(): InteractionWidget(nullptr), CurrentInteractor(nullptr)
 {
     PrimaryComponentTick.bCanEverTick = false; // 틱 비활성화
-    InteractionPrompt = FText::FromString(TEXT("Press F to Interact"));
+    InteractionPrompt = FText::FromString(TEXT("F를 눌러 장착"));
 }
 
 void UInteractionComponent::BeginPlay()
@@ -69,29 +70,38 @@ void UInteractionComponent::ShowInteractionWidget(AActor* Interactor)
     // 위젯 생성
     if (InteractionWidgetClass)
     {
-        APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-        if (PC)
+        // 상호작용하는 액터의 플레이어 컨트롤러 얻기
+        APawn* InteractorPawn = Cast<APawn>(Interactor);
+        APlayerController* PC = nullptr;
+
+        if (InteractorPawn && InteractorPawn->IsLocallyControlled())
         {
-            InteractionWidget = CreateWidget<UUserWidget>(PC, InteractionWidgetClass);
-            if (InteractionWidget)
+            // 로컬 플레이어인 경우에만 위젯 표시
+            PC = Cast<APlayerController>(InteractorPawn->GetController());
+            
+            if (PC)
             {
-                // 위젯 표시
-                InteractionWidget->AddToViewport();
-                
-                // 프롬프트 텍스트 설정
-                UTextBlock* PromptText = Cast<UTextBlock>(InteractionWidget->GetWidgetFromName(TEXT("PromptText")));
-                if (PromptText)
+                InteractionWidget = CreateWidget<UUserWidget>(PC, InteractionWidgetClass);
+                if (InteractionWidget)
                 {
-                    PromptText->SetText(InteractionPrompt);
-                }
-                
-                // 소유자 위치에 위젯 위치 설정 (월드 -> 스크린 좌표)
-                FVector2D ScreenLocation;
-                if (PC->ProjectWorldLocationToScreen(
-                    GetOwner()->GetActorLocation() + FVector(0, 0, 100), // 오브젝트 위에 위치
-                    ScreenLocation))
-                {
-                    InteractionWidget->SetPositionInViewport(ScreenLocation);
+                    // 위젯 표시
+                    InteractionWidget->AddToViewport();
+                    
+                    // 프롬프트 텍스트 설정
+                    UTextBlock* PromptText = Cast<UTextBlock>(InteractionWidget->GetWidgetFromName(TEXT("PromptText")));
+                    if (PromptText)
+                    {
+                        PromptText->SetText(InteractionPrompt);
+                    }
+                    
+                    // 소유자 위치에 위젯 위치 설정 (월드 -> 스크린 좌표)
+                    FVector2D ScreenLocation;
+                    if (PC->ProjectWorldLocationToScreen(
+                        GetOwner()->GetActorLocation() + FVector(0, 0, 100), // 오브젝트 위에 위치
+                        ScreenLocation))
+                    {
+                        InteractionWidget->SetPositionInViewport(ScreenLocation);
+                    }
                 }
             }
         }
