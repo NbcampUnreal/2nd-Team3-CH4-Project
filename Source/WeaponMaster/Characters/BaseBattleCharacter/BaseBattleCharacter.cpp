@@ -494,6 +494,15 @@ void ABaseBattleCharacter::OnLocalMontageEnded(UAnimMontage* Montage, bool bInte
 	}
 }
 
+UTexture2D* ABaseBattleCharacter::GetCharacterThumbnail() const
+{
+	if (!CharacterThumbnail.IsNull())
+	{
+		return CharacterThumbnail.LoadSynchronous();
+	}
+	return nullptr;
+}
+
 void ABaseBattleCharacter::Server_RequestItemPickup_Implementation(AActor* ItemActor)
 {
 	RequestItemPickup_Implementation(ItemActor);
@@ -585,13 +594,19 @@ void ABaseBattleCharacter::SetupMontageEndedDelegate_Implementation()
 
 void ABaseBattleCharacter::RequestItemPickup_Implementation(AActor* ItemActor)
 {
+	UE_LOG(LogTemp, Warning, TEXT("RequestItemPickup: %s가 아이템 %s 획득 요청 (권한: %d)"), 
+		   *GetName(), ItemActor ? *ItemActor->GetName() : TEXT("Unknown"), 
+		   (int32)GetLocalRole());
+           
 	if (!HasAuthority())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("RequestItemPickup: 클라이언트에서 Server_RequestItemPickup 호출"));
 		Server_RequestItemPickup(ItemActor);
 	}
 	else
 	{
 		// 서버에서 직접 처리
+		UE_LOG(LogTemp, Warning, TEXT("RequestItemPickup: 서버에서 직접 ProcessPickup 호출"));
 		APickupableItem* PickupItem = Cast<APickupableItem>(ItemActor);
 		if (PickupItem)
 		{

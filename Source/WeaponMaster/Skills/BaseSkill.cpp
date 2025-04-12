@@ -87,7 +87,7 @@ bool UBaseSkill::ActivateSkill()
     // 쿨다운 설정
     RemainingCooldown = CooldownTime;
     
-    OnSkillStarted.Broadcast();
+    OnSkillStarted.Broadcast(this);
     
     return true;
 }
@@ -105,7 +105,7 @@ void UBaseSkill::EndSkill()
     // 스킬 비활성화
     bIsActive = false;
 
-    OnSkillEnded.Broadcast();
+    OnSkillEnded.Broadcast(this);
 }
 
 void UBaseSkill::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)

@@ -266,8 +266,10 @@ void UItemComponent::SpawnPickupItem(UItemDataAsset* ItemData)
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
     SpawnParams.Owner = OwnerCharacter;
     
+    checkf(PickupItemClass, TEXT("[UItemComponent::SpawnPickupItem] PickupItemClass is not set"));
+    
     // Spawn the pickup item actor
-    APickupableItem* PickupItem = World->SpawnActor<APickupableItem>(APickupableItem::StaticClass(), SpawnLocation, FRotator::ZeroRotator, SpawnParams);
+    APickupableItem* PickupItem = World->SpawnActor<APickupableItem>(PickupItemClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
     
     if (PickupItem)
     {

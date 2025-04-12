@@ -50,6 +50,9 @@ protected:
 	UPROPERTY(ReplicatedUsing=OnRep_HP, VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
 	float HP;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Appearance", meta = (AllowPrivateAccess = "true"))
+	TSoftObjectPtr<UTexture2D> CharacterThumbnail;
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -140,4 +143,7 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void Server_RequestItemPickup(AActor* ItemActor);
+
+	UFUNCTION(BlueprintCallable, Category = "Appearance")
+	UTexture2D* GetCharacterThumbnail() const;
 };
