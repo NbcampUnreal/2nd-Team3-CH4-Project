@@ -122,7 +122,9 @@ void USSTCharacterMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetime
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(USSTCharacterMovementComponent, FacingRight, COND_SimulatedOnly);
+	DOREPLIFETIME(USSTCharacterMovementComponent, FacingRight);
+	// DOREPLIFETIME(USSTCharacterMovementComponent, Turning);
+	
 	DOREPLIFETIME_CONDITION(USSTCharacterMovementComponent, IsWallsliding, COND_SimulatedOnly);
 	DOREPLIFETIME_CONDITION(USSTCharacterMovementComponent, IsDashing, COND_SimulatedOnly);
 }
@@ -767,4 +769,9 @@ void USSTCharacterMovementComponent::OnRep_IsDashing()
 		ExitDash();
 	}
 	bNetworkUpdateReceived = true;
+}
+
+void USSTCharacterMovementComponent::OnRep_FacingRight()
+{
+	Turning = true;
 }

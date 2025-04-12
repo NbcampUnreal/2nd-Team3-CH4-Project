@@ -3,6 +3,7 @@
 #include "BaseBattleAnimInstance.h"
 #include "BaseBattleCharacter.h"
 #include "SSTCharacterMovementComponent.h"
+#include "Characters/Components/EffectComponent/EffectComponent.h"
 
 
 UBaseBattleAnimInstance::UBaseBattleAnimInstance()
@@ -24,6 +25,9 @@ void UBaseBattleAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	Super::NativeUpdateAnimation(DeltaTime);
 
 	if (!IsValid(Character)) return;
+	
+	auto EffectComponent = Character->GetEffectComponent();
+	ActiveBehaviorEffects = EffectComponent->GetActiveBehaviorEffects();
 
 	// Set Velocity and Ground Speed
 	Velocity = MovementComponent->Velocity;

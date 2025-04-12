@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../BehaviorStateDecorator.h"
+#include "Characters/Components/EffectComponent/BehaviorEffects/BehaviorStateDecorator.h"
 #include "ConfusedEffect.generated.h"
 
 /**

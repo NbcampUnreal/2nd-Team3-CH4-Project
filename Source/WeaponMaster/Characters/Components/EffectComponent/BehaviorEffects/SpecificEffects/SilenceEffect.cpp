@@ -33,6 +33,7 @@ void USilenceEffect::Move(const FInputActionValue& Value)
 
 void USilenceEffect::CrouchDrop()
 {
+	UE_LOG(LogTemp, Display, TEXT("USilenceEffect::CrouchDrop"));
 	Super::CrouchDrop();
 }
 

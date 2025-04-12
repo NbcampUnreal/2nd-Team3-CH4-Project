@@ -30,7 +30,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStateComponent> StateComponent;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UEffectComponent> EffectComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -47,11 +47,17 @@ protected:
 	float MaxHP;
 
 	// Variables
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	UPROPERTY(ReplicatedUsing=OnRep_HP, VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
 	float HP;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	// Replicate Setting
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION()
+	void OnRep_HP();
 
 	// Additional Input Binding Functions
 	virtual void WeakAttack() override;
@@ -65,8 +71,13 @@ protected:
 	void Chat();
 
 	void BindInputFunctions();
-
+	
 	void SetHP(float NewHP);
+	
+	UFUNCTION(Server, Reliable)
+	void ServerSetHP(float NewHP);
+
+	void OnDeath() const;
 	
 public:
 	// Called every frame
@@ -74,6 +85,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	FORCEINLINE UEffectComponent* GetEffectComponent() const { return EffectComponent; };
 
 	// !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
 	// !~!~!~!~ Battle System User Interface ~!~!~!~!
