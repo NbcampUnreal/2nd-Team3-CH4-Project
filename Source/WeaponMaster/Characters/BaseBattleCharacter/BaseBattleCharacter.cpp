@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/PlayerState.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
@@ -20,6 +21,7 @@
 #include "Items/InteractionComponent/InteractionComponent.h"
 #include "WeaponMaster/PlayerControllers/WeaponMasterController.h"
 #include "Data/StatusTypes.h"
+#include "UI/MultiUI/MultiGameHUD.h"
 
 // Sets default values
 ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer)
@@ -45,7 +47,7 @@ ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectIniti
 	GetCharacterMovement()->AirControlBoostMultiplier = 0.0f;
 	GetCharacterMovement()->AirControlBoostVelocityThreshold = 0.0f;
 	GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
-	
+
 	// Replicate
 	bReplicates = true;
 }
@@ -73,6 +75,22 @@ void ABaseBattleCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 void ABaseBattleCharacter::OnRep_HP()
 {
 	// UI 연결 로직
+	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnRep_HP : Called"));
+	if (auto PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (auto CastedHUD = Cast<AMultiGameHUD>(PlayerController->GetHUD()))
+		{
+			CastedHUD->SetHPModule(HP, GetPlayerState()->GetPlayerId());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnRep_HP : HUD Cast Failed"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnRep_HP : Controller Cast Failed"));
+	}
 }
 
 // Called every frame
@@ -87,13 +105,16 @@ void ABaseBattleCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	InputComponent = PlayerInputComponent;
 
-	if (StateComponent->bIsComponentReady)
+	if (GetLocalRole() != ROLE_SimulatedProxy)
 	{
-		BindInputFunctions();
-	}
-	else
-	{
-		StateComponent->OnStateComponentReady.BindUObject(this, &ABaseBattleCharacter::BindInputFunctions);
+		if (StateComponent->bIsComponentReady)
+		{
+			BindInputFunctions();
+		}
+		else
+		{
+			StateComponent->OnStateComponentReady.BindUObject(this, &ABaseBattleCharacter::BindInputFunctions);
+		}
 	}
 }
 
@@ -245,12 +266,12 @@ void ABaseBattleCharacter::BindInputFunctions()
 	if (WeaponMasterController->ChatAction)
 	{
 		EnhancedInputComponent->BindAction(WeaponMasterController->ChatAction, ETriggerEvent::Started,
-										   this, &ABaseBattleCharacter::Chat);
+		                                   this, &ABaseBattleCharacter::Chat);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning,
-			   TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->ChatAction"));
+		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->ChatAction"));
 	}
 }
 
@@ -273,7 +294,7 @@ void ABaseBattleCharacter::SetHP(float NewHP)
 	{
 		// HP Client Prediction
 		HP = ClampedHP;
-		
+
 		ServerSetHP(NewHP);
 	}
 }
@@ -283,7 +304,7 @@ void ABaseBattleCharacter::ServerSetHP_Implementation(float NewHP)
 	// ㅈㅍㅈㅍ
 	UE_LOG(LogTemp, Display, TEXT("ServerSetHP : NewHP : %f"), NewHP);
 	float ClampedHP = FMath::Clamp(NewHP, 0.f, MaxHP);
-	
+
 	HP = ClampedHP;
 
 	if (HP <= 0.f)
@@ -385,7 +406,7 @@ void ABaseBattleCharacter::InterruptActiveSkill_Implementation()
 
 	// 현재 활성화된 스킬 배열 가져오기
 	TArray<UBaseSkill*> CurrentSkills = SkillComponent->GetSkills();
-    
+
 	// 활성화된 스킬이 있는지 확인하고 중단
 	for (UBaseSkill* Skill : CurrentSkills)
 	{
@@ -401,10 +422,10 @@ void ABaseBattleCharacter::InterruptActiveSkill_Implementation()
 					AnimInstance->Montage_Stop(0.25f, CurrentMontage);
 				}
 			}
-            
+
 			// 스킬 강제 종료
 			Skill->EndSkill();
-            
+
 			// 디버그 로그
 			// UE_LOG(LogTestCharacter, Display, TEXT("Skill %s was interrupted due to damage"), *Skill->GetSkillName());
 			break;
@@ -432,15 +453,16 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 			UE_LOG(LogTemp, Display, TEXT("OnAttacked : 180 Rotate"));
 			SSTCharacterMovementComponent->RequestTurnAround();
 		}
-		
+
 		LaunchCharacter(AttackData.LaunchVector, true, true);
-	
+
 		SetHP(HP - AttackData.Damage);
 
 		// 이펙트 적용
-		for (int32 i = 0 ; i < AttackData.BehaviorEffects.Num() ; i++)
+		for (int32 i = 0; i < AttackData.BehaviorEffects.Num(); i++)
 		{
-			EffectComponent->ActivateBehaviorEffectWithDuration(AttackData.BehaviorEffects[i], AttackData.BehaviorEffectsDurations[i]);
+			EffectComponent->ActivateBehaviorEffectWithDuration(AttackData.BehaviorEffects[i],
+			                                                    AttackData.BehaviorEffectsDurations[i]);
 		}
 	}
 }
@@ -481,7 +503,7 @@ void ABaseBattleCharacter::PickingItem()
 			UInteractionComponent* InteractionComp = interactableActor->FindComponentByClass<UInteractionComponent>();
 			if (InteractionComp)
 			{
-				InteractionComp->Interact( this);
+				InteractionComp->Interact(this);
 			}
 		}
 	}
@@ -491,9 +513,10 @@ void ABaseBattleCharacter::MenuOnOff()
 {
 	for (auto Debuff : EffectComponent->GetActiveBehaviorEffects())
 	{
-		UE_LOG(LogTemp, Display, TEXT("Current Debuff name: %s"), *StaticEnum<EBehaviorEffect>()->GetNameStringByValue((uint8)Debuff))
+		UE_LOG(LogTemp, Display, TEXT("Current Debuff name: %s"),
+		       *StaticEnum<EBehaviorEffect>()->GetNameStringByValue((uint8)Debuff))
 	}
-	
+
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::MenuOnOff !"));
 }
 

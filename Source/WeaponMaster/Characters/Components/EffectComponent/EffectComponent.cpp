@@ -40,6 +40,12 @@ void UEffectComponent::Initialize()
 void UEffectComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	if (GetOwnerRole() == ROLE_SimulatedProxy)
+	{
+		return;
+	}
+
 	Initialize();
 }
 
