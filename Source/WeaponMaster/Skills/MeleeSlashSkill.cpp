@@ -62,7 +62,7 @@ int32 UMeleeSlashSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors,
         }
         
         // 데미지 적용
-        float FinalDamage = SkillDamage;
+        float FinalDamage = SkillDamage + Damage;
         
         // ItemData에서 추가 데미지 계산 (아이템 데미지 계수)
         // 새로운 헬퍼 메서드 사용

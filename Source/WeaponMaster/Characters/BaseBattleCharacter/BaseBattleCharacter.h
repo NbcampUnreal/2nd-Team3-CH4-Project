@@ -146,4 +146,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Appearance")
 	UTexture2D* GetCharacterThumbnail() const;
+
+	/** 현재 HP 반환 */
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	float GetHP() const { return HP; }
+
+	/** 최대 HP 반환 */
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	float GetMaxHP() const { return MaxHP; }
 };

@@ -23,6 +23,9 @@
 #include "Data/StatusTypes.h"
 #include "UI/MultiUI/MultiGameHUD.h"
 #include "Items/PickupableItem.h"
+#include "PlayerState/WeaponMasterPlayerState.h"
+#include "UI/CommonUI/PlayerStatusWidget.h"
+#include "UI/SingleUI/SingleGameHUD.h"
 
 // Sets default values
 ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer)
@@ -80,23 +83,63 @@ void ABaseBattleCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 
 void ABaseBattleCharacter::OnRep_HP()
 {
-	// UI 연결 로직
-	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnRep_HP : Called"));
-	if (auto PlayerController = Cast<APlayerController>(GetController()))
-	{
-		if (auto CastedHUD = Cast<AMultiGameHUD>(PlayerController->GetHUD()))
-		{
-			CastedHUD->SetHPModule(HP, GetPlayerState()->GetPlayerId());
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnRep_HP : HUD Cast Failed"));
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnRep_HP : Controller Cast Failed"));
-	}
+    UE_LOG(LogTemp, Warning, TEXT("======= OnRep_HP 호출! 현재 HP: %f ======="), HP);
+    
+    // 플레이어 상태 정보 구성
+    FPlayerStatusInfo StatusInfo;
+    
+    // PlayerState 정보가 있다면 가져옵니다
+    if (auto PlayerStateRef = GetPlayerState())
+    {
+        StatusInfo.PlayerName = PlayerStateRef->GetPlayerName();
+        StatusInfo.CharacterID = PlayerStateRef->GetPlayerId();
+        
+        // WeaponMasterPlayerState 접근 시도
+        if (auto WMPS = Cast<AWeaponMasterPlayerState>(PlayerStateRef))
+        {
+            StatusInfo.TeamID = WMPS->GetTeamID();
+        }
+    }
+    else
+    {
+        // PlayerState가 없을 경우 기본값 설정
+        StatusInfo.PlayerName = GetName();
+        StatusInfo.CharacterID = 0; // 또는 캐릭터 ID 생성 로직
+    }
+    
+    StatusInfo.CurrentHealth = HP;
+    StatusInfo.MaxHealth = MaxHP;
+    StatusInfo.PlayerThumbnailTexture = GetCharacterThumbnail();
+    
+    // 로컬 컨트롤러가 있는 경우에만 UI 업데이트
+    if (auto PlayerController = Cast<APlayerController>(GetController()))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("HP UI 업데이트 성공! 현재 HP: %f, 최대 HP: %f"), 
+               StatusInfo.CurrentHealth, StatusInfo.MaxHealth);
+        
+        // 멀티 게임 HUD 확인
+        if (auto CastedHUD = Cast<AMultiGameHUD>(PlayerController->GetHUD()))
+        {
+            // HUD를 통해 플레이어 상태 업데이트
+            CastedHUD->UpdatePlayerStatus(StatusInfo.CharacterID, StatusInfo);
+        }
+        // 싱글 게임 HUD 확인
+        else if (auto SingleHUD = Cast<ASingleGameHUD>(PlayerController->GetHUD()))
+        {
+            // 싱글 게임 HUD 업데이트
+            SingleHUD->UpdatePlayerStatus(StatusInfo);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnRep_HP : HUD Cast Failed"));
+        }
+    }
+    else
+    {
+        // 컨트롤러가 없는 경우 (AI 또는 리플리케이션된 캐릭터)
+        UE_LOG(LogTemp, Warning, TEXT("컨트롤러가 없거나 PlayerController가 아닙니다. HP 업데이트만 처리합니다."));
+        
+    }
 }
 
 // Called every frame
