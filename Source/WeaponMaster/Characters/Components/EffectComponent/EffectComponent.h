@@ -20,15 +20,15 @@ public:
 
 protected:
 	// RPC호출로 서버 클라 둘다 변경해주기 때문에 Replicated하지 않아도 되겠다.(하면 Deactivate시 두번 삭제)
-	UPROPERTY(/* Replicated, */VisibleAnywhere, BlueprintReadOnly, Category = "State")
+	// 근데 Simulated Proxy 애니메이션 재생하려면 해줘야함
+	// Owner빼고 Replicated 시키기
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	TArray<EBehaviorEffect> ActiveBehaviorEffects;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	TMap<EBehaviorEffect, UBehaviorStateDecorator*> BehaviorEffectMapper;
 
 	void Initialize();
-
-	
 	
 	// Called when the game starts
 	virtual void BeginPlay() override;

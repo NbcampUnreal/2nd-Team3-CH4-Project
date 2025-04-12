@@ -19,6 +19,7 @@ enum class EBehaviorEffect : uint8
 {
     // Stiffness   UMETA(DisplayName = "Stiffness"),
     Stun        UMETA(DisplayName = "Stun"),
+    Stiffness   UMETA(DisplayName = "Stiffness"),
     Silence     UMETA(DisplayName = "Silence"),
     Confused    UMETA(DisplayName = "Confused"),
     // AirBorn     UMETA(DisplayName = "AirBorn"),

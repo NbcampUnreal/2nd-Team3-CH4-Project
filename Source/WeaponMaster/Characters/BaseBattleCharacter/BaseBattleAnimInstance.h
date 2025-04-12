@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Data/StatusTypes.h"
 #include "Animation/AnimInstance.h"
 #include "BaseBattleAnimInstance.generated.h"
 
@@ -28,6 +29,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "References")
 	TObjectPtr<USSTCharacterMovementComponent> MovementComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ActiveEffects")
+	TArray<EBehaviorEffect> ActiveBehaviorEffects;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "MovementData")
 	FVector Velocity;

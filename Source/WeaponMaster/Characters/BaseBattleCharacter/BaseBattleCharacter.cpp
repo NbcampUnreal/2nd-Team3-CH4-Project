@@ -45,7 +45,7 @@ ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectIniti
 	GetCharacterMovement()->AirControlBoostMultiplier = 0.0f;
 	GetCharacterMovement()->AirControlBoostVelocityThreshold = 0.0f;
 	GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
-
+	
 	// Replicate
 	bReplicates = true;
 }
@@ -306,7 +306,6 @@ void ABaseBattleCharacter::OnDeath() const
 	}
 }
 
-
 UItemComponent* ABaseBattleCharacter::GetItemComponent_Implementation() const
 {
 	return ItemComponent;
@@ -428,8 +427,13 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 	if (HasAuthority())
 	{
 		// ㅈㅍㅈㅍ
+		if (GetActorForwardVector().X * AttackData.LaunchVector.X > 0.f)
+		{
+			UE_LOG(LogTemp, Display, TEXT("OnAttacked : 180 Rotate"));
+			SSTCharacterMovementComponent->RequestTurnAround();
+		}
+		
 		LaunchCharacter(AttackData.LaunchVector, true, true);
-		UE_LOG(LogTemp, Display, TEXT("OnAttacked : %f"), AttackData.LaunchVector.Z);
 	
 		SetHP(HP - AttackData.Damage);
 

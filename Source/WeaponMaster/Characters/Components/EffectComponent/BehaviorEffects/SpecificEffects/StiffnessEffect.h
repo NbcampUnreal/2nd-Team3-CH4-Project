@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Characters/Components/EffectComponent/BehaviorEffects/BehaviorStateDecorator.h"
-#include "StunEffect.generated.h"
+#include "StiffnessEffect.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class WEAPONMASTER_API UStunEffect : public UBehaviorStateDecorator
+class WEAPONMASTER_API UStiffnessEffect : public UBehaviorStateDecorator
 {
 	GENERATED_BODY()
 
 public:
-	UStunEffect();
+	UStiffnessEffect();
 	
 	virtual void Activate() override;
 	virtual void Activate(float Duration) override;

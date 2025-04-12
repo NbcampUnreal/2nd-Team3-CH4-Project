@@ -6,9 +6,9 @@
 #include "BehaviorEffects/SpecificEffects/ConfusedEffect.h"
 #include "BehaviorEffects/SpecificEffects/DeathEffect.h"
 #include "BehaviorEffects/SpecificEffects/SilenceEffect.h"
+#include "BehaviorEffects/SpecificEffects/StiffnessEffect.h"
 #include "BehaviorEffects/SpecificEffects/StunEffect.h"
 #include "Net/UnrealNetwork.h"
-
 
 // Sets default values for this component's properties
 UEffectComponent::UEffectComponent()
@@ -28,10 +28,10 @@ void UEffectComponent::Initialize()
 
 	// Create BehaviorEffect Instances
 	BehaviorEffectMapper.Add(EBehaviorEffect::Stun, NewObject<UStunEffect>(this));
-	// BehaviorEffectMapper.Add(EBehaviorEffect::Stiffness, NewObject<UStunEffect>(this));   
+	BehaviorEffectMapper.Add(EBehaviorEffect::Stiffness, NewObject<UStiffnessEffect>(this));   
 	BehaviorEffectMapper.Add(EBehaviorEffect::Silence, NewObject<USilenceEffect>(this));     
 	BehaviorEffectMapper.Add(EBehaviorEffect::Confused, NewObject<UConfusedEffect>(this));    
-	// BehaviorEffectMapper.Add(EBehaviorEffect::AirBorn, NewObject<UStunEffect>(this));     
+ 
 	// BehaviorEffectMapper.Add(EBehaviorEffect::UsingSkill, NewObject<UStunEffect>(this));  
 	BehaviorEffectMapper.Add(EBehaviorEffect::Death, NewObject<UDeathEffect>(this));       
 }
@@ -46,8 +46,8 @@ void UEffectComponent::BeginPlay()
 void UEffectComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	// DOREPLIFETIME(UEffectComponent, ActiveBehaviorEffects);
+	
+	DOREPLIFETIME_CONDITION(UEffectComponent, ActiveBehaviorEffects, COND_SkipOwner);
 }
 
 // Called every frame

@@ -702,7 +702,9 @@ bool USSTCharacterMovementComponent::CanWalljump() const
 	return (IsWallsliding || HasRecentlyWallSlid) && !HasRecentlyWalljumped && WallslideJumpOffForce > 0.0f;
 }
 
-bool USSTCharacterMovementComponent::RequestTurnAround()
+bool USSTCharacterMovementComponent::
+
+RequestTurnAround()
 {
 	if (Turning) { return false; }
 	if (IsDashing && !CanTurnWhileDashing) { return false; }
