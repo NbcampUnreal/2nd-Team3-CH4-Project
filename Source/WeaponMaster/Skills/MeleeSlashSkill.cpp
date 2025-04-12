@@ -78,8 +78,8 @@ int32 UMeleeSlashSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors,
             {
                 FinalDamage,
                 LaunchVector,
-                { EBehaviorEffect::Stun, EBehaviorEffect::Confused, EBehaviorEffect::Silence },
-                { 1, 5, 3 },
+                { EBehaviorEffect::Stun, EBehaviorEffect::Stiffness },
+                { 1, 2 },
                 {},
                 {}
             };

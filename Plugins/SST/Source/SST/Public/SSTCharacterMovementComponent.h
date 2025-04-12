@@ -185,9 +185,10 @@ public:
 	bool WantsToPlatformDrop = false;
 
 private:
-	UPROPERTY(ReplicatedUsing=OnRep_FacingRight)
+	// UPROPERTY(ReplicatedUsing=OnRep_FacingRight)
+	UPROPERTY(Replicated)
 	bool FacingRight;
-	// UPROPERTY(Replicated)
+	UPROPERTY(Replicated)
 	bool Turning = false;
 
 	bool MoveInputsEnabled = true;
@@ -326,7 +327,7 @@ public:
 	/** Handle Dashing replicated from server */
 	UFUNCTION()
 	virtual void OnRep_IsDashing();
-	
-	UFUNCTION()
-	void OnRep_FacingRight();
+	//
+	// UFUNCTION()
+	// void OnRep_FacingRight();
 };

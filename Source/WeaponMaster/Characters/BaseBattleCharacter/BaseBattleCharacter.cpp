@@ -453,7 +453,6 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 {
 	if (HasAuthority())
 	{
-		// ㅈㅍㅈㅍ
 		if (GetActorForwardVector().X * AttackData.LaunchVector.X > 0.f)
 		{
 			UE_LOG(LogTemp, Display, TEXT("OnAttacked : 180 Rotate"));
