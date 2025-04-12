@@ -3,6 +3,7 @@
 #include "InteractionComponent/InteractionComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
+#include "Net/UnrealNetwork.h"
 #include "WeaponMaster/Characters/Components/IBattleSystemUser.h"
 #include "WeaponMaster/Data/GameDataManager.h"
 #include "WeaponMaster/Data/WeaponMasterLib.h"
@@ -142,20 +143,46 @@ void APickupableItem::ProcessPickup(AActor* Interactor)
 
 void APickupableItem::Server_OnPickedUp_Implementation(AActor* Interactor)
 {
-    OnPickup(Interactor);
+    UE_LOG(LogTemp, Warning, TEXT("Server_OnPickedUp: 서버에서 아이템 %s 획득 처리"), 
+           ItemData ? *ItemData->ItemName : TEXT("Unknown"));
+           
+    ProcessPickup(Interactor);
 }
 
 void APickupableItem::OnPickup(AActor* Interactor)
 {
+    // ItemData가 없지만 ItemID가 유효하면 데이터 로드 시도
+    if (!ItemData && !ItemID.IsNone())
+    {
+        LoadItemData();
+    }
+    
     // 캐릭터를 통해 아이템 획득 요청 처리
     ACharacter* Character = Cast<ACharacter>(Interactor);
     if (!Character || !ItemData)
     {
+        UE_LOG(LogTemp, Error, TEXT("OnPickup: Character or ItemData is invalid"));
         return;
     }
     
     if (Character->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
     {
+        UE_LOG(LogTemp, Warning, TEXT("OnPickup: 캐릭터 %s가 아이템 %s 획득 시도"), 
+               *Character->GetName(), ItemData ? *ItemData->ItemName : TEXT("Unknown"));
+               
+        // 추가: 직접 서버 RPC 호출
+        if (!HasAuthority())
+        {
+            UE_LOG(LogTemp, Warning, TEXT("OnPickup: 클라이언트에서 서버 RequestItemPickup RPC 호출"));
+            Server_OnPickedUp(Interactor);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("OnPickup: 서버에서 직접 ProcessPickup 호출"));
+            ProcessPickup(Character);
+        }
+        
+        // 기존 코드 유지
         IBattleSystemUser::Execute_RequestItemPickup(Character, this);
     }
 }
@@ -196,13 +223,6 @@ void APickupableItem::OnInteractionEnd(UPrimitiveComponent* OverlappedComponent,
     {
         return;
     }
-    
-    // 캐릭터가 IBattleSystemUser 인터페이스를 구현하는지 확인
-    /*IBattleSystemUser* BattleSystemUser = Cast<IBattleSystemUser>(Character);
-    if (!BattleSystemUser)
-    {
-        return;
-    }*/
 
     if (Character->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
     {
@@ -213,4 +233,12 @@ void APickupableItem::OnInteractionEnd(UPrimitiveComponent* OverlappedComponent,
         // 상호작용 UI 숨기기
         InteractionComponent->DisableInteraction();
     }
+}
+
+void APickupableItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    
+    DOREPLIFETIME(APickupableItem, ItemID);
+    DOREPLIFETIME(APickupableItem, ItemData);
 }
