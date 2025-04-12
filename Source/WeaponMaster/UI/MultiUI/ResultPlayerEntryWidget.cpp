@@ -12,10 +12,8 @@ void UResultPlayerEntryWidget::NativeConstruct()
 	// 초기화가 필요하면 여기서 처리
 }
 
-void UResultPlayerEntryWidget::SetPlayerResultInfo(UTexture2D* InIcon, const FText& InNickname, int32 InKills, int32 InDamage, int32 InGold)
+void UResultPlayerEntryWidget::SetPlayerResultInfo(UTexture2D* InIcon, const FText& InNickname, int32 InKills, int32 InDamage)
 {
-
-	UE_LOG(LogTemp, Warning, TEXT("SetPlayerResultInfo 호출됨 - %s, Kills: %d, Damage: %d, Gold: %d"), *InNickname.ToString(), InKills, InDamage, InGold);
 	if (PlayerIconImage)
 	{
 		PlayerIconImage->SetBrushFromTexture(InIcon);
@@ -28,17 +26,13 @@ void UResultPlayerEntryWidget::SetPlayerResultInfo(UTexture2D* InIcon, const FTe
 
 	if (KillCountText)
 	{
-		KillCountText->SetText(FText::AsNumber(InKills));
+		FString KillString = FString::Printf(TEXT("%d Kill"), InKills);
+		KillCountText->SetText(FText::FromString(KillString));
 	}
 
 	if (DamageText)
 	{
 		DamageText->SetText(FText::AsNumber(InDamage));
-	}
-
-	if (GoldText)
-	{
-		GoldText->SetText(FText::AsNumber(InGold));
 	}
 }
 

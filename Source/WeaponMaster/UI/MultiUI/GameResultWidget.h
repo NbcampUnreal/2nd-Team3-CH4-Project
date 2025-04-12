@@ -26,9 +26,6 @@ struct FPlayerResultData
 
 	UPROPERTY(BlueprintReadWrite)
 	int32 Damage;
-
-	UPROPERTY(BlueprintReadWrite)
-	int32 Gold;
 };
 
 UCLASS()
