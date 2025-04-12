@@ -145,7 +145,7 @@ void AMultiGameHUD::TestChatModule(FString TestString,int32 TargetCharacterID)
         {
             if (PSWidget->GetCharacterID() == TargetCharacterID)
             {
-                PSWidget->UpdateChat(TestString);
+                //PSWidget->UpdateChat(TestString);
                 UE_LOG(LogTemp, Warning, TEXT("CharacterID %d의 PlayerStatusWidget에서 채팅 업데이트됨"), TargetCharacterID);
                 LogMessage(" Left Update");
                 return;
@@ -161,7 +161,7 @@ void AMultiGameHUD::TestChatModule(FString TestString,int32 TargetCharacterID)
         {
             if (PSWidget->GetCharacterID() == TargetCharacterID)
             {
-                PSWidget->UpdateChat(TestString);
+                //PSWidget->UpdateChat(TestString);
                 LogMessage("Right Update");
                 UE_LOG(LogTemp, Warning, TEXT("CharacterID %d의 PlayerStatusWidget에서 채팅 업데이트됨"), TargetCharacterID);
                 return;

@@ -10,9 +10,6 @@ void UPlayerStatusWidget::NativeConstruct()
     // 기본값 초기화
     CharacterID = -1;
     TeamID = 0;
-    
-    // 채팅 메시지는 처음에 숨김
-    HideChatMessage();
 }
 
 void UPlayerStatusWidget::UpdatePlayerStatus(const FPlayerStatusInfo& StatusInfo)
@@ -20,7 +17,6 @@ void UPlayerStatusWidget::UpdatePlayerStatus(const FPlayerStatusInfo& StatusInfo
     // 모든 플레이어 정보를 한번에 업데이트
     SetPlayerName(StatusInfo.PlayerName);
     UpdateHealth(StatusInfo.CurrentHealth, StatusInfo.MaxHealth);
-
     SetThumbnail(StatusInfo.PlayerThumbnailTexture);
     SetID(StatusInfo.CharacterID);
     SetTeamID(StatusInfo.TeamID);
@@ -53,36 +49,6 @@ void UPlayerStatusWidget::UpdateHealth(float CurrentHealth, float MaxHealth)
     }
 }
 
-void UPlayerStatusWidget::UpdateChat(const FString& NewMessage)
-{
-    if (!ChatText) return;
-    
-    if (NewMessage.IsEmpty())
-    {
-        ChatText->SetVisibility(ESlateVisibility::Hidden);
-        ChatText->SetText(FText::GetEmpty());
-        return;
-    }
-    
-    ChatText->SetText(FText::FromString(NewMessage));
-    ChatText->SetVisibility(ESlateVisibility::Visible);
-    
-    // 일정 시간 후 채팅 메시지 자동 숨김
-    if (GetWorld())
-    {
-        GetWorld()->GetTimerManager().ClearTimer(ChatHideTimerHandle);
-        GetWorld()->GetTimerManager().SetTimer(ChatHideTimerHandle, this, &UPlayerStatusWidget::HideChatMessage, 5.f, false);
-    }
-}
-
-void UPlayerStatusWidget::HideChatMessage()
-{
-    if (ChatText)
-    {
-        ChatText->SetVisibility(ESlateVisibility::Hidden);
-    }
-}
-
 void UPlayerStatusWidget::SetPlayerName(const FString& Name)
 {
     if (PlayerNameText)
@@ -98,8 +64,6 @@ void UPlayerStatusWidget::SetThumbnail(UTexture2D* Thumbnail)
         PlayerThumbnail->SetBrushFromTexture(Thumbnail);
     }
 }
-
-
 
 void UPlayerStatusWidget::SetID(int32 NewID)
 {

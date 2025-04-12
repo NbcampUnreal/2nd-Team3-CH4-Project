@@ -61,14 +61,6 @@ public:
     UFUNCTION(BlueprintCallable, Category = "PlayerStatus")
     void UpdateHealth(float CurrentHealth, float MaxHealth);
     
-    /** 채팅 메시지 업데이트 */
-    UFUNCTION(BlueprintCallable, Category = "PlayerStatus")
-    void UpdateChat(const FString& NewMessage);
-    
-    /** 채팅 메시지 숨기기 */
-    UFUNCTION(BlueprintCallable, Category = "PlayerStatus")
-    void HideChatMessage();
-    
     /** 플레이어 이름 설정 */
     UFUNCTION(BlueprintCallable, Category = "PlayerStatus")
     void SetPlayerName(const FString& Name);
@@ -76,8 +68,6 @@ public:
     /** 썸네일 이미지 설정 */
     UFUNCTION(BlueprintCallable, Category = "PlayerStatus")
     void SetThumbnail(UTexture2D* Thumbnail);
-    
-
     
     /** 플레이어 ID 설정 */
     UFUNCTION(BlueprintCallable, Category = "PlayerStatus")
@@ -100,11 +90,6 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> PlayerNameText;
     
-
-    
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UTextBlock> ChatText;
-    
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UProgressBar> HealthBar;
     
@@ -117,8 +102,4 @@ protected:
     
     UPROPERTY(BlueprintReadOnly, Category = "PlayerStatus")
     int32 TeamID;
-    
-
-    
-    FTimerHandle ChatHideTimerHandle;
 };

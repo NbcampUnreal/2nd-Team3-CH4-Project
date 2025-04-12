@@ -127,6 +127,6 @@ void ASingleGameHUD::ShowChatMessage(const FString& Message)
 {
     if (PlayerStatusWidget)
     {
-        PlayerStatusWidget->UpdateChat(Message);
+        //PlayerStatusWidget->UpdateChat(Message);
     }
 }
