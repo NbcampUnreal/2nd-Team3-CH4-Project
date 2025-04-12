@@ -42,6 +42,8 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Interacts", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AActor> InteractableActor;
 
+	FTimerHandle RespawnTimerHandle;
+	
 	// Constants
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats", meta = (AllowPrivateAccess = "true"))
 	float MaxHP;
@@ -80,7 +82,7 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerSetHP(float NewHP);
 
-	void OnDeath() const;
+	void OnDeath();
 	
 public:
 	// Called every frame

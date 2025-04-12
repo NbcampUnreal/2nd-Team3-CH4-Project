@@ -17,8 +17,10 @@ public:
 	void NotifyCharacterDeath(AActor* DeadActor);
 	void OnPlayerWin();
 	void OnPlayerLose();
-	
+
+	// BattleGMInterface
 	virtual void SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController) override;
+	virtual void HandlePlayerDeath(AController* Controller);
 
 	UFUNCTION(BlueprintCallable, Category = "Instance")
 	FORCEINLINE_DEBUGGABLE UWeaponMasterGameInstance* GetInstance() const

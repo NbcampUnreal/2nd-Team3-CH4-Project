@@ -17,12 +17,16 @@
 #include "Characters/Components/ItemComponent/ItemComponent.h"
 #include "Characters/Components/SkillComponent/SkillComponent.h"
 #include "Characters/Components/EffectComponent/EffectComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Skills/BaseSkill.h"
 #include "Items/InteractionComponent/InteractionComponent.h"
 #include "WeaponMaster/PlayerControllers/WeaponMasterController.h"
 #include "Data/StatusTypes.h"
+#include "GameModes/BattleGMInterface.h"
 #include "UI/MultiUI/MultiGameHUD.h"
 #include "Items/PickupableItem.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/GameModeBase.h"
 
 // Sets default values
 ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer)
@@ -325,12 +329,24 @@ void ABaseBattleCharacter::ServerSetHP_Implementation(float NewHP)
 	// }
 }
 
-void ABaseBattleCharacter::OnDeath() const
+void ABaseBattleCharacter::OnDeath()
 {
 	if (HasAuthority())
 	{
 		EffectComponent->ActivateBehaviorEffect(EBehaviorEffect::Death);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		if (auto PC = GetController(); auto GM = Cast<IBattleGMInterface>(UGameplayStatics::GetGameMode(this)))
+		{
+			GM->HandlePlayerDeath(PC);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnDeath : IBattleGMInterface Cast Failed"));
+		}
 	}
+
+	Destroy();
 }
 
 UItemComponent* ABaseBattleCharacter::GetItemComponent_Implementation() const
