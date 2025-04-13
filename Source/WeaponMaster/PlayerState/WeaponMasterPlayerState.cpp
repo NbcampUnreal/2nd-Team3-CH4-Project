@@ -49,3 +49,30 @@ void AWeaponMasterPlayerState::AddDamageDealt(float Damage)
 		UE_LOG(LogTemp, Display, TEXT("플레이어 %s의 총 데미지: %.2f"), *GetPlayerName(), TotalDamageDealt);
 	}
 }
+
+void AWeaponMasterPlayerState::SetKillCount(int32 NewKillCount)
+{
+	if (HasAuthority()) // 서버에서만 실행
+	{
+		KillCount = NewKillCount;
+		UE_LOG(LogTemp, Display, TEXT("플레이어 %s의 킬 카운트 설정: %d"), *GetPlayerName(), KillCount);
+	}
+}
+
+void AWeaponMasterPlayerState::SetDeathCount(int32 NewDeathCount)
+{
+	if (HasAuthority()) // 서버에서만 실행
+	{
+		DeathCount = NewDeathCount;
+		UE_LOG(LogTemp, Display, TEXT("플레이어 %s의 사망 카운트 설정: %d"), *GetPlayerName(), DeathCount);
+	}
+}
+
+void AWeaponMasterPlayerState::SetTotalDamageDealt(float NewDamage)
+{
+	if (HasAuthority()) // 서버에서만 실행
+	{
+		TotalDamageDealt = NewDamage;
+		UE_LOG(LogTemp, Display, TEXT("플레이어 %s의 총 데미지 설정: %.2f"), *GetPlayerName(), TotalDamageDealt);
+	}
+}

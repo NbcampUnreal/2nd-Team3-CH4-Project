@@ -70,6 +70,18 @@ public:
 	/** 총 데미지 반환 */
 	UFUNCTION(BlueprintCallable, Category = "Stats")
 	float GetTotalDamageDealt() const { return TotalDamageDealt; }
+
+	// 킬 카운트 설정
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	void SetKillCount(int32 NewKillCount);
+
+	// 데스 카운트 설정
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	void SetDeathCount(int32 NewDeathCount);
+
+	// 총 데미지 설정
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	void SetTotalDamageDealt(float NewDamage);
 	
 	// 리플리케이션 오버라이드
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
