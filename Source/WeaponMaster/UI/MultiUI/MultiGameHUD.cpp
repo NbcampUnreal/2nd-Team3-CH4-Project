@@ -15,9 +15,6 @@
 void AMultiGameHUD::BeginPlay()
 {
 	Super::BeginPlay();
-    
-    FTimerHandle TimerHandle;
-    GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMultiGameHUD::TestDummyModule, 5.0f, false);
 
     // 환경설정
     if (OptionMenuWidgetClass)
@@ -71,6 +68,7 @@ void AMultiGameHUD::TransferHUDBy(const EMapType MapType)
     {
         case EMapType::PVPMap:
             {
+                UE_LOG(LogTemp, Warning, TEXT("PVPMap"));
                 if (MapSelectWidget)
                 {
                     MapSelectWidget->SetVisibility(ESlateVisibility::Hidden);
@@ -84,6 +82,7 @@ void AMultiGameHUD::TransferHUDBy(const EMapType MapType)
             }
         case EMapType::PVEMap:
             {
+                UE_LOG(LogTemp, Warning, TEXT("PVEMap"));
                 if (MapSelectWidget)
                 {
                     MapSelectWidget->SetVisibility(ESlateVisibility::Hidden);
@@ -97,6 +96,7 @@ void AMultiGameHUD::TransferHUDBy(const EMapType MapType)
             }
         case EMapType::SessionMap:
             {
+                UE_LOG(LogTemp, Warning, TEXT("SessionMap"));
                 if (WrapStatusWidget)
                 {
                     WrapStatusWidget->SetVisibility(ESlateVisibility::Hidden);
@@ -111,6 +111,7 @@ void AMultiGameHUD::TransferHUDBy(const EMapType MapType)
     }
 }
 
+// 나중에 플레이어 노출할떄 써야함
 void AMultiGameHUD::TestDummyModule()
 {
     if (!WrapStatusWidgetClass) return;
@@ -172,10 +173,7 @@ void AMultiGameHUD::TestChatModule(FString TestString,int32 TargetCharacterID)
 
 void AMultiGameHUD::LogMessage(const FString& Message)
 {
-    if (GEngine)
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, Message);
-    }
+    
 }
 
 void AMultiGameHUD::SetHPModule(float NewHP,int32 TargetCharacterID)

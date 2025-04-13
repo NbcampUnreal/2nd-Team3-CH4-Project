@@ -79,7 +79,6 @@ protected:
 	
 	// UI Input Binding Function
 	void MenuOnOff();
-	void Chat();
 
 	void BindInputFunctions();
 	

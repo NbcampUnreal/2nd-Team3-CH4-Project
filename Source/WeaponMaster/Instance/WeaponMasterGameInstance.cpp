@@ -6,6 +6,7 @@
 #include "OnlineSubsystemTypes.h"
 #include "Interfaces/OnlineIdentityInterface.h"
 #include "Containers/Array.h"
+#include "Kismet/GameplayStatics.h"
 
 UWeaponMasterGameInstance::UWeaponMasterGameInstance()
 {

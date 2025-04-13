@@ -18,6 +18,8 @@ class WEAPONMASTER_API AWeaponMasterController : public AEOSPlayerController
 public:
 	AWeaponMasterController();
 
+	virtual void SetupInputComponent() override;
+
 	// Battle IMC
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
@@ -66,5 +68,7 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-	
+
+private:
+	void Chat();
 };
