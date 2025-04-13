@@ -333,24 +333,33 @@ void ABaseBattleCharacter::BindInputFunctions()
 
 void ABaseBattleCharacter::SetHP(float NewHP)
 {
-	UE_LOG(LogTemp, Display, TEXT("SetHP : NewHP : %f"), NewHP);
 	float ClampedHP = FMath::Clamp(NewHP, 0.f, MaxHP);
-
+	HP = ClampedHP;
+    
+	// 명시적 UI 업데이트 코드 추가
+	if (auto PC = Cast<APlayerController>(GetController()))
+	{
+		if (auto SingleHUD = Cast<ASingleGameHUD>(PC->GetHUD()))
+		{
+			FPlayerStatusInfo StatusInfo;
+			StatusInfo.PlayerName = PC->PlayerState ? PC->PlayerState->GetPlayerName() : FString("Player");
+			StatusInfo.CurrentHealth = HP;
+			StatusInfo.MaxHealth = MaxHP;
+			StatusInfo.PlayerThumbnailTexture = GetCharacterThumbnail();
+			StatusInfo.CharacterID = 0;
+			StatusInfo.TeamID = 0;
+            
+			SingleHUD->UpdatePlayerStatus(StatusInfo);
+		}
+	}
+    
+	// 기존 코드 유지
 	if (HasAuthority())
 	{
-		HP = ClampedHP;
-
-		if (HP <= 0.f)
-		{
-			UE_LOG(LogTemp, Display, TEXT("Die!"));
-			OnDeath();
-		}
+		if (HP <= 0.f) OnDeath();
 	}
 	else
 	{
-		// HP Client Prediction
-		HP = ClampedHP;
-
 		ServerSetHP(NewHP);
 	}
 }
