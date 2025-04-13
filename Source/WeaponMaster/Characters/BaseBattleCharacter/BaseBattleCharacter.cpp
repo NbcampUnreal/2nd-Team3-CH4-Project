@@ -379,21 +379,35 @@ void ABaseBattleCharacter::OnDeath()
 {
 	if (HasAuthority())
 	{
+		// 사망 이펙트 적용
 		EffectComponent->ActivateBehaviorEffect(EBehaviorEffect::Death);
+        
 		// Pawn과 충돌 무시
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
-		if (auto PC = GetController(); auto GM = Cast<IBattleGMInterface>(UGameplayStatics::GetGameMode(this)))
+		// 플레이어 컨트롤러 가져오기
+		APlayerController* PlayerPC = Cast<APlayerController>(GetController());
+        
+		// 플레이어 사망 통계 업데이트
+		if (PlayerPC && PlayerPC->PlayerState)
 		{
-			GM->HandlePlayerDeath(PC);
+			AWeaponMasterPlayerState* PS = Cast<AWeaponMasterPlayerState>(PlayerPC->PlayerState);
+			if (PS)
+			{
+				PS->AddDeath();
+			}
+		}
+
+		// 게임 모드에 사망 알림
+		if (auto GM = Cast<IBattleGMInterface>(UGameplayStatics::GetGameMode(this)))
+		{
+			GM->HandlePlayerDeath(PlayerPC);
 		}
 		else
 		{
 			UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnDeath : IBattleGMInterface Cast Failed"));
 		}
 	}
-
-	// Destroy();
 }
 
 UItemComponent* ABaseBattleCharacter::GetItemComponent_Implementation() const
@@ -524,13 +538,40 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 
 		LaunchCharacter(AttackData.LaunchVector, true, true);
 
+		// 데미지 처리 전 기존 HP 저장
+		float OldHP = HP;
 		SetHP(HP - AttackData.Damage);
+        
+		// 공격자의 데미지 통계 업데이트
+		if (AttackData.Attacker)
+		{
+			APlayerController* AttackerPC = Cast<APlayerController>(AttackData.Attacker->GetController());
+			if (AttackerPC && AttackerPC->PlayerState)
+			{
+				AWeaponMasterPlayerState* AttackerPS = Cast<AWeaponMasterPlayerState>(AttackerPC->PlayerState);
+				if (AttackerPS)
+				{
+					// 실제 입힌 데미지 계산 (기존 HP - 새 HP, 죽은 경우는 기존 HP만큼)
+					float ActualDamage = (HP <= 0.f) ? OldHP : (OldHP - HP);
+					AttackerPS->AddDamageDealt(ActualDamage);
+                    
+					// 죽었으면 킬 카운트 증가
+					if (HP <= 0.f)
+					{
+						AttackerPS->AddKill();
+					}
+					UE_LOG(LogTemp, Warning, TEXT("[%s]의 현재 전투 통계 - 킬: %d, 총 데미지: %.2f"), 
+					*AttackerPS->GetPlayerName(), AttackerPS->GetKillCount(), AttackerPS->GetTotalDamageDealt());
+				
+				}
+			}
+		}
 
 		// 이펙트 적용
 		for (int32 i = 0; i < AttackData.BehaviorEffects.Num(); i++)
 		{
 			EffectComponent->ActivateBehaviorEffectWithDuration(AttackData.BehaviorEffects[i],
-			                                                    AttackData.BehaviorEffectsDurations[i]);
+															  AttackData.BehaviorEffectsDurations[i]);
 		}
 	}
 }
