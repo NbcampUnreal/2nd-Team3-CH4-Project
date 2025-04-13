@@ -31,46 +31,12 @@ void UGameResultWidget::NativeConstruct()
         MainButton->SetButtonText(FText::FromString(TEXT("메인으로")));
         MainButton->OnClicked.AddDynamic(this, &UGameResultWidget::OnMainButtonClicked);
     }
-    // 결과 적용
+    // Kill순 정렬 후 결과 적용
+    SortPlayerResultsByKill(TestData);
     PopulatePlayerEntries(TestData);
 
     UE_LOG(LogTemp, Warning, TEXT("테스트 데이터 생성 완료 (%d명)"), TestData.Num());
 }
-
-//void UGameResultWidget::PopulatePlayerEntries(const TArray<FPlayerResultData>& ResultList)
-//{
-//    if (!PlayerEntryList || !ResultEntryClass)
-//    {
-//        UE_LOG(LogTemp, Warning, TEXT("PlayerEntryList 또는 ResultEntryClass가 설정되지 않았습니다."));
-//        return;
-//    }
-//
-//    PlayerEntryList->ClearChildren(); // 기존 항목 제거
-//    UE_LOG(LogTemp, Warning, TEXT("PlayerEntryList 초기화 완료"));
-//
-//    for (const FPlayerResultData& Entry : ResultList)
-//    {
-//        UResultPlayerEntryWidget* NewEntry = CreateWidget<UResultPlayerEntryWidget>(this, ResultEntryClass);
-//        if (!NewEntry)
-//        {
-//            UE_LOG(LogTemp, Error, TEXT("위젯 생성 실패"));
-//            continue;
-//        }
-//
-//        UE_LOG(LogTemp, Warning, TEXT("위젯 생성 성공 - 닉네임: %s, 킬: %d, 데미지: %d, 골드: %d"),
-//            *Entry.Nickname, Entry.Kills, Entry.Damage, Entry.Gold);
-//
-//        NewEntry->SetPlayerResultInfo(
-//            Entry.Icon,
-//            FText::FromString(Entry.Nickname),
-//            Entry.Kills,
-//            Entry.Damage,
-//            Entry.Gold
-//        );
-//        PlayerEntryList->AddChild(NewEntry);
-//    }
-//    UE_LOG(LogTemp, Warning, TEXT("PopulatePlayerEntries 종료"));
-//}
 
 void UGameResultWidget::PopulatePlayerEntries(const TArray<FPlayerResultData>& ResultList)
 {
@@ -124,4 +90,12 @@ void UGameResultWidget::OnMainButtonClicked()
     {
         UE_LOG(LogTemp, Warning, TEXT("Selected Map is Null!"));
     }
+}
+
+void UGameResultWidget::SortPlayerResultsByKill(TArray<FPlayerResultData>& ResultList)
+{
+    ResultList.Sort([](const FPlayerResultData& A, const FPlayerResultData& B)
+        {
+            return A.Kills > B.Kills; // 내림차순 (Kill이 높은 순)
+        });
 }

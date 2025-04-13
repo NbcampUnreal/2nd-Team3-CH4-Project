@@ -49,6 +49,11 @@ protected:
 	// 결과 항목 위젯 클래스
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Result")
 	TSubclassOf<UResultPlayerEntryWidget> ResultEntryClass;
+
 	UFUNCTION()
 	void OnMainButtonClicked();
+
+	UFUNCTION()
+	void SortPlayerResultsByKill(TArray<FPlayerResultData>& ResultList);
+
 };
