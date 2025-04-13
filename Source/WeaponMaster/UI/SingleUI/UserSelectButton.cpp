@@ -9,7 +9,13 @@
 void UUserSelectButton::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	if (MainButton)
+	{
+		MainButton->OnClicked.AddDynamic(this, &UUserSelectButton::HandleClicked);
+	}
 }
+
 
 void UUserSelectButton::SetButtonText(const FText& NewText)
 {
@@ -17,4 +23,9 @@ void UUserSelectButton::SetButtonText(const FText& NewText)
 	{
 		ButtonTextBlock->SetText(NewText);
 	}
+}
+
+void UUserSelectButton::HandleClicked()
+{
+	OnClicked.Broadcast();
 }

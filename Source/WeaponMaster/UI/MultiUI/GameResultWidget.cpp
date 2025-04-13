@@ -5,6 +5,8 @@
 #include "UI/MultiUI/ResultPlayerEntryWidget.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
+#include "UI/SingleUI/UserSelectButton.h"
+#include <Kismet/GameplayStatics.h>
 
 void UGameResultWidget::NativeConstruct()
 {
@@ -22,6 +24,12 @@ void UGameResultWidget::NativeConstruct()
         Data.Icon = nullptr;
 
         TestData.Add(Data);
+    }
+
+    if (MainButton)
+    {
+        MainButton->SetButtonText(FText::FromString(TEXT("메인으로")));
+        MainButton->OnClicked.AddDynamic(this, &UGameResultWidget::OnMainButtonClicked);
     }
     // 결과 적용
     PopulatePlayerEntries(TestData);
@@ -95,4 +103,25 @@ void UGameResultWidget::PopulatePlayerEntries(const TArray<FPlayerResultData>& R
     }
 
     UE_LOG(LogTemp, Warning, TEXT("PopulatePlayerEntries 종료"));
+}
+
+void UGameResultWidget::OnMainButtonClicked()
+{
+
+    FName MapID = TEXT("StartMap");
+
+    if (!MapID.IsNone())
+    {
+        RemoveFromParent();
+        // 해당 맵으로 이동
+        UGameplayStatics::OpenLevel(this, MapID);
+    }
+    /*if (!CurrentStageInfo.MapID.IsNone())
+    {
+        UGameplayStatics::OpenLevel(this, CurrentStageInfo.MapID);
+    }*/
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Selected Map is Null!"));
+    }
 }

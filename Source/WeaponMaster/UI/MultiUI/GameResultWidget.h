@@ -9,6 +9,7 @@
 class UVerticalBox;
 class UResultPlayerEntryWidget;
 class UTexture2D;
+class UUserSelectButton;
 
 USTRUCT(BlueprintType)
 struct FPlayerResultData
@@ -42,7 +43,12 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UVerticalBox* PlayerEntryList;
 
+	UPROPERTY(meta = (BindWidget))
+	UUserSelectButton* MainButton;
+
 	// 결과 항목 위젯 클래스
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Result")
 	TSubclassOf<UResultPlayerEntryWidget> ResultEntryClass;
+	UFUNCTION()
+	void OnMainButtonClicked();
 };

@@ -10,12 +10,17 @@ class UButton;
 class UTextBlock;
 class UImage;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUserSelectButtonClicked);
+
 UCLASS()
 class WEAPONMASTER_API UUserSelectButton : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(BlueprintAssignable, Category = "Button")
+	FOnUserSelectButtonClicked OnClicked;
+
 	UFUNCTION(BlueprintCallable)
 	void SetButtonText(const FText& NewText);
 
@@ -30,4 +35,7 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* BackgroundImage;
+
+	UFUNCTION()
+	void HandleClicked();
 };
