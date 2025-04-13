@@ -230,6 +230,7 @@ void AProjectile::ApplyDamage(AActor* TargetActor, const FHitResult& Hit)
 		{
 			CastedCharacter->OnAttacked(
 				{
+					Cast<ACharacter>(GetInstigator()),
 					Damage,
 					KnockbackDirection * 100,
 					{},

@@ -35,6 +35,11 @@ void ABossCharacter::BeginPlay()
 		SkillComponent->InitializeSkills(BossSkillAsset);
 	}
 
+	if (!HasAuthority())
+	{
+		SetupMontageEndedDelegate_Implementation(); 
+	}
+
 }
 
 
@@ -66,12 +71,20 @@ void ABossCharacter::LookAtTarget(const AActor* TargetActor)
 }
 
 
-void ABossCharacter::Multicast_PlayMontage_Implementation(UAnimMontage* Montage)
+void ABossCharacter::Multicast_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate)
 {
-	if (Montage)
+	if (!Montage || !IsValid(GetMesh()) || !GetMesh()->GetAnimInstance())
 	{
-		PlayAnimMontage(Montage);
+		return;
 	}
+    
+	UE_LOG(LogTemp, Warning, TEXT("[보스:%s] 몽타주 %s 재생 시작 (재생속도: %.2f)"), 
+		HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
+		*Montage->GetName(), 
+		PlayRate);
+        
+	// 모든 클라이언트(및 서버)에서 몽타주 재생
+	GetMesh()->GetAnimInstance()->Montage_Play(Montage, PlayRate);
 }
 
 void ABossCharacter::ApplyBasicCombo()
@@ -123,7 +136,7 @@ void ABossCharacter::PerformForwardCharge()
 void ABossCharacter::ApplyAreaSkill()
 {
 	SetActorRotation(FRotator(0, 90.f, 0));
-	Multicast_PlayMontage(AreaChargeMontage);
+	Multicast_PlayMontage(AreaChargeMontage,1);
 
 	// 3. 타이머로 실제 시전
 	FTimerHandle Timer;
@@ -243,3 +256,33 @@ void ABossCharacter::OnAttacked(const FAttackData& AttackData)
 		UE_LOG(LogTemp, Warning, TEXT("AYA Boss CurrentHP : %d"), CurrentHP);
 	}
 }
+
+void ABossCharacter::PlaySkillMontage_Implementation(UAnimMontage* Montage, float PlayRate)
+{
+	if (HasAuthority()) // 서버에서만 RPC 호출
+	{
+		Multicast_PlayMontage(Montage, PlayRate);
+	}
+}
+
+void ABossCharacter::SetupMontageEndedDelegate_Implementation()
+{
+	if (GetMesh() && GetMesh()->GetAnimInstance())
+	{
+		GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ABossCharacter::OnLocalMontageEnded);
+	}
+}
+
+void ABossCharacter::OnLocalMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (SkillComponent)
+	{
+		UBaseSkill* ActiveSkill = SkillComponent->GetActiveSkill();
+		if (ActiveSkill)
+		{
+			// 클라이언트에서도 스킬 종료 처리
+			ActiveSkill->EndSkill();
+		}
+	}
+}
+

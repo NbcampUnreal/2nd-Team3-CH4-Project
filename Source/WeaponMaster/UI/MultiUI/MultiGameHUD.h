@@ -32,6 +32,15 @@ public:
     UFUNCTION(BlueprintCallable)
     void SetMenuWidget(bool bIsOpen);
 
+	UFUNCTION(BlueprintCallable)
+	void UpdatePlayerStatus(int32 TargetCharacterID, const FPlayerStatusInfo& StatusInfo);
+
+	UFUNCTION(BlueprintCallable)
+	void RefreshAllPlayerStatus();
+	
+	UFUNCTION(BlueprintCallable)
+	UPlayerStatusWidget* GetPlayerStatusWidget(int32 CharacterID);
+	
     UPROPERTY(EditDefaultsOnly, Category = "UI")
     TSubclassOf<UWrapStatusWidget> WrapStatusWidgetClass;
 	UPROPERTY()

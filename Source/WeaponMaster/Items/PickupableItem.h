@@ -18,13 +18,13 @@ public:
 	APickupableItem();
 
 	virtual void BeginPlay() override;
-    
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	// 아이템 ID
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Item")
 	FName ItemID;
     
 	// 아이템 데이터
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item")
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Item")
 	UItemDataAsset* ItemData;
     
 	// 아이템 메시
@@ -46,6 +46,15 @@ public:
 	// 아이템 데이터 로드
 	UFUNCTION()
 	void LoadItemData();
+
+	UFUNCTION(BlueprintCallable, Category = "Pickup")
+	void ProcessPickup(AActor* Interactor);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_OnPickedUp(AActor* Interactor);
+
+	UFUNCTION(Client, Reliable)
+	void Client_OnPickupSuccess();
 protected:
     
 	// 오버랩 시작 이벤트
