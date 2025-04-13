@@ -1,9 +1,13 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "WeaponMasterController.h"
+
+#include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameModes/BattleGMInterface.h"
 #include "GameFramework/GameModeBase.h"
+#include "UI/MultiUI/ChatWidget.h"
+#include "UI/MultiUI/MultiGameHUD.h"
 
 
 AWeaponMasterController::AWeaponMasterController()
@@ -58,6 +62,8 @@ void AWeaponMasterController::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("AWeaponMasterController::BeginPlay : GameInstance Cast Failed."))
 	}
+
+	
 }
 
 void AWeaponMasterController::ServerSetPlayerCharacter_Implementation(TSubclassOf<ACharacter> CharacterClass, FName ItemName)
@@ -65,5 +71,29 @@ void AWeaponMasterController::ServerSetPlayerCharacter_Implementation(TSubclassO
 	if (const auto CastedGameMode = Cast<IBattleGMInterface>(GetWorld()->GetAuthGameMode()))
 	{
 		CastedGameMode->SetPlayerCharacter(CharacterClass, ItemName, this);
+	}
+}
+
+void AWeaponMasterController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+	EnhancedInputComponent->BindAction(ChatAction, ETriggerEvent::Started,
+										   this, &AWeaponMasterController::Chat);
+}
+
+void AWeaponMasterController::Chat()
+{
+	if (const AMultiGameHUD* MultiGameHUD = Cast<AMultiGameHUD>(GetHUD()))
+	{
+		if (MultiGameHUD->ChatWidget->GetVisibility() == ESlateVisibility::Hidden)
+		{
+			MultiGameHUD->ChatWidget->SetVisibility(ESlateVisibility::Visible);
+		}
+		else
+		{
+			MultiGameHUD->ChatWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
 	}
 }

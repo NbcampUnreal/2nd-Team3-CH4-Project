@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "ItemComponent.generated.h"
 
+class APickupableItem;
 struct FStreamableHandle;
 class UItemDataAsset;
 
@@ -52,7 +53,10 @@ public:
     /** 무기 충돌 활성화/비활성화 */
     UFUNCTION(BlueprintCallable, Category = "Weapon")
     void SetWeaponCollisionEnabled(bool bEnabled);
- 
+
+	/** 스폰할 픽업 아이템 클래스 */
+	UPROPERTY(EditDefaultsOnly, Category = "Items")
+	TSubclassOf<APickupableItem> PickupItemClass;
 protected:
     /** 현재 장착된 아이템 */
     UPROPERTY(Replicated,VisibleAnywhere, Category = "Items")

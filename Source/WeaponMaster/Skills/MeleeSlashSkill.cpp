@@ -62,7 +62,7 @@ int32 UMeleeSlashSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors,
         }
         
         // 데미지 적용
-        float FinalDamage = SkillDamage;
+        float FinalDamage = SkillDamage + Damage;
         
         // ItemData에서 추가 데미지 계산 (아이템 데미지 계수)
         // 새로운 헬퍼 메서드 사용
@@ -71,14 +71,16 @@ int32 UMeleeSlashSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors,
         if (auto CastedTarget = Cast<IDamageSystemUser>(TargetActor))
         {
             UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Success!"));
-            FVector LaunchVector = {1000.0f, 0.0f, 0.0f};
+            FVector LaunchDirection = OwnerCharacter->GetActorForwardVector();
+            FVector LaunchVector = { LaunchDirection.X * 1000, 0.f, 100.f };
 			
             FAttackData AttackData
             {
+                OwnerCharacter,
                 FinalDamage,
                 LaunchVector,
-                { EBehaviorEffect::Stun, EBehaviorEffect::Confused, EBehaviorEffect::Silence },
-                { 1, 5, 3 },
+                { EBehaviorEffect::Stun, EBehaviorEffect::Stiffness },
+                { 1, 2 },
                 {},
                 {}
             };

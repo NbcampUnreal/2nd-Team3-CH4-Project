@@ -2,9 +2,12 @@
 #include "CharacterSpawner/CharacterSpawner.h"
 #include "GameFramework/Character.h"
 #include "EngineUtils.h"
+#include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
 #include "Characters/Components/IBattleSystemUser.h"
 #include "Characters/Components/ItemComponent/ItemComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "PlayerControllers/EOSPlayerController.h"
+
 
 void ATeamGameMode::BeginPlay()
 {
@@ -44,48 +47,57 @@ void ATeamGameMode::PlayCountDownTimerAction()
 	{
 		if (AEOSPlayerController* PlayerController = Cast<AEOSPlayerController>(Iterator->Get()))
 		{
-			PlayerController->Client_UpdateTimer(TimerCountDown);
+			PlayerController->Client_UpdateInGameTimer(TimerCountDown);
 		}
 	}
 
 	if (TimerCountDown == 0)
 	{
 		// Score Board 이동
+
+		GetWorldTimerManager().ClearTimer(PlayCountDownTimerHandle);
 	}
-	
-	GetWorldTimerManager().ClearTimer(PlayCountDownTimerHandle);
 }
 
 void ATeamGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
 {
 	if (!HasCharacterSpawner()) return;
-	bool bSuccessFlag = false;
+
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacterSpawner::StaticClass(), FoundActors);
+
+	uint8 cnt = 0;
+
 	while (true)
 	{
-		for (TActorIterator<ACharacterSpawner> It(GetWorld()); It; ++It)
+		
+		uint8 RandomSpawnerIndex = FMath::RandRange(0, FoundActors.Num() - 1);
+		ACharacterSpawner* CharacterSpawner = Cast<ACharacterSpawner>(FoundActors[RandomSpawnerIndex]);
+
+		if (ACharacter* SpawnCharacter = CharacterSpawner->SpawnCharacter(CharacterClass))
 		{
-			ACharacterSpawner* CharacterSpawner = *It;
-			
-			if (ACharacter* SpawnCharacter = CharacterSpawner->SpawnCharacter(CharacterClass))
+			SpawnCharacter->SetOwner(OwnerController);
+			OwnerController->Possess(SpawnCharacter);
+
+			if (SpawnCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 			{
-				bSuccessFlag = true;
-
-				SpawnCharacter->SetOwner(OwnerController);
-				OwnerController->Possess(SpawnCharacter);
-
-				if (SpawnCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
-				{
-					UItemComponent* ItemComponent = IBattleSystemUser::Execute_GetItemComponent(SpawnCharacter);
-					ItemComponent->EquipItem(ItemName);
-				}
-				else
-				{
-					UE_LOG(LogTemp, Error, TEXT("ATeamGameMode::SetPlayerCharacter : SpawnCharacter doesn't implement IBattleSystemUser."));
-				}
-				
-				break;
+				UItemComponent* ItemComponent = IBattleSystemUser::Execute_GetItemComponent(SpawnCharacter);
+				ItemComponent->EquipItem(ItemName);
 			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("ATeamGameMode::SetPlayerCharacter : SpawnCharacter doesn't implement IBattleSystemUser."));
+			}
+
+			break;
 		}
-		if (bSuccessFlag) break;
+
+		// Place CharacterSpawners more than PlayerNumbers.
+		// You need to consider character size not to overlap when character spawned.
+		check(++cnt < 200);
 	}
+}
+
+void ATeamGameMode::HandlePlayerDeath(AController* Controller)
+{
 }

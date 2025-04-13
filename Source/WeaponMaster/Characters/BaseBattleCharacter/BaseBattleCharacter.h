@@ -14,6 +14,7 @@
 class UStateComponent;
 class UEffectComponent;
 class USkillComponent;
+class UBaseSkill;
 
 UCLASS()
 class WEAPONMASTER_API ABaseBattleCharacter :
@@ -30,7 +31,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStateComponent> StateComponent;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UEffectComponent> EffectComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -42,16 +43,27 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Interacts", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AActor> InteractableActor;
 
+	FTimerHandle RespawnTimerHandle;
+	
 	// Constants
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats", meta = (AllowPrivateAccess = "true"))
 	float MaxHP;
 
 	// Variables
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	UPROPERTY(ReplicatedUsing=OnRep_HP, VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
 	float HP;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Appearance", meta = (AllowPrivateAccess = "true"))
+	TSoftObjectPtr<UTexture2D> CharacterThumbnail;
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	// Replicate Setting
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION()
+	void OnRep_HP();
 
 	// Additional Input Binding Functions
 	virtual void WeakAttack() override;
@@ -60,20 +72,31 @@ protected:
 	virtual void Defence() override;
 	virtual void PickingItem() override;
 
+	UFUNCTION()
+	void OnSkillStarted(UBaseSkill* Skill);
+	UFUNCTION()
+	void OnSkillEnded(UBaseSkill* Skill);
+	
 	// UI Input Binding Function
 	void MenuOnOff();
-	void Chat();
 
 	void BindInputFunctions();
-
+	
 	void SetHP(float NewHP);
 	
+	UFUNCTION(Server, Reliable)
+	void ServerSetHP(float NewHP);
+
+	void OnDeath();
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	FORCEINLINE UEffectComponent* GetEffectComponent() const { return EffectComponent; };
 
 	// !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
 	// !~!~!~!~ Battle System User Interface ~!~!~!~!
@@ -114,4 +137,28 @@ public:
 
 	// Event when Attacked
 	virtual void OnAttacked(const FAttackData& AttackData) override;
+
+	virtual void PlaySkillMontage_Implementation(UAnimMontage* Montage, float PlayRate) override;
+	virtual void SetupMontageEndedDelegate_Implementation() override;
+	virtual void RequestItemPickup_Implementation(AActor* ItemActor) override;
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayMontage(UAnimMontage* Montage, float PlayRate);
+
+	UFUNCTION()
+	void OnLocalMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	UFUNCTION(Server, Reliable)
+	void Server_RequestItemPickup(AActor* ItemActor);
+
+	UFUNCTION(BlueprintCallable, Category = "Appearance")
+	UTexture2D* GetCharacterThumbnail() const;
+
+	/** 현재 HP 반환 */
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	float GetHP() const { return HP; }
+
+	/** 최대 HP 반환 */
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	float GetMaxHP() const { return MaxHP; }
 };

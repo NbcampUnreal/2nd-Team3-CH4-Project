@@ -32,6 +32,7 @@ void UDeathEffect::Move(const FInputActionValue& Value)
 
 void UDeathEffect::CrouchDrop()
 {
+	UE_LOG(LogTemp, Display, TEXT("UDeathEffect::CrouchDrop"));
 }
 
 void UDeathEffect::StopCrouchDrop()

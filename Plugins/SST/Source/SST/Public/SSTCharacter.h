@@ -20,6 +20,7 @@ class SST_API ASSTCharacter : public ACharacter, public ISSTInputBindFunctions
 {
 	GENERATED_BODY()
 
+protected:
 	/** Custom CharacterMovementComponent */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USSTCharacterMovementComponent> SSTCharacterMovementComponent;
@@ -31,8 +32,7 @@ class SST_API ASSTCharacter : public ACharacter, public ISSTInputBindFunctions
 	/** Time in seconds after dropping through a platform before the button becomes usable for jump input */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
 	float DropThroughPlatformJumpLockout = .2f;
-
-private:
+	
 	bool IsJumpState = false;
 
 public:

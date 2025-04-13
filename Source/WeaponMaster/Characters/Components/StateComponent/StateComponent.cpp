@@ -75,6 +75,11 @@ void UStateComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (GetOwnerRole() == ROLE_SimulatedProxy)
+	{
+		return;
+	}
+
 	// Create Input State
 	UCharacterBehaviorState* DefaultState = NewObject<UCharacterBehaviorState>(this);
     
@@ -83,13 +88,6 @@ void UStateComponent::BeginPlay()
 	if (!IsValid(CharacterBehaviorState.GetObject()))
 	{
 		UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : BehaviorState Create Failed."));
-		return;
-	}
-
-	auto OuterCharacter = Cast<ACharacter>(GetOuter());
-	if (!OuterCharacter)
-	{
-		UE_LOG(LogTemp, Error, TEXT("UStateComponent::BeginPlay : OuterCharacter Cast Failed."));
 		return;
 	}
     

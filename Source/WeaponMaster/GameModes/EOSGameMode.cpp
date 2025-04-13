@@ -53,6 +53,8 @@ void AEOSGameMode::PlayCountDownTimerAction()
 
 	if (TimerCountDown == 0)
 	{
+		StartSession();
+		
 		if (const AWeaponMasterGameState* WeaponMasterGameState = Cast<AWeaponMasterGameState>(GameState))
 		{
 			if (WeaponMasterGameState->IsVotedEqual())

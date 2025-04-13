@@ -19,7 +19,10 @@ public:
 	UEffectComponent();
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
+	// RPC호출로 서버 클라 둘다 변경해주기 때문에 Replicated하지 않아도 되겠다.(하면 Deactivate시 두번 삭제)
+	// 근데 Simulated Proxy 애니메이션 재생하려면 해줘야함
+	// Owner빼고 Replicated 시키기
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	TArray<EBehaviorEffect> ActiveBehaviorEffects;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
@@ -30,6 +33,27 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	// Replicate Setting
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	void InternalActivateBehaviorEffect(EBehaviorEffect BehaviorEffectType);
+	void InternalActivateBehaviorEffectWithDuration(EBehaviorEffect BehaviorEffectType, float Duration);
+	void InternalDeactivateBehaviorEffect(EBehaviorEffect BehaviorEffectType);
+	
+	UFUNCTION(Server, Reliable)
+	void ServerActivateBehaviorEffect(EBehaviorEffect BehaviorEffectType);
+	UFUNCTION(Server, Reliable)
+	void ServerActivateBehaviorEffectWithDuration(EBehaviorEffect BehaviorEffectType, float Duration);
+	UFUNCTION(Server, Reliable)
+	void ServerDeactivateBehaviorEffect(EBehaviorEffect BehaviorEffectType);
+
+	UFUNCTION(Client, Reliable)
+	void ClientActivateBehaviorEffect(EBehaviorEffect BehaviorEffectType);
+	UFUNCTION(Client, Reliable)
+	void ClientActivateBehaviorEffectWithDuration(EBehaviorEffect BehaviorEffectType, float Duration);
+	UFUNCTION(Client, Reliable)
+	void ClientDeactivateBehaviorEffect(EBehaviorEffect BehaviorEffectType);
+
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
@@ -39,6 +63,8 @@ public:
 	FORCEINLINE TArray<EBehaviorEffect>& GetActiveBehaviorEffects() { return ActiveBehaviorEffects; };
 	
 	void ActivateBehaviorEffect(EBehaviorEffect BehaviorEffectType);
-	void ActivateBehaviorEffect(EBehaviorEffect BehaviorEffectType, float Duration);
+	void ActivateBehaviorEffectWithDuration(EBehaviorEffect BehaviorEffectType, float Duration);
 	void DeactivateBehaviorEffect(EBehaviorEffect BehaviorEffectType);
+
+	
 };
