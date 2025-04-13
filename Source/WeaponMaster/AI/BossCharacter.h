@@ -68,7 +68,7 @@ private:
 ///보스 공격 패턴
 public:
 	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_PlayMontage(UAnimMontage* Montage);
+	void Multicast_PlayMontage(UAnimMontage* Montage, float PlayRate);
 
 	//////1페이즈//////
 	//기본 공격 
@@ -129,4 +129,13 @@ public:
 	
 	// Event when Attacked
 	virtual void OnAttacked(const FAttackData& AttackData) override;
+
+	virtual void PlaySkillMontage_Implementation(UAnimMontage* Montage, float PlayRate) override;
+	virtual void SetupMontageEndedDelegate_Implementation() override;
+
+	UFUNCTION()
+	void OnLocalMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	
+	
 };

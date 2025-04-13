@@ -3,13 +3,17 @@
 #include "InteractionComponent/InteractionComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
+#include "Net/UnrealNetwork.h"
 #include "WeaponMaster/Characters/Components/IBattleSystemUser.h"
 #include "WeaponMaster/Data/GameDataManager.h"
 #include "WeaponMaster/Data/WeaponMasterLib.h"
 
 APickupableItem::APickupableItem()
 {
-    // 루트 컴포넌트로 메시 생성
+    // 액터 설정
+    PrimaryActorTick.bCanEverTick = true;
+
+    // 메시 컴포넌트 설정
     MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
     RootComponent = MeshComponent;
     
@@ -29,6 +33,11 @@ APickupableItem::APickupableItem()
     
     // 네트워크 복제 설정
     bReplicates = true;
+    SetReplicateMovement(true); // 이동(물리) 복제도 활성화
+    
+    // 복제 관련 추가 설정
+    MeshComponent->SetIsReplicated(true);
+    InteractionSphere->SetIsReplicated(true);
 }
 
 void APickupableItem::BeginPlay()
@@ -91,23 +100,31 @@ void APickupableItem::LoadItemData()
     }
 }
 
-void APickupableItem::OnPickup(AActor* Interactor)
+void APickupableItem::ProcessPickup(AActor* Interactor)
 {
-    // ACharacter로 캐스팅 후 IBattleSystemUser 인터페이스 확인
+    // 서버에서만 처리되어야 함
+    if (!HasAuthority())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("ProcessPickup: 클라이언트에서 호출됨, 무시"));
+        return;
+    }
+    
     ACharacter* Character = Cast<ACharacter>(Interactor);
     if (!Character || !ItemData)
     {
         return;
     }
-   
+    
     if (Character->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
     {
-        // 아이템 장착 시도
+        UE_LOG(LogTemp, Warning, TEXT("[서버] %s의 아이템 %s 획득 처리 중"), 
+            *Character->GetName(), *ItemData->ItemName);
+            
         bool bPickedUp = IBattleSystemUser::Execute_EquipItem(Character, ItemID);
-    
+        
         if (bPickedUp)
         {
-            // 획득 효과음 재생
+            // 효과음 재생
             if (!ItemData->PickupSound.IsNull())
             {
                 USoundBase* Sound = ItemData->PickupSound.LoadSynchronous();
@@ -116,19 +133,70 @@ void APickupableItem::OnPickup(AActor* Interactor)
                     UGameplayStatics::PlaySoundAtLocation(this, Sound, GetActorLocation());
                 }
             }
-        
-            // 서버에서만 아이템 제거 (권한 확인)
-            if (HasAuthority())
-            {
-                Destroy();
-            }
+            
+            // 모든 클라이언트에게 아이템 파괴 전파
+            UE_LOG(LogTemp, Warning, TEXT("[서버] 아이템 %s 파괴"), *GetName());
+            Destroy();
         }
     }
 }
 
+void APickupableItem::Server_OnPickedUp_Implementation(AActor* Interactor)
+{
+    UE_LOG(LogTemp, Warning, TEXT("Server_OnPickedUp: 서버에서 아이템 %s 획득 처리"), 
+           ItemData ? *ItemData->ItemName : TEXT("Unknown"));
+           
+    ProcessPickup(Interactor);
+}
+
+void APickupableItem::OnPickup(AActor* Interactor)
+{
+    // ItemData가 없지만 ItemID가 유효하면 데이터 로드 시도
+    if (!ItemData && !ItemID.IsNone())
+    {
+        LoadItemData();
+    }
+    
+    // 캐릭터를 통해 아이템 획득 요청 처리
+    ACharacter* Character = Cast<ACharacter>(Interactor);
+    if (!Character || !ItemData)
+    {
+        UE_LOG(LogTemp, Error, TEXT("OnPickup: Character or ItemData is invalid"));
+        return;
+    }
+    
+    if (Character->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("OnPickup: 캐릭터 %s가 아이템 %s 획득 시도"), 
+               *Character->GetName(), ItemData ? *ItemData->ItemName : TEXT("Unknown"));
+               
+        // 추가: 직접 서버 RPC 호출
+        if (!HasAuthority())
+        {
+            UE_LOG(LogTemp, Warning, TEXT("OnPickup: 클라이언트에서 서버 RequestItemPickup RPC 호출"));
+            Server_OnPickedUp(Interactor);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("OnPickup: 서버에서 직접 ProcessPickup 호출"));
+            ProcessPickup(Character);
+        }
+        
+        // 기존 코드 유지
+        IBattleSystemUser::Execute_RequestItemPickup(Character, this);
+    }
+}
+
+void APickupableItem::Client_OnPickupSuccess_Implementation()
+{
+    // 클라이언트에서 시각적으로 아이템 숨김 (보이지 않게 처리)
+    SetActorHiddenInGame(true);
+    SetActorEnableCollision(false);
+}
+
 void APickupableItem::OnInteractionBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
-                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
-                                        bool bFromSweep, const FHitResult& SweepResult)
+                                         UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
+                                         bool bFromSweep, const FHitResult& SweepResult)
 {
     // ACharacter로 캐스팅 후 IBattleSystemUser 인터페이스 확인
     ACharacter* Character = Cast<ACharacter>(OtherActor);
@@ -155,13 +223,6 @@ void APickupableItem::OnInteractionEnd(UPrimitiveComponent* OverlappedComponent,
     {
         return;
     }
-    
-    // 캐릭터가 IBattleSystemUser 인터페이스를 구현하는지 확인
-    /*IBattleSystemUser* BattleSystemUser = Cast<IBattleSystemUser>(Character);
-    if (!BattleSystemUser)
-    {
-        return;
-    }*/
 
     if (Character->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
     {
@@ -172,4 +233,12 @@ void APickupableItem::OnInteractionEnd(UPrimitiveComponent* OverlappedComponent,
         // 상호작용 UI 숨기기
         InteractionComponent->DisableInteraction();
     }
+}
+
+void APickupableItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    
+    DOREPLIFETIME(APickupableItem, ItemID);
+    DOREPLIFETIME(APickupableItem, ItemData);
 }

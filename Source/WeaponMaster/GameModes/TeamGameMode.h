@@ -12,8 +12,11 @@ class WEAPONMASTER_API ATeamGameMode : public AGameMode, public IBattleGMInterfa
 	GENERATED_BODY()
 
 public:
-	virtual void SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController) override;
 	virtual void BeginPlay() override;
+
+	// BattleGMInterface
+	virtual void SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController) override;
+	virtual void HandlePlayerDeath(AController* Controller);
 	
 	UFUNCTION(BlueprintCallable, Category = "Instance")
 	FORCEINLINE_DEBUGGABLE UWeaponMasterGameInstance* GetInstance() const

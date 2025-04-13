@@ -11,8 +11,35 @@ class UBaseSkill;
 class UItemDataAsset;
 class ATestCharacter;
 
+USTRUCT()
+struct FReplicatedSkillData
+{
+    GENERATED_BODY()
+    
+    // 스킬 클래스 (서버와 클라이언트가 동일한 클래스 정보를 가져야 함)
+    UPROPERTY()
+    TSubclassOf<UBaseSkill> SkillClass;
+    
+    // 스킬 고유 식별자
+    UPROPERTY()
+    FName SkillID;
+    
+    // 현재 쿨다운 상태
+    UPROPERTY()
+    float RemainingCooldown;
+    
+    // 활성화 상태
+    UPROPERTY()
+    bool bIsActive;
+    
+    FReplicatedSkillData() : SkillClass(nullptr), SkillID(NAME_None), 
+                            RemainingCooldown(0.0f), bIsActive(false) {}
+};
+
 // 스킬 장착 이벤트 델리게이트
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillsUpdated, const TArray<UBaseSkill*>&, Skills);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillStarted, UBaseSkill*, Skill);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillEnded, UBaseSkill*, Skill);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class WEAPONMASTER_API USkillComponent : public UActorComponent
@@ -123,8 +150,34 @@ public:
      */
     UFUNCTION(BlueprintPure, Category = "Skills")
     UBaseSkill* GetActiveSkill() const;
+
+    // 복제 데이터가 변경될 때 호출될 함수
+    UFUNCTION()
+    void OnRep_SkillData();
     
+    // 현재 스킬에서 복제 데이터로 변환하는 함수
+    void UpdateReplicatedData();
+    
+    // 복제 데이터에서 로컬 스킬 객체 업데이트하는 함수
+    void UpdateLocalSkillsFromReplicatedData();
+
+    // 스킬 시작 이벤트
+    UPROPERTY(BlueprintAssignable, Category = "Skills|Events")
+    FOnSkillStarted OnSkillStarted;
+
+    // 스킬 종료 이벤트
+    UPROPERTY(BlueprintAssignable, Category = "Skills|Events")
+    FOnSkillEnded OnSkillEnded;
 protected:
+
+    // 스킬 시작 이벤트 핸들러
+    UFUNCTION()
+    void HandleSkillStarted(UBaseSkill* Skill);
+
+    // 스킬 종료 이벤트 핸들러
+    UFUNCTION()
+    void HandleSkillEnded(UBaseSkill* Skill);
+    
     /**
      * 스킬 생성 및 초기화
      * @param SkillClass 생성할 스킬 클래스
@@ -180,8 +233,12 @@ protected:
     ACharacter* OwnerCharacter;
     
     // 현재 장착된 스킬 목록
-    UPROPERTY(Replicated)
+    UPROPERTY()
     TArray<UBaseSkill*> Skills;
+    
+    // 대신 복제할 데이터 배열 추가
+    UPROPERTY(ReplicatedUsing=OnRep_SkillData)
+    TArray<FReplicatedSkillData> ReplicatedSkillData;
     
     // 스킬 그룹 구조 캐싱 (아이템에 의존하지 않게)
     UPROPERTY()

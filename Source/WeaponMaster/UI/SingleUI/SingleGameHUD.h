@@ -1,11 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
+#include "../CommonUI/PlayerStatusWidget.h" // FPlayerStatusInfo 구조체 사용을 위한 추가
 #include "SingleGameHUD.generated.h"
-
 
 class UPlayerStatusWidget;
 class UOptionMenuWidget;
@@ -13,29 +11,60 @@ class UOptionMenuWidget;
 UCLASS()
 class WEAPONMASTER_API ASingleGameHUD : public AHUD
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 public:
-	ASingleGameHUD();
+    ASingleGameHUD();
 
-	virtual void BeginPlay() override;
-	void OpenSingleWidget();
-	void SetPlayerHP(float NewHP);
-	void SetMenuWidget(bool bIsOpen);
+    virtual void BeginPlay() override;
+    
+    /** 싱글게임 UI 위젯 초기화 */
+    void OpenSingleWidget();
+    
+    /** 플레이어 HP 업데이트 (기존 메서드) */
+    void SetPlayerHP(float NewHP);
+    
+    /** 옵션 메뉴 표시 여부 설정 */
+    void SetMenuWidget(bool bIsOpen);
+    
+    /** 플레이어 상태 정보 전체 업데이트 */
+    UFUNCTION(BlueprintCallable, Category = "UI|PlayerStatus")
+    void UpdatePlayerStatus(const FPlayerStatusInfo& StatusInfo);
+    
+    /** 플레이어 상태 위젯 가져오기 */
+    UFUNCTION(BlueprintCallable, Category = "UI|PlayerStatus")
+    UPlayerStatusWidget* GetPlayerStatusWidget() const { return PlayerStatusWidget; }
+    
+    /** 플레이어 썸네일 설정 */
+    UFUNCTION(BlueprintCallable, Category = "UI|PlayerStatus")
+    void SetPlayerThumbnail(UTexture2D* Thumbnail);
+    
+    /** 플레이어 이름 설정 */
+    UFUNCTION(BlueprintCallable, Category = "UI|PlayerStatus")
+    void SetPlayerName(const FString& PlayerName);
+    
+
+    
+    /** 채팅 메시지 표시 */
+    UFUNCTION(BlueprintCallable, Category = "UI|PlayerStatus")
+    void ShowChatMessage(const FString& Message);
+
 protected:
-	/**TODO :: 보기 안좋으면 Wraping */
+    /** 플레이어 상태 위젯 클래스 */
+    UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+    TSubclassOf<UPlayerStatusWidget> PlayerStatusWidgetClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-	TSubclassOf<UPlayerStatusWidget> PlayerStatusWidgetClass;
+    /** 플레이어 상태 위젯 인스턴스 */
+    UPROPERTY()
+    UPlayerStatusWidget* PlayerStatusWidget;
 
-	UPROPERTY()
-	UPlayerStatusWidget* PlayerStatusWidget;
+    /** 옵션 메뉴 위젯 클래스 */
+    UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+    TSubclassOf<UOptionMenuWidget> OptionMenuWidgetClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-	TSubclassOf<UOptionMenuWidget> OptionMenuWidgetClass;
+    /** 옵션 메뉴 위젯 인스턴스 */
+    UPROPERTY()
+    UOptionMenuWidget* OptionMenuWidget;
 
-	UPROPERTY()
-	UOptionMenuWidget* OptionMenuWidget;
-
-	bool bIsOptionMenuVisible = false;
-
+    /** 옵션 메뉴 표시 여부 */
+    bool bIsOptionMenuVisible = false;
 };
