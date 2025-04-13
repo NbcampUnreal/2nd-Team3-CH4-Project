@@ -42,6 +42,42 @@ enum class ENonBehaviorEffect : uint8
     Max         UMETA(DisplayName = "Max")
 };
 
+/** 플레이어 상태 정보 구조체 */
+USTRUCT(BlueprintType)
+struct FPlayerStatusInfo
+{
+    GENERATED_BODY()
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Status")
+    FString PlayerName;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Status")
+    float CurrentHealth;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Status")
+    float MaxHealth;
+    
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Status")
+    UTexture2D* PlayerThumbnailTexture;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Status")
+    int32 TeamID;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Status")
+    int32 CharacterID;
+    
+    // 생성자로 기본값 설정
+    FPlayerStatusInfo()
+        : PlayerName(TEXT("Unknown")),
+          CurrentHealth(100.0f),
+          MaxHealth(100.0f),
+          PlayerThumbnailTexture(nullptr),
+          TeamID(0),
+          CharacterID(-1)
+    {
+    }
+};
 
 USTRUCT(BlueprintType)
 struct FAttackData
