@@ -70,6 +70,7 @@ void ATeamGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, F
 
 	while (true)
 	{
+		
 		uint8 RandomSpawnerIndex = FMath::RandRange(0, FoundActors.Num() - 1);
 		ACharacterSpawner* CharacterSpawner = Cast<ACharacterSpawner>(FoundActors[RandomSpawnerIndex]);
 

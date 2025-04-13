@@ -8,6 +8,7 @@
 #include "BehaviorEffects/SpecificEffects/SilenceEffect.h"
 #include "BehaviorEffects/SpecificEffects/StiffnessEffect.h"
 #include "BehaviorEffects/SpecificEffects/StunEffect.h"
+#include "BehaviorEffects/SpecificEffects/UsingSkillEffect.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
@@ -32,7 +33,7 @@ void UEffectComponent::Initialize()
 	BehaviorEffectMapper.Add(EBehaviorEffect::Silence, NewObject<USilenceEffect>(this));     
 	BehaviorEffectMapper.Add(EBehaviorEffect::Confused, NewObject<UConfusedEffect>(this));    
  
-	// BehaviorEffectMapper.Add(EBehaviorEffect::UsingSkill, NewObject<UStunEffect>(this));  
+	BehaviorEffectMapper.Add(EBehaviorEffect::UsingSkill, NewObject<UUsingSkillEffect>(this));  
 	BehaviorEffectMapper.Add(EBehaviorEffect::Death, NewObject<UDeathEffect>(this));       
 }
 
@@ -45,6 +46,8 @@ void UEffectComponent::BeginPlay()
 	{
 		return;
 	}
+
+	
 
 	Initialize();
 }

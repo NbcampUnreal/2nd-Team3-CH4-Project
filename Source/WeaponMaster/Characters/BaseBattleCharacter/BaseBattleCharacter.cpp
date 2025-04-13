@@ -70,6 +70,9 @@ void ABaseBattleCharacter::BeginPlay()
 		// Item Equipment Event Binding
 		ItemComponent->OnItemEquipped.AddDynamic(this, &ABaseBattleCharacter::OnItemEquippedForBinding);
 		ItemComponent->OnItemUnequipped.AddDynamic(this, &ABaseBattleCharacter::OnItemUnequippedForBinding);
+
+		SkillComponent->OnSkillStarted.AddDynamic(this, &ABaseBattleCharacter::OnSkillStarted);
+		SkillComponent->OnSkillStarted.AddDynamic(this, &ABaseBattleCharacter::OnSkillEnded);
 	}
 
 	if (!HasAuthority())
@@ -377,7 +380,8 @@ void ABaseBattleCharacter::OnDeath()
 	if (HasAuthority())
 	{
 		EffectComponent->ActivateBehaviorEffect(EBehaviorEffect::Death);
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		// Pawn과 충돌 무시
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
 		if (auto PC = GetController(); auto GM = Cast<IBattleGMInterface>(UGameplayStatics::GetGameMode(this)))
 		{
@@ -389,7 +393,7 @@ void ABaseBattleCharacter::OnDeath()
 		}
 	}
 
-	Destroy();
+	// Destroy();
 }
 
 UItemComponent* ABaseBattleCharacter::GetItemComponent_Implementation() const
@@ -609,6 +613,18 @@ void ABaseBattleCharacter::PickingItem()
 		}
 	}
 
+}
+
+void ABaseBattleCharacter::OnSkillStarted(UBaseSkill* Skill)
+{
+	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnSkillStarted : Call."));
+	// EffectComponent->ActivateBehaviorEffect(EBehaviorEffect::UsingSkill);
+}
+
+void ABaseBattleCharacter::OnSkillEnded(UBaseSkill* Skill)
+{
+	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnSkillStarted : Call."));
+	// EffectComponent->DeactivateBehaviorEffect(EBehaviorEffect::UsingSkill);
 }
 
 void ABaseBattleCharacter::MenuOnOff()

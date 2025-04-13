@@ -17,14 +17,13 @@ enum class ECCSkillCategory : uint8
 UENUM(BlueprintType)
 enum class EBehaviorEffect : uint8
 {
-    // Stiffness   UMETA(DisplayName = "Stiffness"),
-    Stun        UMETA(DisplayName = "Stun"),
     Stiffness   UMETA(DisplayName = "Stiffness"),
+    Stun        UMETA(DisplayName = "Stun"),
     Silence     UMETA(DisplayName = "Silence"),
     Confused    UMETA(DisplayName = "Confused"),
     // AirBorn     UMETA(DisplayName = "AirBorn"),
     
-    // UsingSkill  UMETA(DisplayName = "UsingSkill"),
+    UsingSkill  UMETA(DisplayName = "UsingSkill"),
     Death       UMETA(DisplayName = "Death"),
     Max         UMETA(DisplayName = "Max") // int32 NumEffects = static_cast<uint8>(ENonBehaviorEffect::Max);
 };

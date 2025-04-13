@@ -14,6 +14,7 @@
 class UStateComponent;
 class UEffectComponent;
 class USkillComponent;
+class UBaseSkill;
 
 UCLASS()
 class WEAPONMASTER_API ABaseBattleCharacter :
@@ -71,6 +72,11 @@ protected:
 	virtual void Defence() override;
 	virtual void PickingItem() override;
 
+	UFUNCTION()
+	void OnSkillStarted(UBaseSkill* Skill);
+	UFUNCTION()
+	void OnSkillEnded(UBaseSkill* Skill);
+	
 	// UI Input Binding Function
 	void MenuOnOff();
 	void Chat();
@@ -83,7 +89,7 @@ protected:
 	void ServerSetHP(float NewHP);
 
 	void OnDeath();
-	
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
