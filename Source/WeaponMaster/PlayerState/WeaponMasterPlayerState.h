@@ -25,4 +25,13 @@ protected:
 
 public:
 
+	FUniqueNetIdRepl UniqueId;
+
+	/** 팀 ID 반환 */
+	UFUNCTION(BlueprintCallable, Category = "PlayerState")
+	uint8 GetTeamID() const { return TeamIdx; }
+
+	/** 팀 ID 설정 */
+	UFUNCTION(BlueprintCallable, Category = "PlayerState")
+	void SetTeamID(uint8 NewTeamID) { TeamIdx = NewTeamID; }
 };

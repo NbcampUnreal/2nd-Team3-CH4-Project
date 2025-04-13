@@ -19,6 +19,12 @@ public:
 	void OnPlayerLose();
 
 	// BattleGMInterface
+
+	virtual void RestartPlayer(AController* NewPlayer) override;
+	
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	void UpdatePlayerInfo();
+	
 	virtual void SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController) override;
 	virtual void HandlePlayerDeath(AController* Controller);
 

@@ -1,10 +1,14 @@
 #include "WeaponMaster/GameModes/SingleGameMode.h"
 #include "GameFramework/Character.h"
 #include "EngineUtils.h"
+#include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
 #include "CharacterSpawner/CharacterSpawner.h"
 #include "Characters/Components/IBattleSystemUser.h"
 #include "Characters/Components/ItemComponent/ItemComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/PlayerState.h"
+#include "UI/CommonUI/PlayerStatusWidget.h"
+#include "UI/SingleUI/SingleGameHUD.h"
 
 void ASingleGameMode::BeginPlay()
 {
@@ -15,6 +19,9 @@ void ASingleGameMode::BeginPlay()
         //플레이어 캐릭터 스폰
         //몬스터 스폰
 	//}
+
+	// 플레이어 정보 초기화
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ASingleGameMode::UpdatePlayerInfo);
 }
 
 void ASingleGameMode::NotifyCharacterDeath(AActor* DeadActor)
@@ -44,6 +51,50 @@ void ASingleGameMode::OnPlayerLose()
 	UE_LOG(LogTemp, Warning, TEXT("Player Lose!"));
 
 	// 마찬가지로 패배 UI 처리
+}
+
+void ASingleGameMode::RestartPlayer(AController* NewPlayer)
+{
+	Super::RestartPlayer(NewPlayer);
+	
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ASingleGameMode::UpdatePlayerInfo);
+}
+
+void ASingleGameMode::UpdatePlayerInfo()
+{
+	// 플레이어 컨트롤러 가져오기
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC)
+	{
+		return;
+	}
+    
+	// 플레이어 캐릭터 가져오기
+	ABaseBattleCharacter* Character = Cast<ABaseBattleCharacter>(PC->GetPawn());
+	if (!Character)
+	{
+		return;
+	}
+    
+	// HUD 가져오기
+	ASingleGameHUD* SingleHUD = Cast<ASingleGameHUD>(PC->GetHUD());
+	if (!SingleHUD)
+	{
+		return;
+	}
+    
+	// 플레이어 상태 정보 구성
+	FPlayerStatusInfo StatusInfo;
+	StatusInfo.PlayerName = PC->PlayerState ? PC->PlayerState->GetPlayerName() : FString("Player");
+	StatusInfo.CurrentHealth = Character->GetHP();
+	StatusInfo.MaxHealth = Character->GetMaxHP();
+	StatusInfo.PlayerThumbnailTexture = Character->GetCharacterThumbnail();
+	StatusInfo.CharacterID = 0; // 싱글 플레이어는 ID 0
+	StatusInfo.TeamID = 0;      // 싱글 플레이어는 팀 0
+
+    
+	// HUD 업데이트
+	SingleHUD->UpdatePlayerStatus(StatusInfo);
 }
 
 bool ASingleGameMode::HasCharacterSpawner() const
