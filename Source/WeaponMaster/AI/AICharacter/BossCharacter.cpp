@@ -247,8 +247,8 @@ AActor* ABossCharacter::GetInteractableActor_Implementation() const
 
 void ABossCharacter::OnAttacked(const FAttackData& AttackData)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnAttacked Call"));
-	//LaunchCharacter(AttackData.LaunchVector, true, true);
+
+	LaunchCharacter(AttackData.LaunchVector/3, true, true);
 	if(CurrentHP - AttackData.Damage <= 0)
 	{
 		Die();

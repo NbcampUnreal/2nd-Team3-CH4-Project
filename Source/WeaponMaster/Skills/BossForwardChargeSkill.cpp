@@ -65,6 +65,7 @@ int32 UBossForwardChargeSkill::ProcessTargetActors(const TArray<AActor*>& Target
 
 			FAttackData AttackData
 			{
+				OwnerCharacter,
 				FinalDamage,
 				LaunchVector,
 				{ EBehaviorEffect::Stun },

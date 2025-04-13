@@ -63,6 +63,7 @@ int32 UBossAreaSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, f
 
 			FAttackData AttackData
 			{
+				OwnerCharacter,
 				FinalDamage,
 				LaunchVector,
 				{ EBehaviorEffect::Stun },
