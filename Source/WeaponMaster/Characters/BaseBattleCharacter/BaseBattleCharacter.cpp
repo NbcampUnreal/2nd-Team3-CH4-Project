@@ -317,18 +317,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 		UE_LOG(LogTemp, Warning,
 		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->MenuOnOffAction"));
 	}
-
-	// Chat
-	if (WeaponMasterController->ChatAction)
-	{
-		EnhancedInputComponent->BindAction(WeaponMasterController->ChatAction, ETriggerEvent::Started,
-		                                   this, &ABaseBattleCharacter::Chat);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning,
-		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->ChatAction"));
-	}
+	
 }
 
 void ABaseBattleCharacter::SetHP(float NewHP)
@@ -688,10 +677,7 @@ void ABaseBattleCharacter::MenuOnOff()
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::MenuOnOff !"));
 }
 
-void ABaseBattleCharacter::Chat()
-{
-	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Chat"));
-}
+
 
 void ABaseBattleCharacter::Multicast_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate)
 {
