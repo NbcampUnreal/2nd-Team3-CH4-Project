@@ -551,9 +551,9 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 		SetHP(HP - AttackData.Damage);
         
 		// 공격자의 데미지 통계 업데이트
-		if (AttackData.Attacker)
+		if (const auto CastedAttacker = Cast<ACharacter>(AttackData.Attacker))
 		{
-			APlayerController* AttackerPC = Cast<APlayerController>(AttackData.Attacker->GetController());
+			APlayerController* AttackerPC = Cast<APlayerController>(CastedAttacker->GetController());
 			if (AttackerPC && AttackerPC->PlayerState)
 			{
 				AWeaponMasterPlayerState* AttackerPS = Cast<AWeaponMasterPlayerState>(AttackerPC->PlayerState);

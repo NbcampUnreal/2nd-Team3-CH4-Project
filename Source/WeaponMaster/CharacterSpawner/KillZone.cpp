@@ -27,6 +27,7 @@ void AKillZone::BeginPlay()
 void AKillZone::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
 }
 
 void AKillZone::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
