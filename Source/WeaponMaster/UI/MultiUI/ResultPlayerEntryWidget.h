@@ -33,5 +33,8 @@ protected:
 	UTextBlock* KillCountText;
 
 	UPROPERTY(meta = (BindWidget))
+	UTextBlock* DeathsCountText;
+
+	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DamageText;
 };

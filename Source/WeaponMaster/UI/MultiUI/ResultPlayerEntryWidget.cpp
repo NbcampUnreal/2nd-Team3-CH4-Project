@@ -30,6 +30,12 @@ void UResultPlayerEntryWidget::SetPlayerResultInfo(UTexture2D* InIcon, const FTe
 		KillCountText->SetText(FText::FromString(KillString));
 	}
 
+	if (DeathsCountText)
+	{
+		FString DeathsString = FString::Printf(TEXT("%d Deaths"), InDeaths);
+		DeathsCountText->SetText(FText::FromString(DeathsString));
+	}
+
 	if (DamageText)
 	{
 		DamageText->SetText(FText::AsNumber(InDamage));
