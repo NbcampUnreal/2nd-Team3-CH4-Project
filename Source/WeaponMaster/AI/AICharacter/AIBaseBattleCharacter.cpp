@@ -73,3 +73,17 @@ void AAIBaseBattleCharacter::ApplyIdentity()
 	UE_LOG(LogTemp, Warning, TEXT("[AI] ApplyIdentity 호출"));
 	IBattleSystemUser::Execute_ExecuteSkill(this, 2);
 }
+
+void AAIBaseBattleCharacter::LookAtTarget(const AActor* TargetActor)
+{
+	if (!TargetActor) return;
+
+	FVector ToTarget = TargetActor->GetActorLocation() - GetActorLocation();
+	ToTarget.Z = 0.f; // 수평 회전만
+
+	if (!ToTarget.IsNearlyZero())
+	{
+		FRotator LookAtRotation = ToTarget.Rotation();
+		SetActorRotation(LookAtRotation);
+	}
+}
