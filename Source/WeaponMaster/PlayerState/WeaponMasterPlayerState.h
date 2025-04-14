@@ -32,7 +32,6 @@ protected:
 	
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Stats")
 	float TotalDamageDealt;
-
 public:
 
 	AWeaponMasterPlayerState();
