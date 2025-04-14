@@ -72,12 +72,12 @@ void ABaseBattleCharacter::BeginPlay()
 		ItemComponent->OnItemUnequipped.AddDynamic(this, &ABaseBattleCharacter::OnItemUnequippedForBinding);
 
 		SkillComponent->OnSkillStarted.AddDynamic(this, &ABaseBattleCharacter::OnSkillStarted);
-		SkillComponent->OnSkillStarted.AddDynamic(this, &ABaseBattleCharacter::OnSkillEnded);
+		SkillComponent->OnSkillEnded.AddDynamic(this, &ABaseBattleCharacter::OnSkillEnded);
 	}
 
 	if (!HasAuthority())
 	{
-		SetupMontageEndedDelegate_Implementation(); 
+		SetupMontageEndedDelegate_Implementation();
 	}
 }
 
@@ -90,63 +90,62 @@ void ABaseBattleCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 
 void ABaseBattleCharacter::OnRep_HP()
 {
-    UE_LOG(LogTemp, Warning, TEXT("======= OnRep_HP 호출! 현재 HP: %f ======="), HP);
-    
-    // 플레이어 상태 정보 구성
-    FPlayerStatusInfo StatusInfo;
-    
-    // PlayerState 정보가 있다면 가져옵니다
-    if (auto PlayerStateRef = GetPlayerState())
-    {
-        StatusInfo.PlayerName = PlayerStateRef->GetPlayerName();
-        StatusInfo.CharacterID = PlayerStateRef->GetPlayerId();
-        
-        // WeaponMasterPlayerState 접근 시도
-        if (auto WMPS = Cast<AWeaponMasterPlayerState>(PlayerStateRef))
-        {
-            StatusInfo.TeamID = WMPS->GetTeamID();
-        }
-    }
-    else
-    {
-        // PlayerState가 없을 경우 기본값 설정
-        StatusInfo.PlayerName = GetName();
-        StatusInfo.CharacterID = 0; // 또는 캐릭터 ID 생성 로직
-    }
-    
-    StatusInfo.CurrentHealth = HP;
-    StatusInfo.MaxHealth = MaxHP;
-    StatusInfo.PlayerThumbnailTexture = GetCharacterThumbnail();
-    
-    // 로컬 컨트롤러가 있는 경우에만 UI 업데이트
-    if (auto PlayerController = Cast<APlayerController>(GetController()))
-    {
-        UE_LOG(LogTemp, Warning, TEXT("HP UI 업데이트 성공! 현재 HP: %f, 최대 HP: %f"), 
-               StatusInfo.CurrentHealth, StatusInfo.MaxHealth);
-        
-        // 멀티 게임 HUD 확인
-        if (auto CastedHUD = Cast<AMultiGameHUD>(PlayerController->GetHUD()))
-        {
-            // HUD를 통해 플레이어 상태 업데이트
-            CastedHUD->UpdatePlayerStatus(StatusInfo.CharacterID, StatusInfo);
-        }
-        // 싱글 게임 HUD 확인
-        else if (auto SingleHUD = Cast<ASingleGameHUD>(PlayerController->GetHUD()))
-        {
-            // 싱글 게임 HUD 업데이트
-            SingleHUD->UpdatePlayerStatus(StatusInfo);
-        }
-        else
-        {
-            UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnRep_HP : HUD Cast Failed"));
-        }
-    }
-    else
-    {
-        // 컨트롤러가 없는 경우 (AI 또는 리플리케이션된 캐릭터)
-        UE_LOG(LogTemp, Warning, TEXT("컨트롤러가 없거나 PlayerController가 아닙니다. HP 업데이트만 처리합니다."));
-        
-    }
+	UE_LOG(LogTemp, Warning, TEXT("======= OnRep_HP 호출! 현재 HP: %f ======="), HP);
+
+	// 플레이어 상태 정보 구성
+	FPlayerStatusInfo StatusInfo;
+
+	// PlayerState 정보가 있다면 가져옵니다
+	if (auto PlayerStateRef = GetPlayerState())
+	{
+		StatusInfo.PlayerName = PlayerStateRef->GetPlayerName();
+		StatusInfo.CharacterID = PlayerStateRef->GetPlayerId();
+
+		// WeaponMasterPlayerState 접근 시도
+		if (auto WMPS = Cast<AWeaponMasterPlayerState>(PlayerStateRef))
+		{
+			StatusInfo.TeamID = WMPS->GetTeamID();
+		}
+	}
+	else
+	{
+		// PlayerState가 없을 경우 기본값 설정
+		StatusInfo.PlayerName = GetName();
+		StatusInfo.CharacterID = 0; // 또는 캐릭터 ID 생성 로직
+	}
+
+	StatusInfo.CurrentHealth = HP;
+	StatusInfo.MaxHealth = MaxHP;
+	StatusInfo.PlayerThumbnailTexture = GetCharacterThumbnail();
+
+	// 로컬 컨트롤러가 있는 경우에만 UI 업데이트
+	if (auto PlayerController = Cast<APlayerController>(GetController()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("HP UI 업데이트 성공! 현재 HP: %f, 최대 HP: %f"),
+		       StatusInfo.CurrentHealth, StatusInfo.MaxHealth);
+
+		// 멀티 게임 HUD 확인
+		if (auto CastedHUD = Cast<AMultiGameHUD>(PlayerController->GetHUD()))
+		{
+			// HUD를 통해 플레이어 상태 업데이트
+			CastedHUD->UpdatePlayerStatus(StatusInfo.CharacterID, StatusInfo);
+		}
+		// 싱글 게임 HUD 확인
+		else if (auto SingleHUD = Cast<ASingleGameHUD>(PlayerController->GetHUD()))
+		{
+			// 싱글 게임 HUD 업데이트
+			SingleHUD->UpdatePlayerStatus(StatusInfo);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnRep_HP : HUD Cast Failed"));
+		}
+	}
+	else
+	{
+		// 컨트롤러가 없는 경우 (AI 또는 리플리케이션된 캐릭터)
+		UE_LOG(LogTemp, Warning, TEXT("컨트롤러가 없거나 PlayerController가 아닙니다. HP 업데이트만 처리합니다."));
+	}
 }
 
 // Called every frame
@@ -317,14 +316,13 @@ void ABaseBattleCharacter::BindInputFunctions()
 		UE_LOG(LogTemp, Warning,
 		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->MenuOnOffAction"));
 	}
-	
 }
 
 void ABaseBattleCharacter::SetHP(float NewHP)
 {
 	float ClampedHP = FMath::Clamp(NewHP, 0.f, MaxHP);
 	HP = ClampedHP;
-    
+
 	// 명시적 UI 업데이트 코드 추가
 	if (auto PC = Cast<APlayerController>(GetController()))
 	{
@@ -337,11 +335,11 @@ void ABaseBattleCharacter::SetHP(float NewHP)
 			StatusInfo.PlayerThumbnailTexture = GetCharacterThumbnail();
 			StatusInfo.CharacterID = 0;
 			StatusInfo.TeamID = 0;
-            
+
 			SingleHUD->UpdatePlayerStatus(StatusInfo);
 		}
 	}
-    
+
 	// 기존 코드 유지
 	if (HasAuthority())
 	{
@@ -379,13 +377,13 @@ void ABaseBattleCharacter::OnDeath()
 	{
 		// 사망 이펙트 적용
 		EffectComponent->ActivateBehaviorEffect(EBehaviorEffect::Death);
-        
+
 		// Pawn과 충돌 무시
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
 		// 플레이어 컨트롤러 가져오기
 		APlayerController* PlayerPC = Cast<APlayerController>(GetController());
-        
+
 		// 플레이어 사망 통계 업데이트
 		if (PlayerPC && PlayerPC->PlayerState)
 		{
@@ -549,11 +547,18 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 		// 데미지 처리 전 기존 HP 저장
 		float OldHP = HP;
 		SetHP(HP - AttackData.Damage);
-        
-		// 공격자의 데미지 통계 업데이트
-		if (AttackData.Attacker)
+
+		// 이펙트 적용
+		for (int32 i = 0; i < AttackData.BehaviorEffects.Num(); i++)
 		{
-			APlayerController* AttackerPC = Cast<APlayerController>(AttackData.Attacker->GetController());
+			EffectComponent->ActivateBehaviorEffectWithDuration(AttackData.BehaviorEffects[i],
+																AttackData.BehaviorEffectsDurations[i]);
+		}
+		
+		// 공격자의 데미지 통계 업데이트
+		if (auto CastedAttacker = Cast<ACharacter>(AttackData.Attacker))
+		{
+			APlayerController* AttackerPC = Cast<APlayerController>(CastedAttacker->GetController());
 			if (AttackerPC && AttackerPC->PlayerState)
 			{
 				AWeaponMasterPlayerState* AttackerPS = Cast<AWeaponMasterPlayerState>(AttackerPC->PlayerState);
@@ -562,24 +567,16 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 					// 실제 입힌 데미지 계산 (기존 HP - 새 HP, 죽은 경우는 기존 HP만큼)
 					float ActualDamage = (HP <= 0.f) ? OldHP : (OldHP - HP);
 					AttackerPS->AddDamageDealt(ActualDamage);
-                    
+
 					// 죽었으면 킬 카운트 증가
 					if (HP <= 0.f)
 					{
 						AttackerPS->AddKill();
 					}
-					UE_LOG(LogTemp, Warning, TEXT("[%s]의 현재 전투 통계 - 킬: %d, 총 데미지: %.2f"), 
-					*AttackerPS->GetPlayerName(), AttackerPS->GetKillCount(), AttackerPS->GetTotalDamageDealt());
-				
+					UE_LOG(LogTemp, Warning, TEXT("[%s]의 현재 전투 통계 - 킬: %d, 총 데미지: %.2f"),
+					       *AttackerPS->GetPlayerName(), AttackerPS->GetKillCount(), AttackerPS->GetTotalDamageDealt());
 				}
 			}
-		}
-
-		// 이펙트 적용
-		for (int32 i = 0; i < AttackData.BehaviorEffects.Num(); i++)
-		{
-			EffectComponent->ActivateBehaviorEffectWithDuration(AttackData.BehaviorEffects[i],
-															  AttackData.BehaviorEffectsDurations[i]);
 		}
 	}
 }
@@ -646,14 +643,14 @@ void ABaseBattleCharacter::Defence()
 void ABaseBattleCharacter::PickingItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::PickingItem !"));
-    
+
 	if (GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	{
 		AActor* interactableActor = IBattleSystemUser::Execute_GetInteractableActor(this);
 		if (interactableActor)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("상호작용 가능한 아이템 찾음: %s"), *interactableActor->GetName());
-            
+
 			UInteractionComponent* InteractionComp = interactableActor->FindComponentByClass<UInteractionComponent>();
 			if (InteractionComp)
 			{
@@ -661,19 +658,18 @@ void ABaseBattleCharacter::PickingItem()
 			}
 		}
 	}
-
 }
 
 void ABaseBattleCharacter::OnSkillStarted(UBaseSkill* Skill)
 {
 	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnSkillStarted : Call."));
-	// EffectComponent->ActivateBehaviorEffect(EBehaviorEffect::UsingSkill);
+	EffectComponent->ActivateBehaviorEffect(EBehaviorEffect::UsingSkill);
 }
 
 void ABaseBattleCharacter::OnSkillEnded(UBaseSkill* Skill)
 {
 	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnSkillStarted : Call."));
-	// EffectComponent->DeactivateBehaviorEffect(EBehaviorEffect::UsingSkill);
+	EffectComponent->DeactivateBehaviorEffect(EBehaviorEffect::UsingSkill);
 }
 
 void ABaseBattleCharacter::MenuOnOff()
@@ -688,19 +684,18 @@ void ABaseBattleCharacter::MenuOnOff()
 }
 
 
-
 void ABaseBattleCharacter::Multicast_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate)
 {
 	if (!Montage || !IsValid(GetMesh()) || !GetMesh()->GetAnimInstance())
 	{
 		return;
 	}
-    
-	UE_LOG(LogTemp, Warning, TEXT("[%s] 몽타주 %s 재생 시작 (재생속도: %.2f)"), 
-		HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
-		*Montage->GetName(), 
-		PlayRate);
-        
+
+	UE_LOG(LogTemp, Warning, TEXT("[%s] 몽타주 %s 재생 시작 (재생속도: %.2f)"),
+	       HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
+	       *Montage->GetName(),
+	       PlayRate);
+
 	// 모든 클라이언트(및 서버)에서 몽타주 재생
 	GetMesh()->GetAnimInstance()->Montage_Play(Montage, PlayRate);
 }
@@ -715,10 +710,10 @@ void ABaseBattleCharacter::SetupMontageEndedDelegate_Implementation()
 
 void ABaseBattleCharacter::RequestItemPickup_Implementation(AActor* ItemActor)
 {
-	UE_LOG(LogTemp, Warning, TEXT("RequestItemPickup: %s가 아이템 %s 획득 요청 (권한: %d)"), 
-		   *GetName(), ItemActor ? *ItemActor->GetName() : TEXT("Unknown"), 
-		   (int32)GetLocalRole());
-           
+	UE_LOG(LogTemp, Warning, TEXT("RequestItemPickup: %s가 아이템 %s 획득 요청 (권한: %d)"),
+	       *GetName(), ItemActor ? *ItemActor->GetName() : TEXT("Unknown"),
+	       (int32)GetLocalRole());
+
 	if (!HasAuthority())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("RequestItemPickup: 클라이언트에서 Server_RequestItemPickup 호출"));
