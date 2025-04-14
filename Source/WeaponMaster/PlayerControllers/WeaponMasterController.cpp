@@ -2,10 +2,6 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "GameModes/BattleGMInterface.h"
-#include "GameFramework/GameModeBase.h"
-#include "GameModes/BaseGameMode.h"
-#include "GameState/WeaponMasterGameState.h"
 #include "UI/MultiUI/ChatWidget.h"
 #include "UI/MultiUI/MultiGameHUD.h"
 

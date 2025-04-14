@@ -2,11 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameState.h"
-#include "GameModes/BattleGMInterface.h"
 #include "WeaponMasterGameState.generated.h"
 
 UCLASS()
-class WEAPONMASTER_API AWeaponMasterGameState : public AGameState
+class WEAPONMASTER_API AWeaponMasterGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 
