@@ -4,6 +4,8 @@
 #include "GameState/WeaponMasterGameState.h"
 #include "Instance/WeaponMasterGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "UI/MultiUI/DeathMatchHUD.h"
+#include "UI/MultiUI/IndividualMatchStatusWidget.h"
 #include "UI/MultiUI/MultiGameHUD.h"
 #include "UI/MultiUI/SessionWidget.h"
 #include "UI/MultiUI/WrapStatusWidget.h"
@@ -55,6 +57,11 @@ void AEOSPlayerController::Client_UpdateInGameTimer_Implementation(const int32 T
     {
         MultiGameHUD->WrapStatusWidget->SetRemainTimer(TimerCountDown);
     }
+
+    if (ADeathMatchHUD* DeathMatchHUD = Cast<ADeathMatchHUD>(GetHUD()))
+    {
+        DeathMatchHUD->SetRemainingTime(TimerCountDown);
+    }
 }
 
 void AEOSPlayerController::UpdateHUD(EMapType Map)
@@ -62,6 +69,15 @@ void AEOSPlayerController::UpdateHUD(EMapType Map)
     if (AMultiGameHUD* MultiHUD = Cast<AMultiGameHUD>(GetHUD()))
     {
         MultiHUD->TransferHUDBy(Map);
+    }
+
+    if (const ADeathMatchHUD* DeathMatchHUD = Cast<ADeathMatchHUD>(GetHUD()))
+    {
+        DeathMatchHUD->IndividualMatchStatusWidget->UpdateMatchTitle(Map);
+        FText Winner = FText::FromString(TEXT("황찬호"));
+        FText Looser = FText::FromString(TEXT("재성윤"));
+        
+        DeathMatchHUD->UpdateKillLog(Winner, Looser);
     }
 }
 

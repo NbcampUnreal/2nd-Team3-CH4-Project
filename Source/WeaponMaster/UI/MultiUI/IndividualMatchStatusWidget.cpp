@@ -1,4 +1,7 @@
 #include "IndividualMatchStatusWidget.h"
+
+#include "GameDelegates.h"
+#include "KillLogWidget.h"
 #include "Components/ScrollBox.h"
 #include "Components/VerticalBox.h"
 #include "Components/TextBlock.h"
@@ -120,7 +123,6 @@ void UIndividualMatchStatusWidget::InitializeDummyPlayerStatus(int32 TotalPlayer
 
 void UIndividualMatchStatusWidget::UpdatePlayerKills(int32 PlayerID, int32 Kills)
 {
-    
     if (UPlayerStatusWidget* PlayerWidget = PlayerWidgets.FindRef(PlayerID))
     {
         // 킬 정보 업데이트 함수가 PlayerStatusWidget에 추가되어야 함
@@ -128,6 +130,35 @@ void UIndividualMatchStatusWidget::UpdatePlayerKills(int32 PlayerID, int32 Kills
         
         // 플레이어 목록 재정렬
         SortPlayersByScore();
+    }
+}
+
+void UIndividualMatchStatusWidget::UpdateMatchTitle(const EMapType Map) const
+{
+    FText Title;
+    
+    switch (Map)
+    {
+    case EMapType::PVPMap:
+        {
+            Title = FText::FromString(TEXT("데스매치"));
+            break;
+        }
+    case EMapType::PVEMap:
+        {
+            Title = FText::FromString(TEXT("협동모드"));
+            break;
+        }
+    case EMapType::SessionMap:
+        {
+            Title = FText::GetEmpty();
+            break;
+        }
+    }
+    
+    if (MatchTitleTextBlock)
+    {
+        MatchTitleTextBlock->SetText(Title);
     }
 }
 
@@ -140,8 +171,6 @@ void UIndividualMatchStatusWidget::UpdatePlayerDeaths(int32 PlayerID, int32 Deat
         // PlayerWidget->UpdateDeaths(Deaths);
     }
 }
-
-
 
 void UIndividualMatchStatusWidget::UpdatePlayerHealth(int32 PlayerID, float CurrentHealth, float MaxHealth)
 {
