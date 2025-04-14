@@ -22,8 +22,6 @@ void USingleStageSelectWidget::NativeConstruct()
 	{
 		BackButton->OnClicked.AddDynamic(this, &USingleStageSelectWidget::OnBackButtonClicked);
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("CreateStageButtons() 호출됨"));
 	CreateStageButtons();
 }
 

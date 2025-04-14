@@ -54,12 +54,12 @@ void ATeamGameMode::PlayCountDownTimerAction()
 	if (TimerCountDown == 0)
 	{
 		// Score Board 이동
-
+		
 		GetWorldTimerManager().ClearTimer(PlayCountDownTimerHandle);
 	}
 }
 
-void ATeamGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
+void ATeamGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
 {
 	if (!HasCharacterSpawner()) return;
 
@@ -98,6 +98,7 @@ void ATeamGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, F
 	}
 }
 
-void ATeamGameMode::HandlePlayerDeath(AController* Controller)
+void ATeamGameMode::HandlePlayerDeath(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* Controller)
 {
+	// 목숨있으면 살리기 없으면 안살리기
 }

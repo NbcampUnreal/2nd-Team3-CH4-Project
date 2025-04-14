@@ -58,19 +58,18 @@ int32 UBossForwardChargeSkill::ProcessTargetActors(const TArray<AActor*>& Target
 		UE_LOG(LogTemp, Warning, TEXT("[ComboSkill] Hit Target: %s | Damage: %.1f"), *Target->GetName(), FinalDamage);
 
 
-		/*if (auto CastedTarget = Cast<IDamageSystemUser>(Target))
+		if (auto CastedTarget = Cast<IDamageSystemUser>(Target))
 		{
 			UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Success!"));
-			FVector LaunchVector = OwnerCharacter->GetActorForwardVector() * 100;
+			FVector LaunchVector = OwnerCharacter->GetActorForwardVector() * 200;
 
 			FAttackData AttackData
 			{
+				OwnerCharacter,
 				FinalDamage,
 				LaunchVector,
-				1,
-				{ EBehaviorEffect::Stiffness },
+				{ EBehaviorEffect::Stun },
 				{ 2 },
-				0,
 				{},
 				{}
 			};
@@ -80,7 +79,7 @@ int32 UBossForwardChargeSkill::ProcessTargetActors(const TArray<AActor*>& Target
 		else
 		{
 			UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Failed!"));
-		}*/
+		}
 
 		// 타격 이펙트 (선택)
 		if (!SkillEffect.IsNull())

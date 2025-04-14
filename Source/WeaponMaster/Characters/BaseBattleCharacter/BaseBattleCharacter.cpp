@@ -399,7 +399,17 @@ void ABaseBattleCharacter::OnDeath()
 		// 게임 모드에 사망 알림
 		if (auto GM = Cast<IBattleGMInterface>(UGameplayStatics::GetGameMode(this)))
 		{
-			GM->HandlePlayerDeath(PlayerPC);
+			if (auto CastedGameInstance = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
+			{
+				TSubclassOf<ACharacter> CharacterClass = CastedGameInstance->CharacterClass;
+				FName ItemName = CastedGameInstance->ItemName;
+
+				GM->HandlePlayerDeath(CharacterClass, ItemName, PlayerPC);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("AWeaponMasterController::OnDeath : GameInstance Cast Failed."))
+			}
 		}
 		else
 		{
@@ -541,9 +551,9 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 		SetHP(HP - AttackData.Damage);
         
 		// 공격자의 데미지 통계 업데이트
-		if (AttackData.Attacker)
+		if (const auto CastedAttacker = Cast<ACharacter>(AttackData.Attacker))
 		{
-			APlayerController* AttackerPC = Cast<APlayerController>(AttackData.Attacker->GetController());
+			APlayerController* AttackerPC = Cast<APlayerController>(CastedAttacker->GetController());
 			if (AttackerPC && AttackerPC->PlayerState)
 			{
 				AWeaponMasterPlayerState* AttackerPS = Cast<AWeaponMasterPlayerState>(AttackerPC->PlayerState);
