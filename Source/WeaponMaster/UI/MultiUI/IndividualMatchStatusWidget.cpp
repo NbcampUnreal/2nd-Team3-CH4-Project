@@ -118,19 +118,6 @@ void UIndividualMatchStatusWidget::InitializeDummyPlayerStatus(int32 TotalPlayer
     SortPlayersByScore();
 }
 
-void UIndividualMatchStatusWidget::UpdatePlayerKills(int32 PlayerID, int32 Kills)
-{
-    // PlayerStatusWidget에 킬 정보 업데이트 기능이 있다고 가정
-    if (UPlayerStatusWidget* PlayerWidget = PlayerWidgets.FindRef(PlayerID))
-    {
-        // 킬 정보 업데이트 함수가 PlayerStatusWidget에 추가되어야 함
-        // PlayerWidget->UpdateKills(Kills);
-        
-        // 플레이어 목록 재정렬
-        SortPlayersByScore();
-    }
-}
-
 void UIndividualMatchStatusWidget::UpdatePlayerDeaths(int32 PlayerID, int32 Deaths)
 {
     // PlayerStatusWidget에 데스 정보 업데이트 기능이 있다고 가정

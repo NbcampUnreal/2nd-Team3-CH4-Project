@@ -1,0 +1,1 @@
+#include "KillLogWidget.h"

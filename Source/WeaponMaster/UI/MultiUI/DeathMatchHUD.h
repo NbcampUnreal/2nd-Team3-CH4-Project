@@ -68,7 +68,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widgets")
 	TSubclassOf<UUserWidget> InGameMenuWidgetClass;
 	
-private:
 	/** 개인전 상태 위젯 인스턴스 */
 	UPROPERTY()
 	UIndividualMatchStatusWidget* IndividualMatchStatusWidget;
@@ -80,6 +79,8 @@ private:
 	/** 인게임 메뉴 위젯 인스턴스 */
 	UPROPERTY()
 	UUserWidget* InGameMenuWidget;
+
+private:
 	
 	/** 메뉴 표시 여부 */
 	bool bIsMenuVisible;

@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameState.h"
-#include "GameModes/BattleGMInterface.h"
 #include "WeaponMasterGameState.generated.h"
 
 UCLASS()
