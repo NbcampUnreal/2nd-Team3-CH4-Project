@@ -21,4 +21,8 @@ public:
 	virtual void HandlePlayerDeath(TSubclassOf<ACharacter> CharacterClass, APlayerController* Controller) override;
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+	
+	// Helper function to get player name from GameInstance
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	FString GetPlayerNameFromGameInstance(APlayerController* Controller);
 };
