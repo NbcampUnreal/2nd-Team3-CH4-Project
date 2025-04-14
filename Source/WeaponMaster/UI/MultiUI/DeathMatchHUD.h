@@ -88,9 +88,6 @@ private:
 	/** 메뉴 표시 여부 */
 	bool bIsMenuVisible;
 	
-	/** 플레이어 정렬 타이머 */
-	FTimerHandle SortPlayersTimerHandle;
-	
 	/** 내 플레이어 ID */
 	int32 LocalPlayerID;
 };
