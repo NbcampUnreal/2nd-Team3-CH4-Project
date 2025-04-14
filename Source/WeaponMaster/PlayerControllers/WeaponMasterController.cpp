@@ -9,7 +9,6 @@
 #include "UI/MultiUI/ChatWidget.h"
 #include "UI/MultiUI/MultiGameHUD.h"
 
-
 AWeaponMasterController::AWeaponMasterController()
 {
 	DefaultMappingContext = nullptr;
@@ -62,8 +61,6 @@ void AWeaponMasterController::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("AWeaponMasterController::BeginPlay : GameInstance Cast Failed."))
 	}
-
-	
 }
 
 void AWeaponMasterController::ServerSpawnPlayerCharacter_Implementation(TSubclassOf<ACharacter> CharacterClass, FName ItemName)

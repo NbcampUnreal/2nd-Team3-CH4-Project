@@ -24,5 +24,5 @@ class WEAPONMASTER_API IBattleGMInterface
 public:
 	virtual void SpawnPlayerCharacter(TSubclassOf<class ACharacter> CharacterClass, FName ItemName, AController* OwnerController) = 0;
 
-	virtual void HandlePlayerDeath(AController* Controller) = 0;
+	virtual void HandlePlayerDeath(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* Controller) = 0;
 };
