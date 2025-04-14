@@ -233,7 +233,7 @@ void ADeathMatchGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> Character
     UE_LOG(LogTemp, Error, TEXT("유효한 스폰 위치를 찾을 수 없습니다."));
 }
 
-void ADeathMatchGameMode::HandlePlayerDeath(AController* Controller)
+void ADeathMatchGameMode::HandlePlayerDeath(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* Controller)
 {
     if (!Controller) return;
     
