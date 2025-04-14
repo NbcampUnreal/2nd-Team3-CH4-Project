@@ -30,13 +30,16 @@ void AEOSGameMode::PostLogin(APlayerController* NewPlayer)
 
 void AEOSGameMode::SetTimer()
 {
-	GetWorldTimerManager().SetTimer(
+	if (IsRunningDedicatedServer())
+	{
+		GetWorldTimerManager().SetTimer(
 		PlayCountDownTimerHandle,
 		this,
 		&AEOSGameMode::PlayCountDownTimerAction,
 		1.0f,
 		true
-	);
+		);
+	}
 }
 
 void AEOSGameMode::PlayCountDownTimerAction()
