@@ -266,7 +266,6 @@ void USSTCharacterMovementComponent::StartNewPhysics(float deltaTime, int32 Iter
 			Turning = false;
 		}
 	}
-
 	Super::StartNewPhysics(deltaTime, Iterations);
 }
 

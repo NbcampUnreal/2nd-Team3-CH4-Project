@@ -104,6 +104,10 @@ void UBehaviorStateDecorator::Deactivate()
 	// InnerState, OuterState 연결하고 여기는 nullptr로
 	// 변수들 원래대로
 	// GetOuter()->GetWorld()->GetTimerManager().ClearTimer(DurationTimer);
+	if (!bIsActive)
+	{
+		return;
+	}
 	
 	auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
 	if (!IsValid(OwnerCharacter))

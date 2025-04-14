@@ -1,14 +1,13 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#include "WeaponMasterController.h"
+﻿#include "WeaponMasterController.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameModes/BattleGMInterface.h"
 #include "GameFramework/GameModeBase.h"
+#include "GameModes/BaseGameMode.h"
+#include "GameState/WeaponMasterGameState.h"
 #include "UI/MultiUI/ChatWidget.h"
 #include "UI/MultiUI/MultiGameHUD.h"
-
 
 AWeaponMasterController::AWeaponMasterController()
 {
@@ -50,28 +49,6 @@ void AWeaponMasterController::BeginPlay()
 	}
 	
 	Subsystem->AddMappingContext(DefaultMappingContext, 0);
-
-	if (auto CastedGameInstance = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
-	{
-		TSubclassOf<ACharacter> CharacterClass = CastedGameInstance->CharacterClass;
-		FName ItemName = CastedGameInstance->ItemName;
-	
-		ServerSetPlayerCharacter(CharacterClass, ItemName);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("AWeaponMasterController::BeginPlay : GameInstance Cast Failed."))
-	}
-
-	
-}
-
-void AWeaponMasterController::ServerSetPlayerCharacter_Implementation(TSubclassOf<ACharacter> CharacterClass, FName ItemName)
-{
-	if (const auto CastedGameMode = Cast<IBattleGMInterface>(GetWorld()->GetAuthGameMode()))
-	{
-		CastedGameMode->SetPlayerCharacter(CharacterClass, ItemName, this);
-	}
 }
 
 void AWeaponMasterController::SetupInputComponent()

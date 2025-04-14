@@ -1,11 +1,7 @@
 #include "GameModes/DeathMatchGameMode.h"
 #include "CharacterSpawner/CharacterSpawner.h"
-#include "GameFramework/Character.h"
 #include "EngineUtils.h"
 #include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
-#include "Characters/Components/IBattleSystemUser.h"
-#include "Characters/Components/ItemComponent/ItemComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "PlayerControllers/EOSPlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "PlayerState/WeaponMasterPlayerState.h"
@@ -181,59 +177,8 @@ void ADeathMatchGameMode::DisplayMatchResults()
     }
 }
 
-void ADeathMatchGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
-{
-    if (!HasCharacterSpawner()) 
-    {
-        UE_LOG(LogTemp, Error, TEXT("캐릭터 스포너가 없습니다!"));
-        return;
-    }
-
-    // 랜덤 스폰 위치 선택
-    TArray<AActor*> SpawnerActors;
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacterSpawner::StaticClass(), SpawnerActors);
-    
-    if (SpawnerActors.Num() == 0)
-    {
-        UE_LOG(LogTemp, Error, TEXT("맵에 캐릭터 스포너가 없습니다!"));
-        return;
-    }
-    
-    // 스폰 위치 랜덤 선택 및 캐릭터 스폰
-    uint8 SpawnAttempts = 0;
-    while (SpawnAttempts < 10) // 최대 10번 시도
-    {
-        int32 RandomIndex = FMath::RandRange(0, SpawnerActors.Num() - 1);
-        ACharacterSpawner* Spawner = Cast<ACharacterSpawner>(SpawnerActors[RandomIndex]);
-        
-        if (ACharacter* SpawnedCharacter = Spawner->SpawnCharacter(CharacterClass))
-        {
-            // 컨트롤러 연결
-            SpawnedCharacter->SetOwner(OwnerController);
-            OwnerController->Possess(SpawnedCharacter);
-            
-            // 무기 장착
-            if (SpawnedCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
-            {
-                UItemComponent* ItemComponent = IBattleSystemUser::Execute_GetItemComponent(SpawnedCharacter);
-                ItemComponent->EquipItem(ItemName);
-                
-                UE_LOG(LogTemp, Display, TEXT("플레이어 캐릭터 스폰 성공: %s"), *OwnerController->GetName());
-                return;
-            }
-            else
-            {
-                UE_LOG(LogTemp, Error, TEXT("캐릭터가 IBattleSystemUser를 구현하지 않았습니다."));
-            }
-        }
-        
-        SpawnAttempts++;
-    }
-    
-    UE_LOG(LogTemp, Error, TEXT("유효한 스폰 위치를 찾을 수 없습니다."));
-}
-
-void ADeathMatchGameMode::HandlePlayerDeath(AController* Controller)
+/*
+void ADeathMatchGameMode::HandlePlayerDeath(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* Controller)
 {
     if (!Controller) return;
     
@@ -294,7 +239,7 @@ void ADeathMatchGameMode::HandlePlayerDeath(AController* Controller)
         false
     );
 }
-
+*/
 
 int32 ADeathMatchGameMode::GetPlayerKills(AController* Controller) const
 {

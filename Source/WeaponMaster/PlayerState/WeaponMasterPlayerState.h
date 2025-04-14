@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
-#include "../UIData/UISelectData.h"
 #include "WeaponMasterPlayerState.generated.h"
 
 /**
@@ -33,8 +32,10 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Stats")
 	float TotalDamageDealt;
 
-public:
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Stats")
+	int32 AIKillCount;
 
+public:
 	AWeaponMasterPlayerState();
 
 	FUniqueNetIdRepl UniqueId;
