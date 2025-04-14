@@ -106,7 +106,7 @@ bool ASingleGameMode::HasCharacterSpawner() const
 	return false;
 }
 
-void ASingleGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
+void ASingleGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
 {
 	if (!HasCharacterSpawner()) return;
 

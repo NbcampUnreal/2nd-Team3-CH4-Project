@@ -59,7 +59,7 @@ void ATeamGameMode::PlayCountDownTimerAction()
 	}
 }
 
-void ATeamGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
+void ATeamGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
 {
 	if (!HasCharacterSpawner()) return;
 
