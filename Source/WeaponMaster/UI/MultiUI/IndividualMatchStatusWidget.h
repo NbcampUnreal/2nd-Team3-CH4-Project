@@ -27,13 +27,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void InitializeDummyPlayerStatus(int32 TotalPlayers, int32 LocalPlayerID = -1);
 
+	/** 특정 플레이어의 킬 점수 업데이트 */
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void UpdatePlayerKills(int32 PlayerID, int32 Kills);
+	
 	/** 특정 플레이어의 데스 점수 업데이트 */
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void UpdatePlayerDeaths(int32 PlayerID, int32 Deaths);
-
-	/** 특정 플레이어의 점수 업데이트 */
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	void UpdatePlayerScore(int32 PlayerID, int32 Score);
 
 	/** 특정 플레이어의 체력 업데이트 */
 	UFUNCTION(BlueprintCallable, Category = "UI")

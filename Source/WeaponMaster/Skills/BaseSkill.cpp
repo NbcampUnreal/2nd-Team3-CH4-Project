@@ -5,6 +5,7 @@
 #include "Animation/AnimMontage.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
+#include "BaseBehaviors/MouseHoverBehavior.h"
 #include "Characters/Components/IBattleSystemUser.h"
 #include "WeaponMaster/Data/StatusTypes.h"
 
@@ -102,10 +103,10 @@ void UBaseSkill::ExecuteSkill()
 
 void UBaseSkill::EndSkill()
 {
-    // 스킬 비활성화
+    UE_LOG(LogTemp, Warning, TEXT("[UBaseSkill::EndSkill] 스킬 종료 브로드캐스트 시작: %s"), *SkillName);
     bIsActive = false;
-
     OnSkillEnded.Broadcast(this);
+    UE_LOG(LogTemp, Warning, TEXT("[UBaseSkill::EndSkill] 브로드캐스트 완료"));
 }
 
 void UBaseSkill::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)

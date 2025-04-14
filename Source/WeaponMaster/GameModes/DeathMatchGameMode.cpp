@@ -189,7 +189,7 @@ void ADeathMatchGameMode::HandlePlayerDeath(TSubclassOf<ACharacter> CharacterCla
         // 데스 카운트 증가
         VictimState->AddDeath();
         
-        // 킬러 찾기 (직접 구현 필요)
+        // 킬러 찾기
         AController* KillerController = nullptr;
         ABaseBattleCharacter* VictimCharacter = Cast<ABaseBattleCharacter>(Controller->GetPawn());
         
@@ -274,7 +274,7 @@ void ADeathMatchGameMode::UpdateAllPlayerHUDs()
 			if (!PlayerState) continue;
             
 			// 플레이어 ID는 PlayerId로 가정
-			int32 PlayerId = OtherPC->GetUniqueID(); // 또는 적절한 방법으로 ID 획득
+			int32 PlayerId = PlayerState->GetUniqueID(); 
 			int32 Kills = PlayerState->GetKillCount();
 			int32 Deaths = PlayerState->GetDeathCount();
             
@@ -284,7 +284,7 @@ void ADeathMatchGameMode::UpdateAllPlayerHUDs()
 			float MaxHealth = Character ? Character->GetMaxHP() : 100.0f;
             
 			// HUD 업데이트
-			DMHUD->UpdatePlayerStats(PlayerId, Kills, Deaths, Kills * 100); // 점수 = 킬 * 100
+			DMHUD->UpdatePlayerStats(PlayerId, Kills, Deaths); 
 			DMHUD->UpdatePlayerHealth(PlayerId, CurrentHealth, MaxHealth);
 		}
 	}
