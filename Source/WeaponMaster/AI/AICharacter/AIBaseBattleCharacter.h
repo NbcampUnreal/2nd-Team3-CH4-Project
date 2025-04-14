@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
+#include "AI/AISpawner/AISpawner.h"
 #include "AIBaseBattleCharacter.generated.h"
 
 UCLASS()
@@ -12,6 +13,9 @@ class WEAPONMASTER_API AAIBaseBattleCharacter : public ABaseBattleCharacter
 	GENERATED_BODY()
 public:
 	AAIBaseBattleCharacter(const FObjectInitializer& ObjectInitializer);
+
+	UPROPERTY()
+	AAISpawner* SpawnerOwner;
 
 // 랜덤 장착용 아이템 목록
 	UPROPERTY(EditAnywhere, Category = "AI|Item")
