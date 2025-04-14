@@ -36,6 +36,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AI|Attack")
 	void ApplyIdentity();
+
+	UFUNCTION(BlueprintCallable, Category = "AI|State")
+	bool IsCanToAct()const;
+
 private:
 	virtual void BeginPlay() override;
 };

@@ -5,26 +5,16 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "WeaponMaster/Data/ItemDataAsset.h"
 #include "SSTCharacterMovementComponent.h"
+#include "Characters/Components/EffectComponent/EffectComponent.h"
 
 AAIBaseBattleCharacter::AAIBaseBattleCharacter(const FObjectInitializer& ObjectInitializer)	: Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0.f, 1.f, 0.f));
-	UE_LOG(LogTemp, Warning, TEXT("[AI] 생성자 호출"));
 
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	bUseControllerRotationYaw = true;
-
-	UE_LOG(LogTemp, Warning, TEXT("[BaseAI] OrientToMove: %d | UseYaw: %d | YawRate: %f"),
-		GetCharacterMovement()->bOrientRotationToMovement,
-		bUseControllerRotationYaw,
-		GetCharacterMovement()->RotationRate.Yaw);
-
-	if (USSTCharacterMovementComponent* MoveComp = Cast<USSTCharacterMovementComponent>(GetCharacterMovement()))
-	{
-		MoveComp->SetFacingRight(false); // or true
-	}
 }
 
 void AAIBaseBattleCharacter::BeginPlay()
@@ -57,9 +47,6 @@ void AAIBaseBattleCharacter::ApplyWeakAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("[AI] ApplyWeakAttack 호출"));
 	IBattleSystemUser::Execute_ExecuteSkill(this, 0);
-	/*FRotator CurrentRotation = GetActorRotation();
-	FRotator NewRotation = CurrentRotation + FRotator(0.f, 180.f, 0.f);
-	SetActorRotation(NewRotation);*/
 }
 
 void AAIBaseBattleCharacter::ApplyStrongAttack()
@@ -86,4 +73,28 @@ void AAIBaseBattleCharacter::LookAtTarget(const AActor* TargetActor)
 		FRotator LookAtRotation = ToTarget.Rotation();
 		SetActorRotation(LookAtRotation);
 	}
+}
+
+bool AAIBaseBattleCharacter::IsCanToAct() const
+{
+	if (!EffectComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EffectComponent가 없습니다."));
+		return false;
+	}
+
+	const auto& Effects = EffectComponent->GetActiveBehaviorEffects();
+
+	for (auto Debuff : Effects)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[IsAbleToAct] 현재 디버프: %s"), *StaticEnum<EBehaviorEffect>()->GetNameStringByValue((uint8)Debuff));
+	}
+
+	bool bCanAct = !(Effects.Contains(EBehaviorEffect::Death) ||
+		Effects.Contains(EBehaviorEffect::Stun) ||
+		Effects.Contains(EBehaviorEffect::Stiffness));
+
+	UE_LOG(LogTemp, Warning, TEXT("[IsAbleToAct] 최종 결과: %s"), bCanAct ? TEXT("True") : TEXT("False"));
+
+	return bCanAct;
 }
