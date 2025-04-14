@@ -23,14 +23,12 @@ void ABaseGameMode::BeginPlay()
 void ABaseGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-
-	// Get player name from GameInstance
+	
 	FString PlayerName = "Player";
 	if (const auto CastedGameInstance = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
 	{
 		PlayerName = CastedGameInstance->GetPlayerName();
 		
-		// If no valid name found from EOS, use a default with player index
 		if (PlayerName.IsEmpty())
 		{
 			PlayerName = FString::Printf(TEXT("Player_%d"), NewPlayer->GetUniqueID());
