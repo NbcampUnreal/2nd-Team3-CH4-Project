@@ -26,6 +26,9 @@ struct FPlayerResultData
 	int32 Kills;
 
 	UPROPERTY(BlueprintReadWrite)
+	int32 Deaths;
+
+	UPROPERTY(BlueprintReadWrite)
 	int32 Damage;
 };
 
@@ -36,7 +39,6 @@ class WEAPONMASTER_API UGameResultWidget : public UUserWidget
 public:
 	UFUNCTION(BlueprintCallable, Category = "Result")
 	void PopulatePlayerEntries(const TArray<FPlayerResultData>& ResultList);
-
 protected:
 	virtual void NativeConstruct() override;
 
@@ -53,7 +55,5 @@ protected:
 	UFUNCTION()
 	void OnMainButtonClicked();
 
-	UFUNCTION()
 	void SortPlayerResultsByKill(TArray<FPlayerResultData>& ResultList);
-
 };
