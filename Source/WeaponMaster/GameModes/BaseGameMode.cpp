@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerControllers/WeaponMasterController.h"
+#include "PlayerState/WeaponMasterPlayerState.h"  // Added include for WeaponMasterPlayerState
 
 ABaseGameMode::ABaseGameMode()
 {
@@ -23,8 +24,25 @@ void ABaseGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
+	// Get player name from GameInstance
+	FString PlayerName = "Player";
 	if (const auto CastedGameInstance = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
 	{
+		PlayerName = CastedGameInstance->GetPlayerName();
+		
+		// If no valid name found from EOS, use a default with player index
+		if (PlayerName.IsEmpty())
+		{
+			PlayerName = FString::Printf(TEXT("Player_%d"), NewPlayer->GetUniqueID());
+		}
+		
+		// Set player name in PlayerState
+		if (AWeaponMasterPlayerState* PlayerState = Cast<AWeaponMasterPlayerState>(NewPlayer->PlayerState))
+		{
+			PlayerState->SetPlayerName(PlayerName);
+			UE_LOG(LogTemp, Display, TEXT("Player name set from GameInstance: %s"), *PlayerName);
+		}
+		
 		TSubclassOf<ACharacter> CharacterClass = CastedGameInstance->CharacterClass;
 		FName ItemName = CastedGameInstance->ItemName;
 	
@@ -86,7 +104,7 @@ void ABaseGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass,
 
 		// Place CharacterSpawners more than PlayerNumbers.
 		// You need to consider character size not to overlap when character spawned.
-		check(++Cnt > 200);
+		check(++Cnt < 200);
 	}
 }
 
@@ -97,4 +115,30 @@ void ABaseGameMode::HandlePlayerDeath(const TSubclassOf<ACharacter> CharacterCla
 
 	// 게임모드에 특정 함수 호출
 	SpawnPlayerCharacter(CharacterClass, Controller);
+}
+
+// Helper function to get player name from GameInstance
+FString ABaseGameMode::GetPlayerNameFromGameInstance(APlayerController* Controller)
+{
+	if (Controller == nullptr)
+	{
+		return TEXT("Unknown");
+	}
+
+	if (const UWeaponMasterGameInstance* GameInstance = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
+	{
+		FString PlayerName = GameInstance->GetPlayerName();
+		if (!PlayerName.IsEmpty())
+		{
+			return PlayerName;
+		}
+	}
+
+	// Fallback to PlayerState name if available
+	if (Controller->PlayerState)
+	{
+		return Controller->PlayerState->GetPlayerName();
+	}
+	
+	return FString::Printf(TEXT("Player_%d"), Controller->GetUniqueID());
 }
