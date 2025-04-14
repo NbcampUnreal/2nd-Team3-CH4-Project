@@ -1,6 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "EOSPlayerController.h"
@@ -62,9 +60,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> ChatAction;
-	
-	UFUNCTION(Server, Reliable)
-	void ServerSpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName);
 	
 protected:
 	virtual void BeginPlay() override;

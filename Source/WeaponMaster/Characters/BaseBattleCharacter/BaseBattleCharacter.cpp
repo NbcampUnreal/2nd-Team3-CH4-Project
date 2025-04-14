@@ -402,7 +402,10 @@ void ABaseBattleCharacter::OnDeath()
 				TSubclassOf<ACharacter> CharacterClass = CastedGameInstance->CharacterClass;
 				FName ItemName = CastedGameInstance->ItemName;
 
-				GM->HandlePlayerDeath(CharacterClass, ItemName, PlayerPC);
+				if (AWeaponMasterController* WMController = Cast<AWeaponMasterController>(GetController()))
+				{
+					GM->HandlePlayerDeath(CharacterClass, WMController);
+				}
 			}
 			else
 			{
