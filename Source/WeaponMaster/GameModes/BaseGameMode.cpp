@@ -82,7 +82,8 @@ void ABaseGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass,
 		{
 			if (AWeaponMasterController* WMPC = Cast<AWeaponMasterController>(Controller))
 			{
-				SpawnCharacter->SetOwner(WMPC);
+				// Possess할때 Owner설정도 됨!
+				// SpawnCharacter->SetOwner(WMPC);
 				WMPC->Possess(SpawnCharacter);
 				UE_LOG(LogTemp, Warning, TEXT("Possessed Pawn: %s"), *WMPC->GetPawn()->GetName());
 			}

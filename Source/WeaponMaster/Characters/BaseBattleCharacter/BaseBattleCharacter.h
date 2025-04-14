@@ -14,6 +14,7 @@
 class UStateComponent;
 class UEffectComponent;
 class USkillComponent;
+class UWidgetComponent;
 class UBaseSkill;
 
 UCLASS()
@@ -40,6 +41,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USkillComponent> SkillComponent;
 
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	// TObjectPtr<UWidgetComponent> WidgetComponent;
+	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Interacts", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AActor> InteractableActor;
 

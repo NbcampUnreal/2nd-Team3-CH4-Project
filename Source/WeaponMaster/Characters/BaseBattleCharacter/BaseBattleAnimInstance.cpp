@@ -34,7 +34,8 @@ void UBaseBattleAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	GroundSpeed = Velocity.Size2D();
 
 	// Set bShouldMove When Acceleration > 0 and GroundSpeed > 3.0(Little Threshold)
-	bShouldMove = !MovementComponent->GetCurrentAcceleration().IsNearlyZero() && GroundSpeed > 3.0f;
+	// bShouldMove = !MovementComponent->GetCurrentAcceleration().IsNearlyZero() && GroundSpeed > 3.0f;
+	bShouldMove = GroundSpeed > 3.0f;
 
 	// Set States From Character Movement Component
 	bIsFalling = MovementComponent->IsFalling();

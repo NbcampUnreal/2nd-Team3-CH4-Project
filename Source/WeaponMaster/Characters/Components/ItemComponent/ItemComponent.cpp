@@ -27,7 +27,6 @@ void UItemComponent::BeginPlay()
 {
     Super::BeginPlay();
     
-    
     // 소유자 캐릭터 가져오기
     ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
     if (OwnerCharacter)

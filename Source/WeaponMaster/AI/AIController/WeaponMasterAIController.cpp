@@ -31,11 +31,9 @@ void AWeaponMasterAIController::OnPossess(APawn* InPawn)
 	if (BehaviorTreeAsset)
 	{
 		RunBehaviorTree(BehaviorTreeAsset);
-		UE_LOG(LogTemp, Warning, TEXT("Behavior Tree started in OnPossess"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("BehaviorTreeAsset is NULL in OnPossess"));
 	}
 }
 

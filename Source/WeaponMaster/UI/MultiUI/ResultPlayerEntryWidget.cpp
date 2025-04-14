@@ -12,7 +12,7 @@ void UResultPlayerEntryWidget::NativeConstruct()
 	// 초기화가 필요하면 여기서 처리
 }
 
-void UResultPlayerEntryWidget::SetPlayerResultInfo(UTexture2D* InIcon, const FText& InNickname, int32 InKills, int32 InDamage)
+void UResultPlayerEntryWidget::SetPlayerResultInfo(UTexture2D* InIcon, const FText& InNickname, int32 InKills, int32 InDeaths, int32 InDamage)
 {
 	if (PlayerIconImage)
 	{
@@ -28,6 +28,12 @@ void UResultPlayerEntryWidget::SetPlayerResultInfo(UTexture2D* InIcon, const FTe
 	{
 		FString KillString = FString::Printf(TEXT("%d Kill"), InKills);
 		KillCountText->SetText(FText::FromString(KillString));
+	}
+
+	if (DeathsCountText)
+	{
+		FString DeathsString = FString::Printf(TEXT("%d Deaths"), InDeaths);
+		DeathsCountText->SetText(FText::FromString(DeathsString));
 	}
 
 	if (DamageText)
