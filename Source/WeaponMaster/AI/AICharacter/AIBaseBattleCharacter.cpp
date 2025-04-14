@@ -12,6 +12,7 @@ AAIBaseBattleCharacter::AAIBaseBattleCharacter(const FObjectInitializer& ObjectI
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0.f, 1.f, 0.f));
 	UE_LOG(LogTemp, Warning, TEXT("[AI] 생성자 호출"));
+
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	bUseControllerRotationYaw = true;
 
