@@ -1,3 +1,4 @@
+
 #include "WeaponMaster/GameModes/SingleGameMode.h"
 #include "EngineUtils.h"
 #include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
@@ -5,6 +6,7 @@
 #include "GameFramework/PlayerState.h"
 #include "UI/CommonUI/PlayerStatusWidget.h"
 #include "UI/SingleUI/SingleGameHUD.h"
+#include "PlayerState/WeaponMasterPlayerState.h"
 
 void ASingleGameMode::BeginPlay()
 {
@@ -78,10 +80,13 @@ void ASingleGameMode::UpdatePlayerInfo()
 	{
 		return;
 	}
+
+	// 플레이어 이름 가져오기 - GameInstance 사용
+	FString PlayerName = GetPlayerNameFromGameInstance(PC);
     
 	// 플레이어 상태 정보 구성
 	FPlayerStatusInfo StatusInfo;
-	StatusInfo.PlayerName = PC->PlayerState ? PC->PlayerState->GetPlayerName() : FString("Player");
+	StatusInfo.PlayerName = PlayerName;
 	StatusInfo.CurrentHealth = Character->GetHP();
 	StatusInfo.MaxHealth = Character->GetMaxHP();
 	StatusInfo.PlayerThumbnailTexture = Character->GetCharacterThumbnail();
@@ -91,6 +96,7 @@ void ASingleGameMode::UpdatePlayerInfo()
     
 	// HUD 업데이트
 	SingleHUD->UpdatePlayerStatus(StatusInfo);
+	UE_LOG(LogTemp, Display, TEXT("Player info updated with name: %s"), *PlayerName);
 }
 
 bool ASingleGameMode::HasCharacterSpawner() const
