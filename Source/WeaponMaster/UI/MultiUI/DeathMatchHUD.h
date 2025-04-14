@@ -21,7 +21,7 @@ public:
 	
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
-	virtual void DrawHUD() override;
+	
 	
 	/** HUD 초기화 */
 	UFUNCTION(BlueprintCallable, Category = "DeathMatch HUD")
@@ -29,7 +29,7 @@ public:
 	
 	/** 플레이어 상태 위젯 업데이트 */
 	UFUNCTION(BlueprintCallable, Category = "DeathMatch HUD")
-	void UpdatePlayerStats(int32 PlayerID, int32 Kills, int32 Deaths, int32 Score);
+	void UpdatePlayerStats(int32 PlayerID, int32 Kills, int32 Deaths);
 	
 	/** 플레이어 체력 업데이트 */
 	UFUNCTION(BlueprintCallable, Category = "DeathMatch HUD")

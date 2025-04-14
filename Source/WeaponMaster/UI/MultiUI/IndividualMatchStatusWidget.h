@@ -35,10 +35,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void UpdatePlayerDeaths(int32 PlayerID, int32 Deaths);
 
-	/** 특정 플레이어의 점수 업데이트 */
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	void UpdatePlayerScore(int32 PlayerID, int32 Score);
-
 	/** 특정 플레이어의 체력 업데이트 */
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void UpdatePlayerHealth(int32 PlayerID, float CurrentHealth, float MaxHealth);

@@ -141,18 +141,7 @@ void UIndividualMatchStatusWidget::UpdatePlayerDeaths(int32 PlayerID, int32 Deat
     }
 }
 
-void UIndividualMatchStatusWidget::UpdatePlayerScore(int32 PlayerID, int32 Score)
-{
-    // PlayerStatusWidget에 점수 업데이트 기능이 있다고 가정
-    if (UPlayerStatusWidget* PlayerWidget = PlayerWidgets.FindRef(PlayerID))
-    {
-        // 점수 업데이트 함수가 PlayerStatusWidget에 추가되어야 함
-        // PlayerWidget->UpdateScore(Score);
-        
-        // 플레이어 목록 재정렬
-        SortPlayersByScore();
-    }
-}
+
 
 void UIndividualMatchStatusWidget::UpdatePlayerHealth(int32 PlayerID, float CurrentHealth, float MaxHealth)
 {
