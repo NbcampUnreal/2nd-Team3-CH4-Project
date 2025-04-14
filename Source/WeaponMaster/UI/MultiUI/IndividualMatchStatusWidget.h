@@ -2,8 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "PlayerControllers/EOSPlayerController.h"
 #include "IndividualMatchStatusWidget.generated.h"
 
+class UKillLogWidget;
+class UCanvasPanel;
 class UTextBlock;
 class UVerticalBox;
 class UPlayerStatusWidget;
@@ -47,6 +50,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void SortPlayersByScore();
 
+	/** 게임 타이틀 설정 */
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void UpdateMatchTitle(const EMapType Map) const;
+
 	/** 플레이어 컨테이너 반환 */
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	UScrollBox* GetPlayerContainer() const { return PlayerContainer; }
@@ -54,6 +61,10 @@ public:
 	/** 남은 시간 설정 */
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void SetRemainTimer(int32 TimeRemain) const;
+
+	/** 킬로그 위젯 */
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UKillLogWidget> KillLogContainer;
 
 protected:
 	virtual void NativeConstruct() override;

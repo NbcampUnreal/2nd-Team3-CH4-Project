@@ -1,8 +1,8 @@
 #include "DeathMatchHUD.h"
 #include "IndividualMatchStatusWidget.h"
+#include "KillLogWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
-#include "Components/Border.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
@@ -60,10 +60,7 @@ void ADeathMatchHUD::InitializeHUD()
         IndividualMatchStatusWidget->AddToViewport();
         
         // 테스트용 더미 데이터 초기화 (실제 게임에서는 실제 플레이어 데이터로 대체)
-        IndividualMatchStatusWidget->InitializeDummyPlayerStatus(8, LocalPlayerID);
-        
-        // 남은 시간 설정 (예: 5분)
-        SetRemainingTime(300);
+        IndividualMatchStatusWidget->InitializeDummyPlayerStatus(6, LocalPlayerID);
     }
     
     // 인게임 메뉴 위젯 생성 (표시는 하지 않음)
@@ -219,4 +216,12 @@ void ADeathMatchHUD::SetHUDVisibility(bool bIsVisible)
 bool ADeathMatchHUD::IsMenuVisible() const
 {
     return bIsMenuVisible;
+}
+
+void ADeathMatchHUD::UpdateKillLog(const FText& Killer, const FText& Victim) const
+{
+    if (IndividualMatchStatusWidget)
+    {
+        IndividualMatchStatusWidget->KillLogContainer->AddKillLogEntry(Killer, Victim);
+    }
 }
