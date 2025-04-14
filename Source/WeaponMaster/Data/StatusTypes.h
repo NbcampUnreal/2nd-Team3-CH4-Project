@@ -86,7 +86,7 @@ struct FAttackData
 
     // 어태커
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    ACharacter* Attacker; 
+    AActor* Attacker; 
     
     // 데미지
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
