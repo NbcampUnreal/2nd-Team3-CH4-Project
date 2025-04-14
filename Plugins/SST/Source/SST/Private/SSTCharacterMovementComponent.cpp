@@ -247,20 +247,24 @@ void USSTCharacterMovementComponent::StartNewPhysics(float deltaTime, int32 Iter
 	*  unless the desired behavior is for players to turn around faster when holding
 	*  in the opposite direction.
 	*/
-	FVector forward = SSTCharacterOwner->GetActorForwardVector();
-	if ((FacingRight && (forward.X < 1.f - FLT_EPSILON))
-		|| (!FacingRight && (forward.X > -1.f + FLT_EPSILON)))
-	{
-		float angleFromXAxis = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(forward, (FacingRight ? 1 : -1) * FVector::ForwardVector)));
 
-		FRotator RotationToAdd(0, FMath::Clamp((FacingRight ? -1 : 1) * deltaTime * 180 / TurnAroundSeconds, -angleFromXAxis, angleFromXAxis), 0);
-
-		FHitResult Hit(1.0f);
-		SafeMoveUpdatedComponent(FVector::ZeroVector, UpdatedComponent->GetComponentQuat() * RotationToAdd.Quaternion(), false, Hit);
-	}
-	else // finished turning
+	if (SSTCharacterOwner->IsPlayerControlled())
 	{
-		Turning = false;
+		FVector forward = SSTCharacterOwner->GetActorForwardVector();
+		if ((FacingRight && (forward.X < 1.f - FLT_EPSILON))
+			|| (!FacingRight && (forward.X > -1.f + FLT_EPSILON)))
+		{
+			float angleFromXAxis = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(forward, (FacingRight ? 1 : -1) * FVector::ForwardVector)));
+
+			FRotator RotationToAdd(0, FMath::Clamp((FacingRight ? -1 : 1) * deltaTime * 180 / TurnAroundSeconds, -angleFromXAxis, angleFromXAxis), 0);
+
+			FHitResult Hit(1.0f);
+			SafeMoveUpdatedComponent(FVector::ZeroVector, UpdatedComponent->GetComponentQuat() * RotationToAdd.Quaternion(), false, Hit);
+		}
+		else // finished turning
+		{
+			Turning = false;
+		}
 	}
 
 	Super::StartNewPhysics(deltaTime, Iterations);
