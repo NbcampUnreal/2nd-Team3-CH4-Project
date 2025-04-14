@@ -16,6 +16,8 @@ public:
 
 	UPROPERTY()
 	AAISpawner* SpawnerOwner;
+	UFUNCTION(BlueprintCallable)
+	void LookAtTarget(const AActor* TargetActor);
 
 // 랜덤 장착용 아이템 목록
 	UPROPERTY(EditAnywhere, Category = "AI|Item")
@@ -34,6 +36,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AI|Attack")
 	void ApplyIdentity();
+
+	UFUNCTION(BlueprintCallable, Category = "AI|State")
+	bool IsCanToAct()const;
+
 private:
 	virtual void BeginPlay() override;
 };

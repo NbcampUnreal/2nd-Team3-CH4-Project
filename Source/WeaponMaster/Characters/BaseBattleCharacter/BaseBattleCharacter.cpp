@@ -621,7 +621,6 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 			UE_LOG(LogTemp, Display, TEXT("Current Debuff name: %s"),
 				   *StaticEnum<EBehaviorEffect>()->GetNameStringByValue((uint8)Debuff))
 		}
-
 		// 현재 HP
 		UE_LOG(LogTemp, Display, TEXT("Current HP: %f"), HP);
 	}
