@@ -106,7 +106,7 @@ bool ASingleGameMode::HasCharacterSpawner() const
 	return false;
 }
 
-void ASingleGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
+void ASingleGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
 {
 	if (!HasCharacterSpawner()) return;
 
@@ -144,6 +144,7 @@ void ASingleGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass,
 	}
 }
 
-void ASingleGameMode::HandlePlayerDeath(AController* Controller)
+void ASingleGameMode::HandlePlayerDeath(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* Controller)
 {
+	// 목숨있으면 살리기 없으면 안살리기
 }

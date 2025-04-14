@@ -1,5 +1,5 @@
-#include "WeaponMaster/AI/BossCharacter.h"
-#include "WeaponMaster/AI/WeaponMasterAIController.h"
+#include "AI/AICharacter/BossCharacter.h"
+#include "WeaponMaster/AI/AIController/WeaponMasterAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "WeaponMaster/Characters/WeaponMAsterCharacter.h"
 #include "Kismet/GameplayStatics.h"
@@ -13,10 +13,15 @@ ABossCharacter::ABossCharacter()
 	MaxHP = 500;
 
 	BossStateComponent = CreateDefaultSubobject<UBossStateComponent>(TEXT("BossStateComponent"));
-
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0.f, 1.f, 0.f));
 	SkillComponent = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComponent"));
+
+	UE_LOG(LogTemp, Warning, TEXT("[Boss] OrientToMove: %d | UseYaw: %d | YawRate: %f"),
+		GetCharacterMovement()->bOrientRotationToMovement,
+		bUseControllerRotationYaw,
+		GetCharacterMovement()->RotationRate.Yaw);
+
 }
 
 void ABossCharacter::BeginPlay()
@@ -39,7 +44,6 @@ void ABossCharacter::BeginPlay()
 	{
 		SetupMontageEndedDelegate_Implementation(); 
 	}
-
 }
 
 
@@ -243,8 +247,8 @@ AActor* ABossCharacter::GetInteractableActor_Implementation() const
 
 void ABossCharacter::OnAttacked(const FAttackData& AttackData)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnAttacked Call"));
-	//LaunchCharacter(AttackData.LaunchVector, true, true);
+
+	LaunchCharacter(AttackData.LaunchVector/3, true, true);
 	if(CurrentHP - AttackData.Damage <= 0)
 	{
 		Die();

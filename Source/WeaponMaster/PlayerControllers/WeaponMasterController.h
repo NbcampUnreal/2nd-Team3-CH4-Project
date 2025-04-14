@@ -64,7 +64,7 @@ public:
 	TObjectPtr<UInputAction> ChatAction;
 	
 	UFUNCTION(Server, Reliable)
-	void ServerSetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName);
+	void ServerSpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName);
 	
 protected:
 	virtual void BeginPlay() override;

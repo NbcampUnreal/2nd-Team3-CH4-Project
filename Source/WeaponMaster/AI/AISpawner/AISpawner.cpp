@@ -24,14 +24,12 @@ void AAISpawner::SpawnAI()
 {
     if (CurrentSpawnCount >= MaxSpawnCount)
     {
-        UE_LOG(LogTemp, Warning, TEXT("최대 소환 수(%d)에 도달. 스폰 중단."), MaxSpawnCount);
         GetWorldTimerManager().ClearTimer(SpawnTimer);
         return;
     }
 
     if (AIClasses.Num() == 0)
     {
-        UE_LOG(LogTemp, Warning, TEXT("AIClasses가 비어 있습니다."));
         return;
     }
 
@@ -49,7 +47,6 @@ void AAISpawner::SpawnAI()
         if (SpawnedAI)
         {
             ++CurrentSpawnCount;
-            UE_LOG(LogTemp, Log, TEXT("AI 스폰 성공 (%d/%d): %s"), CurrentSpawnCount, MaxSpawnCount, *SpawnedAI->GetName());
         }
     }
 }
