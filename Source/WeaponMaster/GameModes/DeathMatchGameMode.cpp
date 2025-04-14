@@ -244,7 +244,7 @@ void ADeathMatchGameMode::HandlePlayerDeath(AController* Controller)
         // 데스 카운트 증가
         VictimState->AddDeath();
         
-        // 킬러 찾기 (직접 구현 필요)
+        // 킬러 찾기
         AController* KillerController = nullptr;
         ABaseBattleCharacter* VictimCharacter = Cast<ABaseBattleCharacter>(Controller->GetPawn());
         

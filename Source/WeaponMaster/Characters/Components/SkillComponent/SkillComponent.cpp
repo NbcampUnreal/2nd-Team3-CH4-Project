@@ -238,7 +238,7 @@ void USkillComponent::HandleSkillStarted(UBaseSkill* Skill)
     {
         // 스킬 시작 이벤트 브로드캐스트
         OnSkillStarted.Broadcast(Skill);
-        UE_LOG(LogTemp, Log, TEXT("스킬 시작: %s"), *Skill->GetSkillName());
+        UE_LOG(LogTemp, Log, TEXT("[USkillComponent::HandleSkillStarted] 스킬 시작: %s"), *Skill->GetSkillName());
     }
 }
 
@@ -248,7 +248,7 @@ void USkillComponent::HandleSkillEnded(UBaseSkill* Skill)
     {
         // 스킬 종료 이벤트 브로드캐스트
         OnSkillEnded.Broadcast(Skill);
-        UE_LOG(LogTemp, Log, TEXT("스킬 종료: %s"), *Skill->GetSkillName());
+        UE_LOG(LogTemp, Log, TEXT("[USkillComponent::HandleSkillEnded] 스킬 종료: %s"), *Skill->GetSkillName());
     }
 }
 

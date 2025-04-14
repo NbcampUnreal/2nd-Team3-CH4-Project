@@ -26,8 +26,6 @@ void ADeathMatchHUD::BeginPlay()
         // 로컬 플레이어 ID 가져오기 (PlayerState에서)
         if (PC->PlayerState)
         {
-            // 실제 구현에서는 PlayerState에서 적절한 ID를 가져와야 함
-            // 예시 코드: LocalPlayerID = Cast<AYourPlayerState>(PC->PlayerState)->GetPlayerID();
             LocalPlayerID = 0; // 테스트용 기본값
         }
     }
@@ -46,7 +44,6 @@ void ADeathMatchHUD::DrawHUD()
 {
     Super::DrawHUD();
     
-    // 추가 HUD 그리기 (필요한 경우)
 }
 
 void ADeathMatchHUD::InitializeHUD()
