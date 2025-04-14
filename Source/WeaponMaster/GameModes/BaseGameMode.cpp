@@ -107,7 +107,7 @@ void ABaseGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass,
 	}
 }
 
-void ABaseGameMode::HandlePlayerDeath(const TSubclassOf<ACharacter> CharacterClass, APlayerController* Controller)
+void ABaseGameMode::HandlePlayerDeath(const TSubclassOf<ACharacter>& CharacterClass, APlayerController* Controller, const FString& AttackerName)
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseGameMode::HandlePlayerDeath"))
 	
