@@ -247,6 +247,7 @@ void USSTCharacterMovementComponent::StartNewPhysics(float deltaTime, int32 Iter
 	*  unless the desired behavior is for players to turn around faster when holding
 	*  in the opposite direction.
 	*/
+
 	if (SSTCharacterOwner->IsPlayerControlled())
 	{
 		FVector forward = SSTCharacterOwner->GetActorForwardVector();
@@ -265,7 +266,6 @@ void USSTCharacterMovementComponent::StartNewPhysics(float deltaTime, int32 Iter
 			Turning = false;
 		}
 	}
-	
 	Super::StartNewPhysics(deltaTime, Iterations);
 }
 

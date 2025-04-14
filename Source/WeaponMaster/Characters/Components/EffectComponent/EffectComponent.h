@@ -66,5 +66,5 @@ public:
 	void ActivateBehaviorEffectWithDuration(EBehaviorEffect BehaviorEffectType, float Duration);
 	void DeactivateBehaviorEffect(EBehaviorEffect BehaviorEffectType);
 
-	
+
 };
