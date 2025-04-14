@@ -1,4 +1,5 @@
 #include "WeaponMasterPlayerState.h"
+
 #include "Net/UnrealNetwork.h"
 
 AWeaponMasterPlayerState::AWeaponMasterPlayerState()

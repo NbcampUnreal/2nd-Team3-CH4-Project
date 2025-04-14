@@ -1,22 +1,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BattleGMInterface.h"
-#include "GameFramework/GameMode.h"
+#include "BaseGameMode.h"
 #include "Instance/WeaponMasterGameInstance.h"
 #include "TeamGameMode.generated.h"
 
 UCLASS()
-class WEAPONMASTER_API ATeamGameMode : public AGameMode, public IBattleGMInterface
+class WEAPONMASTER_API ATeamGameMode : public ABaseGameMode
 {
 	GENERATED_BODY()
 
 public:
 	virtual void BeginPlay() override;
-
-	// BattleGMInterface
-	virtual void SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController) override;
-	virtual void HandlePlayerDeath(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* Controller) override;
 	
 	UFUNCTION(BlueprintCallable, Category = "Instance")
 	FORCEINLINE_DEBUGGABLE UWeaponMasterGameInstance* GetInstance() const
@@ -25,8 +20,6 @@ public:
 	}
 	
 private:
-	bool HasCharacterSpawner() const;
-
 	UPROPERTY()
 	int32 TimerCountDown = 300;
 

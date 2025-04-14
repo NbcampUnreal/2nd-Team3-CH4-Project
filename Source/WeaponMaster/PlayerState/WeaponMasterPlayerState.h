@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
-#include "../UIData/UISelectData.h"
 #include "WeaponMasterPlayerState.generated.h"
 
 /**
@@ -37,7 +36,6 @@ protected:
 	int32 AIKillCount;
 
 public:
-
 	AWeaponMasterPlayerState();
 
 	FUniqueNetIdRepl UniqueId;
