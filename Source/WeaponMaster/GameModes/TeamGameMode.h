@@ -15,7 +15,7 @@ public:
 	virtual void BeginPlay() override;
 
 	// BattleGMInterface
-	virtual void SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController) override;
+	virtual void SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController) override;
 	virtual void HandlePlayerDeath(AController* Controller);
 	
 	UFUNCTION(BlueprintCallable, Category = "Instance")

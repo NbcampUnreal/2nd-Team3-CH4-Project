@@ -22,7 +22,7 @@ class WEAPONMASTER_API IBattleGMInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void SetPlayerCharacter(TSubclassOf<class ACharacter> CharacterClass, FName ItemName, AController* OwnerController) = 0;
+	virtual void SpawnPlayerCharacter(TSubclassOf<class ACharacter> CharacterClass, FName ItemName, AController* OwnerController) = 0;
 
 	virtual void HandlePlayerDeath(AController* Controller) = 0;
 };

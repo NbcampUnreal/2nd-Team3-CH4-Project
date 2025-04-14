@@ -181,7 +181,7 @@ void ADeathMatchGameMode::DisplayMatchResults()
     }
 }
 
-void ADeathMatchGameMode::SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
+void ADeathMatchGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
 {
     if (!HasCharacterSpawner()) 
     {

@@ -23,7 +23,7 @@ public:
 	virtual void Logout(AController* Exiting) override;
 
 	// BattleGMInterface 구현
-	virtual void SetPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController) override;
+	virtual void SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController) override;
 	virtual void HandlePlayerDeath(AController* Controller) override;
 	
 	UFUNCTION(BlueprintCallable, Category = "Instance")

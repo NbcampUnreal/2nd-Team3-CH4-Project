@@ -56,7 +56,7 @@ void AWeaponMasterController::BeginPlay()
 		TSubclassOf<ACharacter> CharacterClass = CastedGameInstance->CharacterClass;
 		FName ItemName = CastedGameInstance->ItemName;
 	
-		ServerSetPlayerCharacter(CharacterClass, ItemName);
+		ServerSpawnPlayerCharacter(CharacterClass, ItemName);
 	}
 	else
 	{
@@ -66,11 +66,11 @@ void AWeaponMasterController::BeginPlay()
 	
 }
 
-void AWeaponMasterController::ServerSetPlayerCharacter_Implementation(TSubclassOf<ACharacter> CharacterClass, FName ItemName)
+void AWeaponMasterController::ServerSpawnPlayerCharacter_Implementation(TSubclassOf<ACharacter> CharacterClass, FName ItemName)
 {
 	if (const auto CastedGameMode = Cast<IBattleGMInterface>(GetWorld()->GetAuthGameMode()))
 	{
-		CastedGameMode->SetPlayerCharacter(CharacterClass, ItemName, this);
+		CastedGameMode->SpawnPlayerCharacter(CharacterClass, ItemName, this);
 	}
 }
 
