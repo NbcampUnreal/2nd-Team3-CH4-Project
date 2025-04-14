@@ -1,14 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
 #include "WeaponMasterPlayerState.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class WEAPONMASTER_API AWeaponMasterPlayerState : public APlayerState
 {
@@ -46,7 +41,7 @@ public:
 
 	/** 팀 ID 설정 */
 	UFUNCTION(BlueprintCallable, Category = "PlayerState")
-	void SetTeamID(uint8 NewTeamID) { TeamIdx = NewTeamID; }
+	FORCEINLINE_DEBUGGABLE void SetTeamID(const uint8 NewTeamID) { TeamIdx = NewTeamID; }
 	
 	/** 킬 수 증가 */
 	UFUNCTION(BlueprintCallable, Category = "Stats")
@@ -54,7 +49,7 @@ public:
 	
 	/** 킬 수 반환 */
 	UFUNCTION(BlueprintCallable, Category = "Stats")
-	int32 GetKillCount() const { return KillCount; }
+	FORCEINLINE_DEBUGGABLE int32 GetKillCount() const { return KillCount; }
 	
 	/** 죽은 수 증가 */
 	UFUNCTION(BlueprintCallable, Category = "Stats")
@@ -62,7 +57,7 @@ public:
 	
 	/** 죽은 수 반환 */
 	UFUNCTION(BlueprintCallable, Category = "Stats")
-	int32 GetDeathCount() const { return DeathCount; }
+	FORCEINLINE_DEBUGGABLE int32 GetDeathCount() const { return DeathCount; }
 	
 	/** 데미지 추가 */
 	UFUNCTION(BlueprintCallable, Category = "Stats")
@@ -70,7 +65,7 @@ public:
 	
 	/** 총 데미지 반환 */
 	UFUNCTION(BlueprintCallable, Category = "Stats")
-	float GetTotalDamageDealt() const { return TotalDamageDealt; }
+	FORCEINLINE_DEBUGGABLE float GetTotalDamageDealt() const { return TotalDamageDealt; }
 
 	// 킬 카운트 설정
 	UFUNCTION(BlueprintCallable, Category = "Stats")

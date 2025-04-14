@@ -110,10 +110,18 @@ void ABaseGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass,
 void ABaseGameMode::HandlePlayerDeath(const TSubclassOf<ACharacter> CharacterClass, APlayerController* Controller)
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseGameMode::HandlePlayerDeath"))
-	// Kill Log
-
+	
 	// 게임모드에 특정 함수 호출
 	SpawnPlayerCharacter(CharacterClass, Controller);
+
+	// Kill Log
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		if (AEOSPlayerController* PlayerController = Cast<AEOSPlayerController>(Iterator->Get()))
+		{
+			//PlayerController->Client_PlayerDead(GetPlayerNum());
+		}
+	}
 }
 
 // Helper function to get player name from GameInstance

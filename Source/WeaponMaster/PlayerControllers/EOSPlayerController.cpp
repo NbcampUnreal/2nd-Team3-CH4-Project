@@ -64,6 +64,17 @@ void AEOSPlayerController::Client_UpdateInGameTimer_Implementation(const int32 T
     }
 }
 
+void AEOSPlayerController::Client_PlayerDead_Implementation(const FString& Killer, const FString& Victim)
+{
+    if (const ADeathMatchHUD* DeathMatchHUD = Cast<ADeathMatchHUD>(GetHUD()))
+    {
+        FText Winner = FText::FromString(Killer);
+        FText Looser = FText::FromString(Victim);
+        
+        DeathMatchHUD->UpdateKillLog(Winner, Looser);
+    }
+}
+
 void AEOSPlayerController::UpdateHUD(EMapType Map)
 {
     if (AMultiGameHUD* MultiHUD = Cast<AMultiGameHUD>(GetHUD()))
@@ -74,10 +85,6 @@ void AEOSPlayerController::UpdateHUD(EMapType Map)
     if (const ADeathMatchHUD* DeathMatchHUD = Cast<ADeathMatchHUD>(GetHUD()))
     {
         DeathMatchHUD->IndividualMatchStatusWidget->UpdateMatchTitle(Map);
-        FText Winner = FText::FromString(TEXT("황찬호"));
-        FText Looser = FText::FromString(TEXT("재성윤"));
-        
-        DeathMatchHUD->UpdateKillLog(Winner, Looser);
     }
 }
 
@@ -209,6 +216,18 @@ void AEOSPlayerController::HandleTimerAction()
     }
 
     GetWorldTimerManager().ClearTimer(HUDTimerHandle);
+}
+
+void AEOSPlayerController::Client_UpdatePlayers_Implementation(const FString& PlayerName)
+{
+    if (!IsRunningDedicatedServer())
+    {
+        if (const ADeathMatchHUD* DeathMatchHUD = Cast<ADeathMatchHUD>(GetHUD()))
+        {
+            FString PN = PlayerName;
+            DeathMatchHUD->IndividualMatchStatusWidget->UpdatePlayer(PN);
+        }
+    }
 }
 
 void AEOSPlayerController::OnNetCleanup(class UNetConnection* Connection)
