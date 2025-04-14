@@ -30,6 +30,7 @@
 #include "PlayerState/WeaponMasterPlayerState.h"
 #include "UI/CommonUI/PlayerStatusWidget.h"
 #include "UI/SingleUI/SingleGameHUD.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer)
@@ -39,13 +40,14 @@ ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectIniti
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	// StateComponent
+	// Components
 	StateComponent = CreateDefaultSubobject<UStateComponent>(TEXT("StateComponent"));
 	EffectComponent = CreateDefaultSubobject<UEffectComponent>(TEXT("EffectComponent"));
 	ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
 	SkillComponent = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComponent"));
-	InteractableActor = nullptr;
-
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
+	WidgetComponent->SetupAttachment(GetRootComponent());
+	
 	// Constants
 	MaxHP = 100.0f;
 	HP = MaxHP;
@@ -58,6 +60,11 @@ ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectIniti
 
 	// Replicate
 	bReplicates = true;
+
+	// Initialize ActorPointers
+	InteractableActor = nullptr;
+	LastAttacker = nullptr;
+	CharacterThumbnail = nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -416,6 +423,8 @@ void ABaseBattleCharacter::OnDeath()
 		{
 			UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnDeath : IBattleGMInterface Cast Failed"));
 		}
+
+		Destroy();
 	}
 }
 
