@@ -45,8 +45,8 @@ ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectIniti
 	EffectComponent = CreateDefaultSubobject<UEffectComponent>(TEXT("EffectComponent"));
 	ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
 	SkillComponent = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComponent"));
-	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
-	WidgetComponent->SetupAttachment(GetRootComponent());
+	// WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
+	// WidgetComponent->SetupAttachment(GetRootComponent());
 	
 	// Constants
 	MaxHP = 100.0f;
