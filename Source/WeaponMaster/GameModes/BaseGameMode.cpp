@@ -32,7 +32,7 @@ void ABaseGameMode::PostLogin(APlayerController* NewPlayer)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("AWeaponMasterController::BeginPlay : GameInstance Cast Failed."))
+		UE_LOG(LogTemp, Error, TEXT("ABaseGameMode::PostLogin : GameInstance Cast Failed."))
 	}
 }
 
@@ -47,7 +47,7 @@ bool ABaseGameMode::HasCharacterSpawner() const
 
 void ABaseGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, APlayerController* Controller)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AWeaponMasterGameState::SpawnPlayerCharacter"))
+	UE_LOG(LogTemp, Warning, TEXT("ABaseGameMode::SpawnPlayerCharacter"))
 	if (!HasCharacterSpawner()) return;
 
 	TArray<AActor*> FoundActors;
@@ -66,6 +66,7 @@ void ABaseGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass,
 			{
 				SpawnCharacter->SetOwner(WMPC);
 				WMPC->Possess(SpawnCharacter);
+				UE_LOG(LogTemp, Warning, TEXT("Possessed Pawn: %s"), *WMPC->GetPawn()->GetName());
 			}
 
 			if (const UWeaponMasterGameInstance* WMGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
@@ -85,13 +86,13 @@ void ABaseGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass,
 
 		// Place CharacterSpawners more than PlayerNumbers.
 		// You need to consider character size not to overlap when character spawned.
-		check(++Cnt < 200);
+		check(++Cnt > 200);
 	}
 }
 
 void ABaseGameMode::HandlePlayerDeath(const TSubclassOf<ACharacter> CharacterClass, APlayerController* Controller)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AWeaponMasterGameState::HandlePlayerDeath"))
+	UE_LOG(LogTemp, Warning, TEXT("ABaseGameMode::HandlePlayerDeath"))
 	// Kill Log
 
 	// 게임모드에 특정 함수 호출

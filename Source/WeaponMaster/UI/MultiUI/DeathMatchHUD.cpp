@@ -92,7 +92,6 @@ void ADeathMatchHUD::UpdatePlayerStats(int32 PlayerID, int32 Kills, int32 Deaths
     }
     
     // 플레이어 킬, 데스, 점수 업데이트
-    IndividualMatchStatusWidget->UpdatePlayerKills(PlayerID, Kills);
     IndividualMatchStatusWidget->UpdatePlayerDeaths(PlayerID, Deaths);
     IndividualMatchStatusWidget->UpdatePlayerScore(PlayerID, Score);
     

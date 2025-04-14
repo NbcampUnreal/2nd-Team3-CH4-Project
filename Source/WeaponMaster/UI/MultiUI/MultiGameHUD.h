@@ -4,6 +4,7 @@
 #include "GameFramework/HUD.h"
 #include "MultiGameHUD.generated.h"
 
+class UKillFeedWidget;
 class USessionWidget;
 class UPlayerNameWidget;
 class USessionLobbyWidget;
