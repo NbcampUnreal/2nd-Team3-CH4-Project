@@ -86,7 +86,7 @@ void ABaseGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass,
 
 		// Place CharacterSpawners more than PlayerNumbers.
 		// You need to consider character size not to overlap when character spawned.
-		check(++Cnt > 200);
+		//check(++Cnt > 200);
 	}
 }
 
