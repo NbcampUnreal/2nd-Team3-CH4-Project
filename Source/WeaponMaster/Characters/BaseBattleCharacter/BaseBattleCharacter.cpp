@@ -323,6 +323,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 		UE_LOG(LogTemp, Warning,
 		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->MenuOnOffAction"));
 	}
+
 }
 
 void ABaseBattleCharacter::SetHP(float NewHP)
@@ -424,7 +425,7 @@ void ABaseBattleCharacter::OnDeath()
 			UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnDeath : IBattleGMInterface Cast Failed"));
 		}
 
-		Destroy();
+		// Destroy();
 	}
 }
 
@@ -613,6 +614,16 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 				       *AttackerPS->GetPlayerName(), AttackerPS->GetKillCount(), AttackerPS->GetTotalDamageDealt());
 			}
 		}
+
+		// 현재 디버프 목록
+		for (auto Debuff : EffectComponent->GetActiveBehaviorEffects())
+		{
+			UE_LOG(LogTemp, Display, TEXT("Current Debuff name: %s"),
+				   *StaticEnum<EBehaviorEffect>()->GetNameStringByValue((uint8)Debuff))
+		}
+
+		// 현재 HP
+		UE_LOG(LogTemp, Display, TEXT("Current HP: %f"), HP);
 	}
 }
 
