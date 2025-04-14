@@ -44,9 +44,10 @@ protected:
 	TObjectPtr<AActor> InteractableActor;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<AActor> LastAttacker;
+	TObjectPtr<ACharacter> LastAttacker;
 	
 	FTimerHandle RespawnTimerHandle;
+	FTimerHandle LastAttackerTimerHandle;
 	
 	// Constants
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats", meta = (AllowPrivateAccess = "true"))

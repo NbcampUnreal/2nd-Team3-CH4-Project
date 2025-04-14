@@ -145,7 +145,6 @@ void ABaseBattleCharacter::OnRep_HP()
     {
         // 컨트롤러가 없는 경우 (AI 또는 리플리케이션된 캐릭터)
         UE_LOG(LogTemp, Warning, TEXT("컨트롤러가 없거나 PlayerController가 아닙니다. HP 업데이트만 처리합니다."));
-        
     }
 }
 
@@ -557,28 +556,45 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 		}
 		
 		// 공격자의 데미지 통계 업데이트
-		if (auto CastedAttacker = Cast<ACharacter>(AttackData.Attacker))
+		auto CastedAttacker = Cast<ACharacter>(AttackData.Attacker);
+		if (!IsValid(CastedAttacker))
 		{
-			APlayerController* AttackerPC = Cast<APlayerController>(CastedAttacker->GetController());
-			if (AttackerPC && AttackerPC->PlayerState)
+			if (IsValid(LastAttacker))
 			{
-				AWeaponMasterPlayerState* AttackerPS = Cast<AWeaponMasterPlayerState>(AttackerPC->PlayerState);
-				if (AttackerPS)
-				{
-					// 실제 입힌 데미지 계산 (기존 HP - 새 HP, 죽은 경우는 기존 HP만큼)
-					float ActualDamage = (HP <= 0.f) ? OldHP : (OldHP - HP);
-					AttackerPS->AddDamageDealt(ActualDamage);
-
-					// 죽었으면 킬 카운트 증가
-					if (HP <= 0.f)
-					{
-						AttackerPS->AddKill();
-					}
-					UE_LOG(LogTemp, Warning, TEXT("[%s]의 현재 전투 통계 - 킬: %d, 총 데미지: %.2f"),
-					       *AttackerPS->GetPlayerName(), AttackerPS->GetKillCount(), AttackerPS->GetTotalDamageDealt());
-				}
+				CastedAttacker = LastAttacker;
+			}
+			else
+			{
+				// 아무한테도 안맞았는데 킬존에 닿았음
+				return;
 			}
 		}
+
+		LastAttacker = CastedAttacker;
+		// GetWorldTimerManager()->SetTimer(
+		// 	
+		// );
+		
+		APlayerController* AttackerPC = Cast<APlayerController>(CastedAttacker->GetController());
+		if (AttackerPC && AttackerPC->PlayerState)
+		{
+			AWeaponMasterPlayerState* AttackerPS = Cast<AWeaponMasterPlayerState>(AttackerPC->PlayerState);
+			if (AttackerPS)
+			{
+				// 실제 입힌 데미지 계산 (기존 HP - 새 HP, 죽은 경우는 기존 HP만큼)
+				float ActualDamage = (HP <= 0.f) ? OldHP : (OldHP - HP);
+				AttackerPS->AddDamageDealt(ActualDamage);
+
+				// 죽었으면 킬 카운트 증가
+				if (HP <= 0.f)
+				{
+					AttackerPS->AddKill();
+				}
+				UE_LOG(LogTemp, Warning, TEXT("[%s]의 현재 전투 통계 - 킬: %d, 총 데미지: %.2f"),
+				       *AttackerPS->GetPlayerName(), AttackerPS->GetKillCount(), AttackerPS->GetTotalDamageDealt());
+			}
+		}
+		
 	}
 }
 
@@ -669,7 +685,7 @@ void ABaseBattleCharacter::OnSkillStarted(UBaseSkill* Skill)
 
 void ABaseBattleCharacter::OnSkillEnded(UBaseSkill* Skill)
 {
-	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnSkillStarted : Call."));
+	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnSkillEnded : Call."));
 	EffectComponent->DeactivateBehaviorEffect(EBehaviorEffect::UsingSkill);
 }
 
