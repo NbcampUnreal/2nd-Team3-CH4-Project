@@ -46,7 +46,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<ACharacter> LastAttacker;
 	
-	FTimerHandle RespawnTimerHandle;
 	FTimerHandle LastAttackerTimerHandle;
 	
 	// Constants

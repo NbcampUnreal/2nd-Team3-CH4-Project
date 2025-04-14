@@ -560,23 +560,30 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 		
 		// 공격자의 데미지 통계 업데이트
 		auto CastedAttacker = Cast<ACharacter>(AttackData.Attacker);
-		if (!IsValid(CastedAttacker))
-		{
-			if (IsValid(LastAttacker))
-			{
-				CastedAttacker = LastAttacker;
-			}
-			else
-			{
-				// 아무한테도 안맞았는데 킬존에 닿았음
-				return;
-			}
-		}
 
-		LastAttacker = CastedAttacker;
-		// GetWorldTimerManager()->SetTimer(
-		// 	
-		// );
+		if (IsValid(CastedAttacker))
+		{
+			LastAttacker = CastedAttacker;
+			GetWorldTimerManager().ClearTimer(LastAttackerTimerHandle);;
+			GetWorldTimerManager().SetTimer(
+				LastAttackerTimerHandle,
+				FTimerDelegate::CreateLambda([this]()
+				{
+					LastAttacker = nullptr;
+				}),
+				5.0f,
+				false
+			);
+		}
+		else if (IsValid(LastAttacker))
+		{
+			CastedAttacker = LastAttacker;
+		}
+		else
+		{
+			// 아무한테도 안맞았는데 킬존에 닿았음
+			return;
+		}
 		
 		APlayerController* AttackerPC = Cast<APlayerController>(CastedAttacker->GetController());
 		if (AttackerPC && AttackerPC->PlayerState)
@@ -597,7 +604,6 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 				       *AttackerPS->GetPlayerName(), AttackerPS->GetKillCount(), AttackerPS->GetTotalDamageDealt());
 			}
 		}
-		
 	}
 }
 
@@ -694,13 +700,18 @@ void ABaseBattleCharacter::OnSkillEnded(UBaseSkill* Skill)
 
 void ABaseBattleCharacter::MenuOnOff()
 {
+	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::MenuOnOff !"));
+	
 	for (auto Debuff : EffectComponent->GetActiveBehaviorEffects())
 	{
 		UE_LOG(LogTemp, Display, TEXT("Current Debuff name: %s"),
 		       *StaticEnum<EBehaviorEffect>()->GetNameStringByValue((uint8)Debuff))
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::MenuOnOff !"));
+	auto KillCount = Cast<AWeaponMasterPlayerState>(GetPlayerState())->GetKillCount();
+	auto DeathCount = Cast<AWeaponMasterPlayerState>(GetPlayerState())->GetDeathCount();
+
+	UE_LOG(LogTemp, Display, TEXT("Kill/Death Count : %d, %d"), KillCount, DeathCount);
 }
 
 
