@@ -1,31 +1,28 @@
-#include "WeaponMaster/Skills/BossAreaSkill.h"
-#include "WeaponMaster/Characters/TestCharacter.h"
-#include "GameFramework/Character.h"
-#include "Kismet/GameplayStatics.h"
-#include "Animation/AnimMontage.h"
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "UpperLanceSlash.h"
+
 #include "NiagaraFunctionLibrary.h"
-#include "NiagaraSystem.h"
 #include "Characters/Components/DamageSystemUser.h"
+#include "Data/ItemDataAsset.h"
 #include "Data/StatusTypes.h"
-#include "WeaponMaster/Data/StatusTypes.h"
+#include "GameFramework/Character.h"
 
-UBossAreaSkill::UBossAreaSkill()
+UUpperLanceSlash::UUpperLanceSlash()
 {
-    DefaultAttackSpeed = 0.8f;
-	SkillDamage = 50.0f;
 }
 
-void UBossAreaSkill::ExecuteSkill()
+void UUpperLanceSlash::ExecuteSkill()
 {
-    Super::ExecuteSkill();
+	Super::ExecuteSkill();
 }
 
-int32 UBossAreaSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage)
+int32 UUpperLanceSlash::ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage)
 {
 	// 기본 유효성 검사
 	if (!OwnerCharacter || !OwnerCharacter->HasAuthority())
 	{
-		UE_LOG(LogTemp, Error, TEXT("has no authority or No OwnerCharacter"));
 		return 0;
 	}
 
@@ -37,7 +34,6 @@ int32 UBossAreaSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, f
 		{
 			continue;
 		}
-		UE_LOG(LogTemp, Warning, TEXT("[ComboSkill] Hit Target: %s"), *Target->GetName());
 		float FinalDamage = SkillDamage;
 
 		// 장비 또는 스킬 계수 적용
@@ -45,26 +41,25 @@ int32 UBossAreaSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, f
 		{
 			FinalDamage += ItemData->BaseDamage;
 		}
-
-		UE_LOG(LogTemp, Warning, TEXT("[ComboSkill] Hit Target: %s | Damage: %.1f"), *Target->GetName(), FinalDamage);
-
-
+		
 		if (auto CastedTarget = Cast<IDamageSystemUser>(Target))
 		{
+			
+			UE_LOG(LogTemp, Display, TEXT("UBasicLanceSlash::ProcessTargetActors : Target Cast Success!"));
 			FVector LaunchDirection = OwnerCharacter->GetActorForwardVector();
-			FVector LaunchVector = { LaunchDirection.X * 0.f, 0.f, 1500.f };
-
+			FVector LaunchVector = { LaunchDirection.X * 100, 0.f, 1500.f };
+			
 			FAttackData AttackData
 			{
 				OwnerCharacter,
 				FinalDamage,
 				LaunchVector,
-				{ EBehaviorEffect::Stun },
-				{ 2 },
+				{EBehaviorEffect::Stun},
+				{1.5f},
 				{},
 				{}
 			};
-
+			
 			CastedTarget->OnAttacked(AttackData);
 		}
 		else
@@ -72,6 +67,8 @@ int32 UBossAreaSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, f
 		}
 
 		// 타격 이펙트 (선택)
+
+		
 		if (!SkillEffect.IsNull())
 		{
 			UNiagaraSystem* Effect = SkillEffect.LoadSynchronous();

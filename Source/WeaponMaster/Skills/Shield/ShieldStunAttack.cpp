@@ -44,7 +44,7 @@ int32 UShieldStunAttack::ProcessTargetActors(const TArray<AActor*>& TargetActors
 		{
 			UE_LOG(LogTemp, Display, TEXT("[UShieldStunAttack::ProcessTargetActors] : Target Cast Success!"));
 			FVector LaunchDirection = OwnerCharacter->GetActorForwardVector();
-			FVector LaunchVector = { LaunchDirection.X * 1000, 0.f, 100.f };
+			FVector LaunchVector = { LaunchDirection.X * 500, 0.f, 100.f };
 			
 			FAttackData AttackData
 			{
@@ -52,7 +52,7 @@ int32 UShieldStunAttack::ProcessTargetActors(const TArray<AActor*>& TargetActors
 				FinalDamage,
 				LaunchVector,
 				{ EBehaviorEffect::Stun },
-				{ 1 },
+				{ 2.f },
 				{},
 				{}
 			};
