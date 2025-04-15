@@ -1,13 +1,8 @@
 #include "BaseSkill.h"
 #include "WeaponMaster/Characters/TestCharacter.h"
 #include "GameFramework/Character.h"
-#include "Kismet/GameplayStatics.h"
 #include "Animation/AnimMontage.h"
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraSystem.h"
-#include "BaseBehaviors/MouseHoverBehavior.h"
 #include "Characters/Components/IBattleSystemUser.h"
-#include "WeaponMaster/Data/StatusTypes.h"
 
 UBaseSkill::UBaseSkill()
 {

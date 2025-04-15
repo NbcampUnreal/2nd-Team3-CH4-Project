@@ -108,7 +108,7 @@ void ADeathMatchHUD::BindPlayerStatusWidget(AWeaponMasterPlayerState* WMPS)
     {
         if (AWeaponMasterCharacter* Character = Cast<AWeaponMasterCharacter>(Controller->GetPawn()))
         {
-            //Character->OnHealthChanged.AddDynamic(this, &ADeathMatchHUD::UpdateHealth);
+            Character->OnHealthChanged.AddDynamic(this, &ADeathMatchHUD::UpdateHealth);
         }
     }
 }
