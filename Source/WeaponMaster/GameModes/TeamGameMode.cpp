@@ -4,6 +4,7 @@
 #include "UI/MultiUI/GameResultWidget.h"
 #include "GameFramework/GameStateBase.h"
 #include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
+#include "Engine/World.h"
 
 void ATeamGameMode::BeginPlay()
 {
@@ -55,6 +56,7 @@ void ATeamGameMode::PlayCountDownTimerAction()
 
 void ATeamGameMode::BroadcastGameResultsToClients(int32 Results)
 {
+	FString CurrentMapName = GetWorld()->GetMapName();
 	TArray<FPlayerResultData> ResultList;
 
 	if (!GameState)	return;
@@ -78,9 +80,16 @@ void ATeamGameMode::BroadcastGameResultsToClients(int32 Results)
 		FPlayerResultData Data;
 
 		Data.Nickname = Name;
-		Data.Kills = Results;
 		Data.Deaths = Deaths;
 		Data.Damage = FMath::RoundToInt(Damage);
+		if (CurrentMapName.Contains(TEXT("PVEMap")))
+		{
+			Data.Kills = Results;
+		}
+		else
+		{
+			Data.Kills = Kills;
+		}
 
 		UWeaponMasterGameInstance* GI = WMPS->GetGameInstance<UWeaponMasterGameInstance>();
 
@@ -109,17 +118,13 @@ void ATeamGameMode::BroadcastGameResultsToClients(int32 Results)
 		{
 			if (!IsValid(PC))
 			{
-				UE_LOG(LogTemp, Error, TEXT("PlayerController가 유효하지 않음"));
 				continue;
 			}
-
 			if (!PC->GameResultWidgetClass)
 			{
-				UE_LOG(LogTemp, Error, TEXT("%s: GameResultWidgetClass가 설정되지 않음"), *PC->GetName());
 				continue;
 			}
 
-			UE_LOG(LogTemp, Warning, TEXT("결과 전송 대상: %s"), *PC->GetName());
 			PC->Client_ShowGameResult(ResultList);
 		}
 	}
