@@ -4,7 +4,6 @@
 #include "AI/AICharacter/AIBaseBattleCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "WeaponMaster/Data/ItemDataAsset.h"
-#include "SSTCharacterMovementComponent.h"
 #include "Characters/Components/EffectComponent/EffectComponent.h"
 
 AAIBaseBattleCharacter::AAIBaseBattleCharacter(const FObjectInitializer& ObjectInitializer)	: Super(ObjectInitializer)
@@ -113,6 +112,10 @@ void AAIBaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 void AAIBaseBattleCharacter::Die()
 {
 	UE_LOG(LogTemp, Warning, TEXT("죽었습니다."));
+	if (EffectComponent->GetActiveBehaviorEffects().Contains(EBehaviorEffect::Death))
+	{
+		return;
+	}
 	if (SpawnerOwner)
 	{
 		FTimerHandle RespawnTimer;

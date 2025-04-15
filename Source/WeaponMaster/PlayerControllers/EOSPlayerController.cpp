@@ -278,3 +278,27 @@ void AEOSPlayerController::HandleProcessResult(EPlayerEOSStateType State, ESessi
     default: break;
     }
 }
+
+void AEOSPlayerController::Client_ShowGameResult_Implementation(const TArray<FPlayerResultData>& ResultList)
+{
+    if (GameResultWidgetClass)
+    {
+        GameResultWidgetInstance = CreateWidget<UGameResultWidget>(this, GameResultWidgetClass);
+
+        if (GameResultWidgetInstance)
+        {
+            GameResultWidgetInstance->AddToViewport();
+            GameResultWidgetInstance->PopulatePlayerEntries(ResultList);
+
+            UE_LOG(LogTemp, Warning, TEXT("게임 결과 위젯 생성 및 데이터 표시 완료"));
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("위젯 인스턴스 생성 실패"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("GameResultWidgetClass가 설정되지 않음"));
+    }
+}
