@@ -45,6 +45,14 @@ void ABaseGameMode::PostLogin(APlayerController* NewPlayer)
 		FName ItemName = CastedGameInstance->ItemName;
 	
 		SpawnPlayerCharacter(CharacterClass, NewPlayer);
+
+		for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+		{
+			if (AEOSPlayerController* PlayerController = Cast<AEOSPlayerController>(Iterator->Get()))
+			{
+				PlayerController->Client_UpdatePlayers();
+			}
+		}
 	}
 	else
 	{
@@ -69,9 +77,9 @@ void ABaseGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass,
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacterSpawner::StaticClass(), FoundActors);
 
-	uint8 Cnt = 0;
+	uint32 Cnt = 50000;
 
-	while (true)
+	while (--Cnt)
 	{
 		uint8 RandomSpawnerIndex = FMath::RandRange(0, FoundActors.Num() - 1);
 		ACharacterSpawner* CharacterSpawner = Cast<ACharacterSpawner>(FoundActors[RandomSpawnerIndex]);
@@ -100,18 +108,13 @@ void ABaseGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass,
 			}
 			break;
 		}
-
-		// Place CharacterSpawners more than PlayerNumbers.
-		// You need to consider character size not to overlap when character spawned.
-		check(++Cnt < 200);
 	}
 }
 
 void ABaseGameMode::HandlePlayerDeath(const TSubclassOf<ACharacter>& CharacterClass, APlayerController* Controller, const FString& AttackerName)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ABaseGameMode::HandlePlayerDeath"))
-	
 	// 게임모드에 특정 함수 호출
+	// 타이머 + 흑백UI
 	SpawnPlayerCharacter(CharacterClass, Controller);
 
 	// Kill Log
@@ -119,7 +122,8 @@ void ABaseGameMode::HandlePlayerDeath(const TSubclassOf<ACharacter>& CharacterCl
 	{
 		if (AEOSPlayerController* PlayerController = Cast<AEOSPlayerController>(Iterator->Get()))
 		{
-			//PlayerController->Client_PlayerDead(GetPlayerNum());
+			UE_LOG(LogTemp, Warning, TEXT("ABaseGameMode::HandlePlayerDeath"))
+			PlayerController->Client_PlayerDead(GetPlayerNameFromGameInstance(Controller), AttackerName);
 		}
 	}
 }

@@ -4,6 +4,7 @@
 #include "GameFramework/HUD.h"
 #include "DeathMatchHUD.generated.h"
 
+class AWeaponMasterPlayerState;
 class UKillLogWidget;
 class UIndividualMatchStatusWidget;
 class UTextBlock;
@@ -30,10 +31,6 @@ public:
 	/** HUD 초기화 */
 	UFUNCTION(BlueprintCallable, Category = "DeathMatch HUD")
 	void InitializeHUD();
-	
-	/** 플레이어 상태 위젯 업데이트 */
-	UFUNCTION(BlueprintCallable, Category = "DeathMatch HUD")
-	void UpdatePlayerStats(int32 PlayerID, int32 Kills, int32 Deaths);
 	
 	/** 플레이어 체력 업데이트 */
 	UFUNCTION(BlueprintCallable, Category = "DeathMatch HUD")
@@ -62,6 +59,18 @@ public:
 	/** 킬로그 업데이트 */
 	UFUNCTION(BlueprintCallable, Category = "DeathMatch HUD")
 	void UpdateKillLog(const FText& Killer, const FText& Victim) const;
+
+	/** 플레이어 상태 위젯 생성 */
+	UFUNCTION(BlueprintCallable, Category = "DeathMatch HUD")
+	void BindPlayerStatusWidget(AWeaponMasterPlayerState* WMPS);
+
+	/** 킬카운트 증가 */
+	UFUNCTION()
+	void UpdateKillCount(AWeaponMasterPlayerState* OwnerPS, int32 NewVal);
+
+	/** 데스카운트 증가 */
+	UFUNCTION()
+	void UpdateDeathCount(AWeaponMasterPlayerState* OwnerPS, int32 NewVal);
 	
 protected:
 	/** 개인전 상태 위젯 */
@@ -86,8 +95,21 @@ protected:
 
 private:
 	/** 메뉴 표시 여부 */
+	UPROPERTY()
 	bool bIsMenuVisible;
 	
 	/** 내 플레이어 ID */
+	UPROPERTY()
 	int32 LocalPlayerID;
+
+	/** 내 플레이어 이름 */
+	UPROPERTY()
+	FString LocalPlayerName;
+
+	UPROPERTY()
+	TSet<AWeaponMasterPlayerState*> BoundPlayerStates;
+
+	/** PS 바인딩 */
+	UFUNCTION()
+	void TryBindPlayerState();
 };

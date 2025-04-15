@@ -33,7 +33,7 @@ public:
 
 	/** 위젯에 플레이어 추가 */
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	void UpdatePlayer(FString& PlayerName);
+	void UpdatePlayer(int32 PID, FString& PlayerName);
 
 	/** 특정 플레이어의 체력 업데이트 */
 	UFUNCTION(BlueprintCallable, Category = "UI")
