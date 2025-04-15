@@ -2,7 +2,6 @@
 
 
 #include "UI/SingleUI/SingleStageSelectWidget.h"
-#include "Components/VerticalBox.h"
 #include "Components/HorizontalBox.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
@@ -22,6 +21,7 @@ void USingleStageSelectWidget::NativeConstruct()
 	{
 		BackButton->OnClicked.AddDynamic(this, &USingleStageSelectWidget::OnBackButtonClicked);
 	}
+	
 	CreateStageButtons();
 }
 
