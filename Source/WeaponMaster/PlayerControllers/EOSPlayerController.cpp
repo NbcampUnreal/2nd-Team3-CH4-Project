@@ -4,6 +4,7 @@
 #include "GameState/WeaponMasterGameState.h"
 #include "Instance/WeaponMasterGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "PlayerState/WeaponMasterPlayerState.h"
 #include "UI/MultiUI/DeathMatchHUD.h"
 #include "UI/MultiUI/IndividualMatchStatusWidget.h"
 #include "UI/MultiUI/MultiGameHUD.h"
@@ -218,16 +219,32 @@ void AEOSPlayerController::HandleTimerAction()
     GetWorldTimerManager().ClearTimer(HUDTimerHandle);
 }
 
-void AEOSPlayerController::Client_UpdatePlayers_Implementation(const FString& PlayerName)
+void AEOSPlayerController::Client_UpdatePlayers_Implementation()
+{
+    GetWorld()->GetTimerManager().SetTimer(PlayerStatusTimerHandle, this, &AEOSPlayerController::SetPlayerStatus, 1.0f, false);
+}
+
+void AEOSPlayerController::SetPlayerStatus()
 {
     if (!IsRunningDedicatedServer())
     {
-        if (const ADeathMatchHUD* DeathMatchHUD = Cast<ADeathMatchHUD>(GetHUD()))
+        if (AGameStateBase* GS = GetWorld()->GetGameState())
         {
-            FString PN = PlayerName;
-            DeathMatchHUD->IndividualMatchStatusWidget->UpdatePlayer(PN);
+            for (APlayerState* PS : GS->PlayerArray)
+            {
+                if (const AWeaponMasterPlayerState* WMPS = Cast<AWeaponMasterPlayerState>(PS))
+                {
+                    FString PlayerName = WMPS->GetPlayerName();
+                    if (const ADeathMatchHUD* DeathMatchHUD = Cast<ADeathMatchHUD>(GetHUD()))
+                    {
+                        DeathMatchHUD->IndividualMatchStatusWidget->UpdatePlayer(WMPS->GetPlayerId(), PlayerName);
+                    }
+                }
+            }
         }
     }
+
+    GetWorld()->GetTimerManager().ClearTimer(PlayerStatusTimerHandle);
 }
 
 void AEOSPlayerController::OnNetCleanup(class UNetConnection* Connection)

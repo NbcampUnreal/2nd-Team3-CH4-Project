@@ -27,6 +27,7 @@ class WEAPONMASTER_API AEOSPlayerController : public APlayerController
 
 public:
 	AEOSPlayerController();
+	
 	virtual void BeginPlay() override;
 	
 	// EOS 서버에서 보내주는 정보
@@ -44,10 +45,10 @@ public:
 	// 플레이어 사망정보
 	UFUNCTION(Client, Reliable)
 	void Client_PlayerDead(const FString& Killer, const FString& Victim);
-
+	
 	// 플레이어 등록
 	UFUNCTION(Client, Reliable)
-	void Client_UpdatePlayers(const FString& PlayerName);
+	void Client_UpdatePlayers();
 
 	UFUNCTION()
 	void UpdateHUD(EMapType Map);
@@ -104,6 +105,12 @@ private:
 
 	UFUNCTION()
 	void HandleTimerAction();
+
+	UPROPERTY()
+	FTimerHandle PlayerStatusTimerHandle;
+
+	UFUNCTION()
+	void SetPlayerStatus();
 
 	UFUNCTION()
 	void AddDelegate();

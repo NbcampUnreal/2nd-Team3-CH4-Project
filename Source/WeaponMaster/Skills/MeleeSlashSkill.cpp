@@ -24,10 +24,7 @@ UMeleeSlashSkill::UMeleeSlashSkill()
     
     // 스킬 속성 설정
     CooldownTime = 0.5f; // 짧은 쿨다운
-    SkillDuration = 0.0f; // 몽타주로 지속시간 제어
     SkillDamage = 15.0f; // 기본 데미지
-    CCEffect = ECCSkillCategory::None;
-    CCDuration = 0.0f;
     
     // 특화 속성 설정
     KnockbackPower = 300.0f;

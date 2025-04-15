@@ -14,7 +14,7 @@ USkillComponent::USkillComponent()
     SetIsReplicatedByDefault(true);
     bWantsInitializeComponent = true;
 
-    OpportunityWindowDuration = 2.0f;
+    OpportunityWindowDuration = 4.0f;
 }
 
 void USkillComponent::BeginPlay()

@@ -207,25 +207,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Timing")
     float CooldownTime;
     
-    // 스킬 지속 시간
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Timing")
-    float SkillDuration;
-    
     // 스킬 데미지
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Combat")
     float SkillDamage;
-    
-    // 스킬 데미지 타입
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Combat")
-    TSubclassOf<UDamageType> DamageType;
-    
-    // CC 효과 타입
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Combat")
-    ECCSkillCategory CCEffect;
-    
-    // CC 효과 지속 시간
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Combat")
-    float CCDuration;
     
     // 스킬 몽타주
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Animation")

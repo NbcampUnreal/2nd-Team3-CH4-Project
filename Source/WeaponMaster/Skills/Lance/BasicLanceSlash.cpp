@@ -46,11 +46,10 @@ int32 UBasicLanceSlash::ProcessTargetActors(const TArray<AActor*>& TargetActors,
 			
 			UE_LOG(LogTemp, Display, TEXT("UBasicLanceSlash::ProcessTargetActors : Target Cast Success!"));
 			FVector LaunchDirection = OwnerCharacter->GetActorForwardVector();
-			FVector LaunchVector = { LaunchDirection.X * 1000, 0.f, 100.f };
+			FVector LaunchVector = { LaunchDirection.X * 500, 0.f, 100.f };
 			
 			FAttackData AttackData
 			{
-				// FinalDamage,
 				OwnerCharacter,
 				FinalDamage,
 				LaunchVector,

@@ -46,13 +46,6 @@ int32 UBossAreaSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, f
 			FinalDamage += ItemData->BaseDamage;
 		}
 
-		// 데미지 타입 설정
-		TSubclassOf<UDamageType> DamageTypeClass = DamageType;
-		if (!DamageTypeClass)
-		{
-			DamageTypeClass = UDamageType::StaticClass();
-		}
-
 		UE_LOG(LogTemp, Warning, TEXT("[ComboSkill] Hit Target: %s | Damage: %.1f"), *Target->GetName(), FinalDamage);
 
 
