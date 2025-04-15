@@ -17,10 +17,7 @@ UBaseSkill::UBaseSkill()
     Description = TEXT("No description available.");
     SkillType = ESkillType::Melee;
     CooldownTime = 1.0f;
-    SkillDuration = 0.0f;
     SkillDamage = 10.0f;
-    CCEffect = ECCSkillCategory::None;
-    CCDuration = 0.0f;
     RemainingCooldown = 0.0f;
     bIsActive = false;
     SkillTimer = 0.0f;
@@ -174,11 +171,6 @@ void UBaseSkill::UpdateCooldown(float DeltaTime)
         // 스킬 타이머도 공격 속도에 비례하여 업데이트
         SkillTimer += DeltaTime * CooldownRate;
         
-        // 스킬 지속 시간 체크 (지속시간이 0보다 크면 타이머로 종료)
-        if (SkillDuration > 0.0f && SkillTimer >= SkillDuration)
-        {
-            EndSkill();
-        }
     }
 }
 
@@ -247,6 +239,6 @@ int32 UBaseSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, float
         // 자식 클래스에서는 이 부분을 오버라이드하여 실제 스킬 효과 적용 가능
         ValidActorsCount++;
     }
-    
+    UE_LOG(LogTemp, Warning, TEXT("[UBaseSkill::ProcessTargetActors] 오버렙된 수 %d"), ValidActorsCount);
     return ValidActorsCount;
 }
