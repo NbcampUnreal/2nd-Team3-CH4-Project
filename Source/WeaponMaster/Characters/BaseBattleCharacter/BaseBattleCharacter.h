@@ -17,6 +17,8 @@ class USkillComponent;
 class UWidgetComponent;
 class UBaseSkill;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, CurrentHealth, float, MaxHealth);
+
 UCLASS()
 class WEAPONMASTER_API ABaseBattleCharacter :
 public ASSTCharacter, public IBaseBattleInputBindFunctions, public IBattleSystemUser, public IDamageSystemUser
@@ -26,6 +28,9 @@ public ASSTCharacter, public IBaseBattleInputBindFunctions, public IBattleSystem
 public:
 	// Sets default values for this character's properties
 	ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnHealthChanged OnHealthChanged;
 
 protected:
 	// Components
