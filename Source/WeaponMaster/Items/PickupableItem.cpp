@@ -82,10 +82,21 @@ void APickupableItem::LoadItemData()
             if (Mesh)
             {
                 MeshComponent->SetStaticMesh(Mesh);
-                MeshComponent->SetRelativeScale3D(ItemData->Scale);
+                
+                // MeshData에서 첫 번째 메시의 스케일 사용 (있는 경우)
+                if (ItemData->MeshData.Num() > 0)
+                {
+                    MeshComponent->SetRelativeScale3D(ItemData->MeshData[0].Scale);
+                }
+                else
+                {
+                    // 기본 스케일 1.0 적용
+                    MeshComponent->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
+                }
             }
         }
-    }else if (ItemData)
+    }
+    else if (ItemData)
     {
         // 아이템 데이터가 있으면 메시 설정
         if (!ItemData->ItemMesh.IsNull())
@@ -94,7 +105,17 @@ void APickupableItem::LoadItemData()
             if (Mesh)
             {
                 MeshComponent->SetStaticMesh(Mesh);
-                MeshComponent->SetRelativeScale3D(ItemData->Scale);
+                
+                // MeshData에서 첫 번째 메시의 스케일 사용 (있는 경우)
+                if (ItemData->MeshData.Num() > 0)
+                {
+                    MeshComponent->SetRelativeScale3D(ItemData->MeshData[0].Scale);
+                }
+                else
+                {
+                    // 기본 스케일 1.0 적용
+                    MeshComponent->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
+                }
             }
         }
     }

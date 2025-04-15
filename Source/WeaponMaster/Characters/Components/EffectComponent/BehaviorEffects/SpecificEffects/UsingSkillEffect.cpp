@@ -57,22 +57,22 @@ void UUsingSkillEffect::Dash()
 
 void UUsingSkillEffect::WeakAttack()
 {
-	Super::WeakAttack();
+	// Super::WeakAttack();
 }
 
 void UUsingSkillEffect::StrongAttack()
 {
-	Super::StrongAttack();
+	// Super::StrongAttack();
 }
 
 void UUsingSkillEffect::Identity()
 {
-	Super::Identity();
+	// Super::Identity();
 }
 
 void UUsingSkillEffect::Defence()
 {
-	Super::Defence();
+	// Super::Defence();
 }
 
 void UUsingSkillEffect::PickingItem()

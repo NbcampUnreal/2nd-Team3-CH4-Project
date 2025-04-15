@@ -96,6 +96,9 @@ protected:
 
 	void OnDeath();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastOnDeath();
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

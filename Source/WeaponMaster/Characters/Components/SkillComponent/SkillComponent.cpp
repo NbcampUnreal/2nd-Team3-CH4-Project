@@ -332,6 +332,11 @@ bool USkillComponent::ExecuteSkill(int32 GroupIndex)
     
     // 스킬 사용 시도
     bool Success = Skills[ActualSkillIndex]->ActivateSkill();
+
+    UE_LOG(LogTemp, Warning, TEXT("스킬 실행 %s (그룹: %d, 인덱스: %d, 스킬: %s)"), 
+        Success ? TEXT("성공") : TEXT("실패"),
+        GroupIndex, NextIndex, 
+        *Skills[ActualSkillIndex]->GetSkillName());
     
     // 스킬 실행 성공 시 상태 업데이트
     if (Success)

@@ -58,9 +58,6 @@ void ADeathMatchHUD::InitializeHUD()
     if (IndividualMatchStatusWidget)
     {
         IndividualMatchStatusWidget->AddToViewport();
-        
-        // 테스트용 더미 데이터 초기화 (실제 게임에서는 실제 플레이어 데이터로 대체)
-        IndividualMatchStatusWidget->InitializeDummyPlayerStatus(6, LocalPlayerID);
     }
     
     // 인게임 메뉴 위젯 생성 (표시는 하지 않음)
@@ -80,17 +77,6 @@ void ADeathMatchHUD::UpdatePlayerStats(int32 PlayerID, int32 Kills, int32 Deaths
     // 플레이어 킬, 데스
     IndividualMatchStatusWidget->UpdatePlayerKills(PlayerID, Kills);
     IndividualMatchStatusWidget->UpdatePlayerDeaths(PlayerID, Deaths);
-    
-    // 연속적인 업데이트에 대한 정렬 요청을 줄이기 위해 타이머 사용
-    if (!GetWorldTimerManager().IsTimerActive(SortPlayersTimerHandle))
-    {
-        GetWorldTimerManager().SetTimer(
-            SortPlayersTimerHandle,
-            [this]() { IndividualMatchStatusWidget->SortPlayersByScore(); },
-            0.2f,  // 짧은 지연 시간
-            false  // 반복 없음
-        );
-    }
 }
 
 void ADeathMatchHUD::UpdatePlayerHealth(int32 PlayerID, float CurrentHealth, float MaxHealth)

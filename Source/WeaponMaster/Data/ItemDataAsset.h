@@ -1,13 +1,68 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "SkillGroupArray.h"
 #include "Engine/DataAsset.h"
 #include "WeaponMaster/Skills/BaseSkill.h"
+#include "NiagaraSystem.h"
 #include "ItemDataAsset.generated.h"
 
+/**
+ * 아이템의 메시와 이펙트 데이터를 담는 구조체
+ */
+USTRUCT(BlueprintType)
+struct FItemMeshData
+{
+    GENERATED_BODY()
+    
+    // 장착 메시
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
+    TSoftObjectPtr<UStaticMesh> Mesh;
+    
+    // 부착할 소켓 이름
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
+    FName SocketName;
+    
+    // 메시 스케일
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh")
+    FVector Scale;
+    
+    // 이 메시에 적용할 이펙트
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effect")
+    TSoftObjectPtr<UNiagaraSystem> Effect;
+    
+    // 이펙트 위치 오프셋
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effect")
+    FVector EffectOffset;
+    
+    // 이펙트 스케일
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effect")
+    FVector EffectScale;
+    
+    // 이펙트 색상 파라미터 이름
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effect")
+    FName EffectColorParameterName;
+    
+    // 이펙트 색상
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effect")
+    FLinearColor EffectColor;
+    
+    // 설명 (에디터용)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Description")
+    FString MeshDescription;
+    
+    // 기본 생성자
+    FItemMeshData()
+        : SocketName(TEXT("hand_r"))
+        , Scale(FVector(1.0f, 1.0f, 1.0f))
+        , EffectOffset(FVector(0.0f, 0.0f, 50.0f))
+        , EffectScale(FVector(1.0f, 1.0f, 1.0f))
+        , EffectColorParameterName(TEXT("Color"))
+        , EffectColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f))
+        , MeshDescription(TEXT(""))
+    {
+    }
+};
 
 /**
  * 
@@ -34,17 +89,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Visuals")
 	TSoftObjectPtr<UStaticMesh> ItemMesh;
     
-	// 장착했을 때 사용할 메시
+	// 여러 메시와 이펙트 데이터
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Visuals")
-	TSoftObjectPtr<UStaticMesh> EquippedMesh;
-    
-	// 아이템을 부착할 소켓 이름
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attachment")
-	FName SocketName;
-    
-	// 아이템 스케일
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attachment")
-	FVector Scale;
+	TArray<FItemMeshData> MeshData;
     
 	// 기본 공격력
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
@@ -53,7 +100,7 @@ public:
 	// 공격 속도
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
 	float AttackSpeed;
-    
+	
 	// 아이콘 (UI 표시용)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	TSoftObjectPtr<UTexture2D> Icon;
