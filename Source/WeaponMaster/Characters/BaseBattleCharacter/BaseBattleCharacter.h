@@ -123,6 +123,8 @@ public:
 	virtual void ExecuteSkill_Implementation(int32 SkillIndex) override;
 
 	// Character -> StateComponent
+	virtual UStateComponent* GetStateComponent_Implementation() const override;
+	
 	virtual TScriptInterface<UBehaviorState> GetBehaviorState_Implementation() const override;
 
 	virtual void SetBehaviorState_Implementation(const TScriptInterface<UBehaviorState>& NewState) override;

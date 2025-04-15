@@ -483,6 +483,11 @@ void ABaseBattleCharacter::ExecuteSkill_Implementation(int32 SkillIndex)
 	}
 }
 
+UStateComponent* ABaseBattleCharacter::GetStateComponent_Implementation() const
+{
+	return StateComponent;
+}
+
 TScriptInterface<UBehaviorState> ABaseBattleCharacter::GetBehaviorState_Implementation() const
 {
 	return StateComponent->GetBehaviorState();
