@@ -60,9 +60,8 @@ int32 UBossForwardChargeSkill::ProcessTargetActors(const TArray<AActor*>& Target
 
 		if (auto CastedTarget = Cast<IDamageSystemUser>(Target))
 		{
-			UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Success!"));
-			FVector LaunchVector = OwnerCharacter->GetActorForwardVector() * 200;
-
+			FVector LaunchDirection = OwnerCharacter->GetActorForwardVector();
+			FVector LaunchVector = { LaunchDirection.X * 1500.f, 0.f, 100.f };
 			FAttackData AttackData
 			{
 				OwnerCharacter,
@@ -78,7 +77,6 @@ int32 UBossForwardChargeSkill::ProcessTargetActors(const TArray<AActor*>& Target
 		}
 		else
 		{
-			UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Failed!"));
 		}
 
 		// 타격 이펙트 (선택)

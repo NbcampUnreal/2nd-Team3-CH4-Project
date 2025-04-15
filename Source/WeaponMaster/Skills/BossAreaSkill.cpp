@@ -12,7 +12,7 @@
 UBossAreaSkill::UBossAreaSkill()
 {
     DefaultAttackSpeed = 0.8f;
-	SkillDamage = 30.0f;
+	SkillDamage = 50.0f;
 }
 
 void UBossAreaSkill::ExecuteSkill()
@@ -58,8 +58,8 @@ int32 UBossAreaSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, f
 
 		if (auto CastedTarget = Cast<IDamageSystemUser>(Target))
 		{
-			UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Success!"));
-			FVector LaunchVector = OwnerCharacter->GetActorForwardVector() * 200;
+			FVector LaunchDirection = OwnerCharacter->GetActorForwardVector();
+			FVector LaunchVector = { LaunchDirection.X * 0.f, 0.f, 1500.f };
 
 			FAttackData AttackData
 			{
@@ -76,7 +76,6 @@ int32 UBossAreaSkill::ProcessTargetActors(const TArray<AActor*>& TargetActors, f
 		}
 		else
 		{
-			UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Failed!"));
 		}
 
 		// 타격 이펙트 (선택)
