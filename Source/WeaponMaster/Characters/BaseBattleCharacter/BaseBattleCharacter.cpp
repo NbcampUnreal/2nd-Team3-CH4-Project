@@ -98,6 +98,7 @@ void ABaseBattleCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 void ABaseBattleCharacter::OnRep_HP()
 {
     UE_LOG(LogTemp, Warning, TEXT("======= OnRep_HP 호출! 현재 HP: %f ======="), HP);
+	OnHealthChanged.Broadcast(HP, MaxHP);
     
     // 플레이어 상태 정보 구성
     FPlayerStatusInfo StatusInfo;

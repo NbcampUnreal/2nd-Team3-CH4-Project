@@ -179,4 +179,6 @@ public:
 	/** 최대 HP 반환 */
 	UFUNCTION(BlueprintCallable, Category = "Stats")
 	float GetMaxHP() const { return MaxHP; }
+
+	
 };
