@@ -69,7 +69,7 @@ void ABaseGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass,
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacterSpawner::StaticClass(), FoundActors);
 
-	uint8 Cnt = 0;
+	int32 Cnt = 0;
 
 	while (true)
 	{
@@ -81,7 +81,7 @@ void ABaseGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass,
 			if (AWeaponMasterController* WMPC = Cast<AWeaponMasterController>(Controller))
 			{
 				// Possess할때 Owner설정도 됨!
-				// SpawnCharacter->SetOwner(WMPC);
+				SpawnCharacter->SetOwner(WMPC);
 				WMPC->Possess(SpawnCharacter);
 				UE_LOG(LogTemp, Warning, TEXT("Possessed Pawn: %s"), *WMPC->GetPawn()->GetName());
 			}
@@ -103,7 +103,7 @@ void ABaseGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass,
 
 		// Place CharacterSpawners more than PlayerNumbers.
 		// You need to consider character size not to overlap when character spawned.
-		check(++Cnt < 200);
+		check(++Cnt < 20000);
 	}
 }
 
