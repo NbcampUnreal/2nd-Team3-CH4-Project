@@ -5,6 +5,7 @@
 #include "PlayerControllers/EOSPlayerController.h"
 #include "IndividualMatchStatusWidget.generated.h"
 
+class UPlayerStatusWidgetExtended;
 class UKillLogWidget;
 class UCanvasPanel;
 class UTextBlock;
@@ -26,17 +27,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void InitializePlayerStatus();
 
-	/** 테스트용 더미 플레이어 상태 초기화 */
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	void InitializeDummyPlayerStatus(int32 TotalPlayers, int32 LocalPlayerID = -1);
-
-	/** 특정 플레이어의 킬 점수 업데이트 */
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	void UpdatePlayerKills(int32 PlayerID, int32 Kills);
-	
 	/** 특정 플레이어의 데스 점수 업데이트 */
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	void UpdatePlayerDeaths(int32 PlayerID, int32 Deaths);
+	void UpdatePlayerDeaths(int32 PlayerID, int32 Deaths) const;
+
+	/** 위젯에 플레이어 추가 */
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void UpdatePlayer(FString& PlayerName);
 
 	/** 특정 플레이어의 체력 업데이트 */
 	UFUNCTION(BlueprintCallable, Category = "UI")
@@ -46,13 +43,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void SetPlayerVisibility(int32 PlayerID, bool bIsVisible);
 
-	/** 플레이어 리스트 정렬 (점수 기준) */
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	void SortPlayersByScore();
-
 	/** 게임 타이틀 설정 */
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void UpdateMatchTitle(const EMapType Map) const;
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void UpdatePlayerKills(int32 PlayerID, int32 Kills);
 
 	/** 플레이어 컨테이너 반환 */
 	UFUNCTION(BlueprintCallable, Category = "UI")
@@ -95,12 +91,15 @@ protected:
 
 	/** 플레이어 상태 위젯 맵 (플레이어 ID를 키로 사용) */
 	UPROPERTY(Transient)
-	TMap<int32, UPlayerStatusWidget*> PlayerWidgets;
+	TMap<int32, UPlayerStatusWidgetExtended*> PlayerWidgets;
 
 private:
-	/** 플레이어 위젯 제거 */
-	void ClearPlayerWidgets();
-
 	/** 최대 표시 플레이어 수 */
 	static const int32 MAX_VISIBLE_PLAYERS = 16;
+
+	/** 플레이어 인덱스 */
+	int32 PlayerIndex = 0;
+	
+	/** 플레이어 위젯 제거 */
+	void ClearPlayerWidgets();
 };

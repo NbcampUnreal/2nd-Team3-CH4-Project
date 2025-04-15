@@ -394,9 +394,15 @@ void ABaseBattleCharacter::OnDeath()
 {
 	if (HasAuthority())
 	{
+		// 죽었으면 피격당하지 않도록
+		if (EffectComponent->GetActiveBehaviorEffects().Contains(EBehaviorEffect::Death))
+		{
+			return;
+		}
+		
 		// 사망 이펙트 적용
 		EffectComponent->ActivateBehaviorEffect(EBehaviorEffect::Death);
-        
+
 		// Pawn과 충돌 무시
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
@@ -423,7 +429,7 @@ void ABaseBattleCharacter::OnDeath()
 
 				if (AWeaponMasterController* WMController = Cast<AWeaponMasterController>(GetController()))
 				{
-					GM->HandlePlayerDeath(CharacterClass, WMController);
+					GM->HandlePlayerDeath(CharacterClass, WMController, GetPlayerState()->GetPlayerName());
 				}
 			}
 			else
@@ -436,8 +442,17 @@ void ABaseBattleCharacter::OnDeath()
 			UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnDeath : IBattleGMInterface Cast Failed"));
 		}
 
-		// Destroy();
+		// 리플리케이트 안되는 설정 클라에서도 해주기.
+		MulticastOnDeath();
+		
+		// Destroy(); -> GameMode에서 시켜주도록
 	}
+}
+
+void ABaseBattleCharacter::MulticastOnDeath_Implementation()
+{
+	// Pawn과 충돌 무시
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 }
 
 UItemComponent* ABaseBattleCharacter::GetItemComponent_Implementation() const
