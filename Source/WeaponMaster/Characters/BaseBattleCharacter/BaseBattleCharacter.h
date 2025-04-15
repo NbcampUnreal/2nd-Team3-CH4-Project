@@ -56,6 +56,7 @@ protected:
 	TObjectPtr<ACharacter> LastAttacker;
 	
 	FTimerHandle LastAttackerTimerHandle;
+	FTimerHandle RespawnDelayTimerHandle;
 	
 	// Constants
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats", meta = (AllowPrivateAccess = "true"))
@@ -178,4 +179,6 @@ public:
 	/** 최대 HP 반환 */
 	UFUNCTION(BlueprintCallable, Category = "Stats")
 	float GetMaxHP() const { return MaxHP; }
+
+	
 };
