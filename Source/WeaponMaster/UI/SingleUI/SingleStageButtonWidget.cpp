@@ -20,12 +20,12 @@ void USingleStageButtonWidget::SetStageInfo(const FStageInfo& Info)
 {
 	CurrentStageInfo = Info;
 
-	if (MapImage)
+	if (IsValid(MapImage))
 	{
 		MapImage->SetBrushFromTexture(Info.MapThumbnail);
 	}
 
-	if (MapNameText)
+	if (IsValid(MapNameText))
 	{
 		MapNameText->SetText(Info.MapName);
 	}

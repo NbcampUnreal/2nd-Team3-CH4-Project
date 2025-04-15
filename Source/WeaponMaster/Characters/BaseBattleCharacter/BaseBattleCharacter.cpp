@@ -2,7 +2,7 @@
 
 #include "BaseBattleCharacter.h"
 #include "SSTCharacterMovementComponent.h"
-#include "FollowCameraComponent.h"
+// #include "FollowCameraComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
@@ -12,7 +12,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
-#include "InputActionValue.h"
+// #include "InputActionValue.h"
 #include "Characters/Components/StateComponent/StateComponent.h"
 #include "Characters/Components/ItemComponent/ItemComponent.h"
 #include "Characters/Components/SkillComponent/SkillComponent.h"
@@ -28,9 +28,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/GameModeBase.h"
 #include "PlayerState/WeaponMasterPlayerState.h"
-#include "UI/CommonUI/PlayerStatusWidget.h"
+// #include "UI/CommonUI/PlayerStatusWidget.h"
 #include "UI/SingleUI/SingleGameHUD.h"
-#include "Components/WidgetComponent.h"
+// #include "Components/WidgetComponent.h"
 
 // Sets default values
 ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer)
@@ -98,7 +98,10 @@ void ABaseBattleCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 void ABaseBattleCharacter::OnRep_HP()
 {
     UE_LOG(LogTemp, Warning, TEXT("======= OnRep_HP 호출! 현재 HP: %f ======="), HP);
-	OnHealthChanged.Broadcast(HP, MaxHP);
+    if (AWeaponMasterPlayerState* WMPS = GetPlayerState<AWeaponMasterPlayerState>())
+    {
+	    OnHealthChanged.Broadcast(WMPS, HP, MaxHP);
+    }
     
     // 플레이어 상태 정보 구성
     FPlayerStatusInfo StatusInfo;

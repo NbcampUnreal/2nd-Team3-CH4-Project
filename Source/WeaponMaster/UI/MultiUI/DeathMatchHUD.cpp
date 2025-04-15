@@ -3,6 +3,7 @@
 #include "KillLogWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Characters/WeaponMasterCharacter.h"
+#include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
@@ -106,11 +107,16 @@ void ADeathMatchHUD::BindPlayerStatusWidget(AWeaponMasterPlayerState* WMPS)
     AController* Controller = Cast<AController>(WMPS->GetOwner());
     if (Controller)
     {
-        if (AWeaponMasterCharacter* Character = Cast<AWeaponMasterCharacter>(Controller->GetPawn()))
+        if (ABaseBattleCharacter* Character = Cast<ABaseBattleCharacter>(Controller->GetPawn()))
         {
-            //Character->OnHealthChanged.AddDynamic(this, &ADeathMatchHUD::UpdateHealth);
+            Character->OnHealthChanged.AddDynamic(this, &ADeathMatchHUD::UpdateHealth);
         }
     }
+}
+
+void ADeathMatchHUD::UpdateHealth(AWeaponMasterPlayerState* OwnerPS, float CurrentHealth, float MaxHealth)
+{
+    UpdatePlayerHealth(OwnerPS->GetPlayerId(), CurrentHealth, MaxHealth);
 }
 
 void ADeathMatchHUD::UpdateKillCount(AWeaponMasterPlayerState* OwnerPS, int32 NewVal)
