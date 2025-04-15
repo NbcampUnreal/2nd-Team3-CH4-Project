@@ -51,6 +51,7 @@ protected:
 	TObjectPtr<ACharacter> LastAttacker;
 	
 	FTimerHandle LastAttackerTimerHandle;
+	FTimerHandle RespawnDelayTimerHandle;
 	
 	// Constants
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats", meta = (AllowPrivateAccess = "true"))

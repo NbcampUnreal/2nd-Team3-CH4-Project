@@ -394,12 +394,6 @@ void ABaseBattleCharacter::OnDeath()
 {
 	if (HasAuthority())
 	{
-		// 죽었으면 피격당하지 않도록
-		if (EffectComponent->GetActiveBehaviorEffects().Contains(EBehaviorEffect::Death))
-		{
-			return;
-		}
-		
 		// 사망 이펙트 적용
 		EffectComponent->ActivateBehaviorEffect(EBehaviorEffect::Death);
 
@@ -419,33 +413,41 @@ void ABaseBattleCharacter::OnDeath()
 			}
 		}
 
-		// 게임 모드에 사망 알림
-		if (auto GM = Cast<IBattleGMInterface>(UGameplayStatics::GetGameMode(this)))
-		{
-			if (auto CastedGameInstance = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
-			{
-				TSubclassOf<ACharacter> CharacterClass = CastedGameInstance->CharacterClass;
-				FName ItemName = CastedGameInstance->ItemName;
-
-				if (AWeaponMasterController* WMController = Cast<AWeaponMasterController>(GetController()))
-				{
-					GM->HandlePlayerDeath(CharacterClass, WMController, GetPlayerState()->GetPlayerName());
-				}
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("AWeaponMasterController::OnDeath : GameInstance Cast Failed."))
-			}
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnDeath : IBattleGMInterface Cast Failed"));
-		}
-
 		// 리플리케이트 안되는 설정 클라에서도 해주기.
 		MulticastOnDeath();
-		
-		// Destroy(); -> GameMode에서 시켜주도록
+
+		// 2초 후에 게임모드에 사망 알리고 Destroy
+		GetWorldTimerManager().SetTimer(
+			RespawnDelayTimerHandle,
+			FTimerDelegate::CreateLambda([this]()
+			{
+				// 게임 모드에 사망 알림
+				if (auto GM = Cast<IBattleGMInterface>(UGameplayStatics::GetGameMode(this)))
+				{
+					if (auto CastedGameInstance = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
+					{
+						TSubclassOf<ACharacter> CharacterClass = CastedGameInstance->CharacterClass;
+						FName ItemName = CastedGameInstance->ItemName;
+
+						if (AWeaponMasterController* WMController = Cast<AWeaponMasterController>(GetController()))
+						{
+							GM->HandlePlayerDeath(CharacterClass, WMController, GetPlayerState()->GetPlayerName());
+						}
+					}
+					else
+					{
+						UE_LOG(LogTemp, Error, TEXT("AWeaponMasterController::OnDeath : GameInstance Cast Failed."))
+					}
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnDeath : IBattleGMInterface Cast Failed"));
+				}
+				Destroy();
+			}),
+		2.0f,
+		false
+		);
 	}
 }
 
@@ -580,6 +582,12 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 {
 	if (HasAuthority())
 	{
+		// 죽었으면 피격당하지 않도록
+		if (EffectComponent->GetActiveBehaviorEffects().Contains(EBehaviorEffect::Death))
+		{
+			return;
+		}
+		
 		if (GetActorForwardVector().X * AttackData.LaunchVector.X > 0.f)
 		{
 			UE_LOG(LogTemp, Display, TEXT("OnAttacked : 180 Rotate"));
@@ -602,6 +610,7 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 		// 공격자의 데미지 통계 업데이트
 		auto CastedAttacker = Cast<ACharacter>(AttackData.Attacker);
 
+		// 마지막 공격자 5초동안 기억
 		if (IsValid(CastedAttacker))
 		{
 			LastAttacker = CastedAttacker;
@@ -622,7 +631,7 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 		}
 		else
 		{
-			// 아무한테도 안맞았는데 킬존에 닿았음
+			// 5초동안 아무한테도 안맞았는데 죽음(킬존)
 			return;
 		}
 		
