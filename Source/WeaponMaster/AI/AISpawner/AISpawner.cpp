@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "TimerManager.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "AI/AICharacter/AIBaseBattleCharacter.h"
 
 AAISpawner::AAISpawner()
 {
@@ -16,8 +17,7 @@ void AAISpawner::BeginPlay()
 {
     Super::BeginPlay();
 
-    // 일정 시간마다 SpawnAI 호출
-    GetWorldTimerManager().SetTimer(SpawnTimer, this, &AAISpawner::SpawnAI, SpawnInterval, true);
+    GetWorldTimerManager().SetTimer(SpawnTimer, this, &AAISpawner::SpawnAI, 1.5f, false);
 }
 
 void AAISpawner::SpawnAI()
@@ -42,10 +42,21 @@ void AAISpawner::SpawnAI()
         FVector SpawnLocation = GetActorLocation();
         FRotator SpawnRotation = GetActorRotation();
 
-        APawn* SpawnedAI = GetWorld()->SpawnActor<APawn>(AIToSpawn, SpawnLocation, SpawnRotation, SpawnParams);
+        APawn* SpawnedPawn = GetWorld()->SpawnActor<APawn>(AIToSpawn, SpawnLocation, SpawnRotation, SpawnParams);
 
-        if (SpawnedAI)
+        if (SpawnedPawn)
         {
+            if (AAIBaseBattleCharacter* SpawnedAI = Cast<AAIBaseBattleCharacter>(SpawnedPawn))
+            {
+                SpawnedAI->SpawnerOwner = this;
+                SpawnedAI->RandomItemEquip();
+            }
+
+            // else if (ABossCharacter* SpawnedBoss = Cast<ABossCharacter>(SpawnedPawn))
+            // {
+            //     // 보스 관련 로직
+            // }
+
             ++CurrentSpawnCount;
         }
     }

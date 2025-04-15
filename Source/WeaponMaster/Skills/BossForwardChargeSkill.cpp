@@ -47,22 +47,15 @@ int32 UBossForwardChargeSkill::ProcessTargetActors(const TArray<AActor*>& Target
 		{
 			FinalDamage += ItemData->BaseDamage;
 		}
-
-		// 데미지 타입 설정
-		TSubclassOf<UDamageType> DamageTypeClass = DamageType;
-		if (!DamageTypeClass)
-		{
-			DamageTypeClass = UDamageType::StaticClass();
-		}
+		
 
 		UE_LOG(LogTemp, Warning, TEXT("[ComboSkill] Hit Target: %s | Damage: %.1f"), *Target->GetName(), FinalDamage);
 
 
 		if (auto CastedTarget = Cast<IDamageSystemUser>(Target))
 		{
-			UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Success!"));
-			FVector LaunchVector = OwnerCharacter->GetActorForwardVector() * 200;
-
+			FVector LaunchDirection = OwnerCharacter->GetActorForwardVector();
+			FVector LaunchVector = { LaunchDirection.X * 1500.f, 0.f, 100.f };
 			FAttackData AttackData
 			{
 				OwnerCharacter,
@@ -78,7 +71,6 @@ int32 UBossForwardChargeSkill::ProcessTargetActors(const TArray<AActor*>& Target
 		}
 		else
 		{
-			UE_LOG(LogTemp, Display, TEXT("UBossBasicComboSkill::ProcessTargetActors : Target Cast Failed!"));
 		}
 
 		// 타격 이펙트 (선택)
