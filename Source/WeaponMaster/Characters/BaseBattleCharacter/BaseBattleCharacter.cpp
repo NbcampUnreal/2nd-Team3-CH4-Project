@@ -30,6 +30,7 @@
 #include "PlayerState/WeaponMasterPlayerState.h"
 #include "UI/CommonUI/PlayerStatusWidget.h"
 #include "UI/SingleUI/SingleGameHUD.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer)
@@ -39,13 +40,14 @@ ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectIniti
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	// StateComponent
+	// Components
 	StateComponent = CreateDefaultSubobject<UStateComponent>(TEXT("StateComponent"));
 	EffectComponent = CreateDefaultSubobject<UEffectComponent>(TEXT("EffectComponent"));
 	ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
 	SkillComponent = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComponent"));
-	InteractableActor = nullptr;
-
+	// WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
+	// WidgetComponent->SetupAttachment(GetRootComponent());
+	
 	// Constants
 	MaxHP = 100.0f;
 	HP = MaxHP;
@@ -58,6 +60,11 @@ ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectIniti
 
 	// Replicate
 	bReplicates = true;
+
+	// Initialize ActorPointers
+	InteractableActor = nullptr;
+	LastAttacker = nullptr;
+	CharacterThumbnail = nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -72,12 +79,12 @@ void ABaseBattleCharacter::BeginPlay()
 		ItemComponent->OnItemUnequipped.AddDynamic(this, &ABaseBattleCharacter::OnItemUnequippedForBinding);
 
 		SkillComponent->OnSkillStarted.AddDynamic(this, &ABaseBattleCharacter::OnSkillStarted);
-		SkillComponent->OnSkillStarted.AddDynamic(this, &ABaseBattleCharacter::OnSkillEnded);
+		SkillComponent->OnSkillEnded.AddDynamic(this, &ABaseBattleCharacter::OnSkillEnded);
 	}
 
 	if (!HasAuthority())
 	{
-		SetupMontageEndedDelegate_Implementation(); 
+		SetupMontageEndedDelegate_Implementation();
 	}
 }
 
@@ -95,9 +102,20 @@ void ABaseBattleCharacter::OnRep_HP()
     // 플레이어 상태 정보 구성
     FPlayerStatusInfo StatusInfo;
     
-    // PlayerState 정보가 있다면 가져옵니다
-    if (auto PlayerStateRef = GetPlayerState())
+    // 플레이어 이름 가져오기 - 우선 GameInstance에서 시도
+    if (UWeaponMasterGameInstance* GameInstance = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
     {
+        StatusInfo.PlayerName = GameInstance->GetPlayerName();
+        
+        // 이름이 비어있으면 PlayerState에서 가져오기
+        if (StatusInfo.PlayerName.IsEmpty() && GetPlayerState())
+        {
+            StatusInfo.PlayerName = GetPlayerState()->GetPlayerName();
+        }
+    }
+    else if (auto PlayerStateRef = GetPlayerState())
+    {
+        // GameInstance 접근 실패시 PlayerState에서 이름 가져오기
         StatusInfo.PlayerName = PlayerStateRef->GetPlayerName();
         StatusInfo.CharacterID = PlayerStateRef->GetPlayerId();
         
@@ -109,9 +127,9 @@ void ABaseBattleCharacter::OnRep_HP()
     }
     else
     {
-        // PlayerState가 없을 경우 기본값 설정
+        // 둘 다 실패했을 경우 기본값 설정
         StatusInfo.PlayerName = GetName();
-        StatusInfo.CharacterID = 0; // 또는 캐릭터 ID 생성 로직
+        StatusInfo.CharacterID = 0;
     }
     
     StatusInfo.CurrentHealth = HP;
@@ -121,8 +139,8 @@ void ABaseBattleCharacter::OnRep_HP()
     // 로컬 컨트롤러가 있는 경우에만 UI 업데이트
     if (auto PlayerController = Cast<APlayerController>(GetController()))
     {
-        UE_LOG(LogTemp, Warning, TEXT("HP UI 업데이트 성공! 현재 HP: %f, 최대 HP: %f"), 
-               StatusInfo.CurrentHealth, StatusInfo.MaxHealth);
+        UE_LOG(LogTemp, Warning, TEXT("HP UI 업데이트 성공! 현재 HP: %f, 최대 HP: %f, 플레이어 이름: %s"), 
+               StatusInfo.CurrentHealth, StatusInfo.MaxHealth, *StatusInfo.PlayerName);
         
         // 멀티 게임 HUD 확인
         if (auto CastedHUD = Cast<AMultiGameHUD>(PlayerController->GetHUD()))
@@ -145,7 +163,6 @@ void ABaseBattleCharacter::OnRep_HP()
     {
         // 컨트롤러가 없는 경우 (AI 또는 리플리케이션된 캐릭터)
         UE_LOG(LogTemp, Warning, TEXT("컨트롤러가 없거나 PlayerController가 아닙니다. HP 업데이트만 처리합니다."));
-        
     }
 }
 
@@ -317,7 +334,7 @@ void ABaseBattleCharacter::BindInputFunctions()
 		UE_LOG(LogTemp, Warning,
 		       TEXT("ABaseBattleCharacter::BindInputFunctions : No WeaponMasterController->MenuOnOffAction"));
 	}
-	
+
 }
 
 void ABaseBattleCharacter::SetHP(float NewHP)
@@ -399,12 +416,27 @@ void ABaseBattleCharacter::OnDeath()
 		// 게임 모드에 사망 알림
 		if (auto GM = Cast<IBattleGMInterface>(UGameplayStatics::GetGameMode(this)))
 		{
-			GM->HandlePlayerDeath(PlayerPC);
+			if (auto CastedGameInstance = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
+			{
+				TSubclassOf<ACharacter> CharacterClass = CastedGameInstance->CharacterClass;
+				FName ItemName = CastedGameInstance->ItemName;
+
+				if (AWeaponMasterController* WMController = Cast<AWeaponMasterController>(GetController()))
+				{
+					GM->HandlePlayerDeath(CharacterClass, WMController, GetPlayerState()->GetPlayerName());
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("AWeaponMasterController::OnDeath : GameInstance Cast Failed."))
+			}
 		}
 		else
 		{
 			UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnDeath : IBattleGMInterface Cast Failed"));
 		}
+
+		// Destroy();
 	}
 }
 
@@ -539,38 +571,69 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 		// 데미지 처리 전 기존 HP 저장
 		float OldHP = HP;
 		SetHP(HP - AttackData.Damage);
-        
-		// 공격자의 데미지 통계 업데이트
-		if (AttackData.Attacker)
-		{
-			APlayerController* AttackerPC = Cast<APlayerController>(AttackData.Attacker->GetController());
-			if (AttackerPC && AttackerPC->PlayerState)
-			{
-				AWeaponMasterPlayerState* AttackerPS = Cast<AWeaponMasterPlayerState>(AttackerPC->PlayerState);
-				if (AttackerPS)
-				{
-					// 실제 입힌 데미지 계산 (기존 HP - 새 HP, 죽은 경우는 기존 HP만큼)
-					float ActualDamage = (HP <= 0.f) ? OldHP : (OldHP - HP);
-					AttackerPS->AddDamageDealt(ActualDamage);
-                    
-					// 죽었으면 킬 카운트 증가
-					if (HP <= 0.f)
-					{
-						AttackerPS->AddKill();
-					}
-					UE_LOG(LogTemp, Warning, TEXT("[%s]의 현재 전투 통계 - 킬: %d, 총 데미지: %.2f"), 
-					*AttackerPS->GetPlayerName(), AttackerPS->GetKillCount(), AttackerPS->GetTotalDamageDealt());
-				
-				}
-			}
-		}
 
 		// 이펙트 적용
 		for (int32 i = 0; i < AttackData.BehaviorEffects.Num(); i++)
 		{
 			EffectComponent->ActivateBehaviorEffectWithDuration(AttackData.BehaviorEffects[i],
-															  AttackData.BehaviorEffectsDurations[i]);
+																AttackData.BehaviorEffectsDurations[i]);
 		}
+		
+		// 공격자의 데미지 통계 업데이트
+		auto CastedAttacker = Cast<ACharacter>(AttackData.Attacker);
+
+		if (IsValid(CastedAttacker))
+		{
+			LastAttacker = CastedAttacker;
+			GetWorldTimerManager().ClearTimer(LastAttackerTimerHandle);;
+			GetWorldTimerManager().SetTimer(
+				LastAttackerTimerHandle,
+				FTimerDelegate::CreateLambda([this]()
+				{
+					LastAttacker = nullptr;
+				}),
+				5.0f,
+				false
+			);
+		}
+		else if (IsValid(LastAttacker))
+		{
+			CastedAttacker = LastAttacker;
+		}
+		else
+		{
+			// 아무한테도 안맞았는데 킬존에 닿았음
+			return;
+		}
+		
+		APlayerController* AttackerPC = Cast<APlayerController>(CastedAttacker->GetController());
+		if (AttackerPC && AttackerPC->PlayerState)
+		{
+			AWeaponMasterPlayerState* AttackerPS = Cast<AWeaponMasterPlayerState>(AttackerPC->PlayerState);
+			if (AttackerPS)
+			{
+				// 실제 입힌 데미지 계산 (기존 HP - 새 HP, 죽은 경우는 기존 HP만큼)
+				float ActualDamage = (HP <= 0.f) ? OldHP : (OldHP - HP);
+				AttackerPS->AddDamageDealt(ActualDamage);
+
+				// 죽었으면 킬 카운트 증가
+				if (HP <= 0.f)
+				{
+					AttackerPS->AddKill();
+				}
+				UE_LOG(LogTemp, Warning, TEXT("[%s]의 현재 전투 통계 - 킬: %d, 총 데미지: %.2f"),
+				       *AttackerPS->GetPlayerName(), AttackerPS->GetKillCount(), AttackerPS->GetTotalDamageDealt());
+			}
+		}
+
+		// 현재 디버프 목록
+		for (auto Debuff : EffectComponent->GetActiveBehaviorEffects())
+		{
+			UE_LOG(LogTemp, Display, TEXT("Current Debuff name: %s"),
+				   *StaticEnum<EBehaviorEffect>()->GetNameStringByValue((uint8)Debuff))
+		}
+		// 현재 HP
+		UE_LOG(LogTemp, Display, TEXT("Current HP: %f"), HP);
 	}
 }
 
@@ -636,14 +699,14 @@ void ABaseBattleCharacter::Defence()
 void ABaseBattleCharacter::PickingItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::PickingItem !"));
-    
+
 	if (GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	{
 		AActor* interactableActor = IBattleSystemUser::Execute_GetInteractableActor(this);
 		if (interactableActor)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("상호작용 가능한 아이템 찾음: %s"), *interactableActor->GetName());
-            
+
 			UInteractionComponent* InteractionComp = interactableActor->FindComponentByClass<UInteractionComponent>();
 			if (InteractionComp)
 			{
@@ -651,32 +714,35 @@ void ABaseBattleCharacter::PickingItem()
 			}
 		}
 	}
-
 }
 
 void ABaseBattleCharacter::OnSkillStarted(UBaseSkill* Skill)
 {
 	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnSkillStarted : Call."));
-	// EffectComponent->ActivateBehaviorEffect(EBehaviorEffect::UsingSkill);
+	EffectComponent->ActivateBehaviorEffect(EBehaviorEffect::UsingSkill);
 }
 
 void ABaseBattleCharacter::OnSkillEnded(UBaseSkill* Skill)
 {
-	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnSkillStarted : Call."));
-	// EffectComponent->DeactivateBehaviorEffect(EBehaviorEffect::UsingSkill);
+	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnSkillEnded : Call."));
+	EffectComponent->DeactivateBehaviorEffect(EBehaviorEffect::UsingSkill);
 }
 
 void ABaseBattleCharacter::MenuOnOff()
 {
+	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::MenuOnOff !"));
+	
 	for (auto Debuff : EffectComponent->GetActiveBehaviorEffects())
 	{
 		UE_LOG(LogTemp, Display, TEXT("Current Debuff name: %s"),
 		       *StaticEnum<EBehaviorEffect>()->GetNameStringByValue((uint8)Debuff))
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::MenuOnOff !"));
-}
+	auto KillCount = Cast<AWeaponMasterPlayerState>(GetPlayerState())->GetKillCount();
+	auto DeathCount = Cast<AWeaponMasterPlayerState>(GetPlayerState())->GetDeathCount();
 
+	UE_LOG(LogTemp, Display, TEXT("Kill/Death Count : %d, %d"), KillCount, DeathCount);
+}
 
 
 void ABaseBattleCharacter::Multicast_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate)
@@ -685,12 +751,12 @@ void ABaseBattleCharacter::Multicast_PlayMontage_Implementation(UAnimMontage* Mo
 	{
 		return;
 	}
-    
-	UE_LOG(LogTemp, Warning, TEXT("[%s] 몽타주 %s 재생 시작 (재생속도: %.2f)"), 
-		HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
-		*Montage->GetName(), 
-		PlayRate);
-        
+
+	UE_LOG(LogTemp, Warning, TEXT("[%s] 몽타주 %s 재생 시작 (재생속도: %.2f)"),
+	       HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
+	       *Montage->GetName(),
+	       PlayRate);
+
 	// 모든 클라이언트(및 서버)에서 몽타주 재생
 	GetMesh()->GetAnimInstance()->Montage_Play(Montage, PlayRate);
 }
@@ -705,10 +771,10 @@ void ABaseBattleCharacter::SetupMontageEndedDelegate_Implementation()
 
 void ABaseBattleCharacter::RequestItemPickup_Implementation(AActor* ItemActor)
 {
-	UE_LOG(LogTemp, Warning, TEXT("RequestItemPickup: %s가 아이템 %s 획득 요청 (권한: %d)"), 
-		   *GetName(), ItemActor ? *ItemActor->GetName() : TEXT("Unknown"), 
-		   (int32)GetLocalRole());
-           
+	UE_LOG(LogTemp, Warning, TEXT("RequestItemPickup: %s가 아이템 %s 획득 요청 (권한: %d)"),
+	       *GetName(), ItemActor ? *ItemActor->GetName() : TEXT("Unknown"),
+	       (int32)GetLocalRole());
+
 	if (!HasAuthority())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("RequestItemPickup: 클라이언트에서 Server_RequestItemPickup 호출"));

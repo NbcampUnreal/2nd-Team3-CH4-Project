@@ -1,8 +1,8 @@
 #include "DeathMatchHUD.h"
 #include "IndividualMatchStatusWidget.h"
+#include "KillLogWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
-#include "Components/Border.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
@@ -23,12 +23,10 @@ void ADeathMatchHUD::BeginPlay()
     APlayerController* PC = GetOwningPlayerController();
     if (PC)
     {
-        // 로컬 플레이어 ID 가져오기 (PlayerState에서)
+        // 로컬 플레이어 ID 가져오기 (PlayerState에서) 수정해야함
         if (PC->PlayerState)
         {
-            // 실제 구현에서는 PlayerState에서 적절한 ID를 가져와야 함
-            // 예시 코드: LocalPlayerID = Cast<AYourPlayerState>(PC->PlayerState)->GetPlayerID();
-            LocalPlayerID = 0; // 테스트용 기본값
+            LocalPlayerID = PC->PlayerState->GetPlayerId();
         }
     }
     
@@ -38,15 +36,6 @@ void ADeathMatchHUD::BeginPlay()
 void ADeathMatchHUD::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
-    
-    // 매 틱마다 수행할 로직
-}
-
-void ADeathMatchHUD::DrawHUD()
-{
-    Super::DrawHUD();
-    
-    // 추가 HUD 그리기 (필요한 경우)
 }
 
 void ADeathMatchHUD::InitializeHUD()
@@ -69,12 +58,6 @@ void ADeathMatchHUD::InitializeHUD()
     if (IndividualMatchStatusWidget)
     {
         IndividualMatchStatusWidget->AddToViewport();
-        
-        // 테스트용 더미 데이터 초기화 (실제 게임에서는 실제 플레이어 데이터로 대체)
-        IndividualMatchStatusWidget->InitializeDummyPlayerStatus(8, LocalPlayerID);
-        
-        // 남은 시간 설정 (예: 5분)
-        SetRemainingTime(300);
     }
     
     // 인게임 메뉴 위젯 생성 (표시는 하지 않음)
@@ -84,29 +67,16 @@ void ADeathMatchHUD::InitializeHUD()
     }
 }
 
-void ADeathMatchHUD::UpdatePlayerStats(int32 PlayerID, int32 Kills, int32 Deaths, int32 Score)
+void ADeathMatchHUD::UpdatePlayerStats(int32 PlayerID, int32 Kills, int32 Deaths)
 {
     if (!IndividualMatchStatusWidget)
     {
         return;
     }
     
-    // 플레이어 킬, 데스, 점수 업데이트
+    // 플레이어 킬, 데스
     IndividualMatchStatusWidget->UpdatePlayerKills(PlayerID, Kills);
     IndividualMatchStatusWidget->UpdatePlayerDeaths(PlayerID, Deaths);
-    IndividualMatchStatusWidget->UpdatePlayerScore(PlayerID, Score);
-    
-    // 플레이어 정렬 (점수에 따라)
-    // 연속적인 업데이트에 대한 정렬 요청을 줄이기 위해 타이머 사용
-    if (!GetWorldTimerManager().IsTimerActive(SortPlayersTimerHandle))
-    {
-        GetWorldTimerManager().SetTimer(
-            SortPlayersTimerHandle,
-            [this]() { IndividualMatchStatusWidget->SortPlayersByScore(); },
-            0.2f,  // 짧은 지연 시간
-            false  // 반복 없음
-        );
-    }
 }
 
 void ADeathMatchHUD::UpdatePlayerHealth(int32 PlayerID, float CurrentHealth, float MaxHealth)
@@ -154,7 +124,7 @@ void ADeathMatchHUD::ShowGameOverScreen(bool bIsWinner, int32 TotalScore)
     {
         GameOverWidget->AddToViewport();
         
-        // 게임 결과 정보 설정
+        /*// 게임 결과 정보 설정
         UTextBlock* ResultTextBlock = Cast<UTextBlock>(GameOverWidget->GetWidgetFromName(TEXT("ResultText")));
         if (ResultTextBlock)
         {
@@ -176,19 +146,11 @@ void ADeathMatchHUD::ShowGameOverScreen(bool bIsWinner, int32 TotalScore)
                 NSLOCTEXT("DeathMatchHUD", "FinalScore", "최종 점수: {0}"),
                 FText::AsNumber(TotalScore)
             ));
-        }
+        }*/
         
         // 마우스 커서 표시
         PC->SetShowMouseCursor(true);
         PC->SetInputMode(FInputModeUIOnly());
-    }
-}
-
-void ADeathMatchHUD::SetHUDVisibility(bool bIsVisible)
-{
-    if (IndividualMatchStatusWidget)
-    {
-        IndividualMatchStatusWidget->SetVisibility(bIsVisible ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
     }
 }
 
@@ -229,7 +191,23 @@ void ADeathMatchHUD::ToggleInGameMenu()
     }
 }
 
+void ADeathMatchHUD::SetHUDVisibility(bool bIsVisible)
+{
+    if (IndividualMatchStatusWidget)
+    {
+        IndividualMatchStatusWidget->SetVisibility(bIsVisible ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+    }
+}
+
 bool ADeathMatchHUD::IsMenuVisible() const
 {
     return bIsMenuVisible;
+}
+
+void ADeathMatchHUD::UpdateKillLog(const FText& Killer, const FText& Victim) const
+{
+    if (IndividualMatchStatusWidget)
+    {
+        IndividualMatchStatusWidget->KillLogContainer->AddKillLogEntry(Killer, Victim);
+    }
 }

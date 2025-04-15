@@ -39,6 +39,14 @@ public:
 	// 인게임 타이머
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateInGameTimer(const int32 TimerCountDown);
+	
+	// 플레이어 사망정보
+	UFUNCTION(Client, Reliable)
+	void Client_PlayerDead(const FString& Killer, const FString& Victim);
+
+	// 플레이어 등록
+	UFUNCTION(Client, Reliable)
+	void Client_UpdatePlayers(const FString& PlayerName);
 
 	UFUNCTION()
 	void UpdateHUD(EMapType Map);

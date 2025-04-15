@@ -4,6 +4,7 @@
 #include "GameFramework/HUD.h"
 #include "DeathMatchHUD.generated.h"
 
+class UKillLogWidget;
 class UIndividualMatchStatusWidget;
 class UTextBlock;
 class UUserWidget;
@@ -21,7 +22,10 @@ public:
 	
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
-	virtual void DrawHUD() override;
+
+	/** 개인전 상태 위젯 인스턴스 */
+	UPROPERTY()
+	UIndividualMatchStatusWidget* IndividualMatchStatusWidget;
 	
 	/** HUD 초기화 */
 	UFUNCTION(BlueprintCallable, Category = "DeathMatch HUD")
@@ -29,7 +33,7 @@ public:
 	
 	/** 플레이어 상태 위젯 업데이트 */
 	UFUNCTION(BlueprintCallable, Category = "DeathMatch HUD")
-	void UpdatePlayerStats(int32 PlayerID, int32 Kills, int32 Deaths, int32 Score);
+	void UpdatePlayerStats(int32 PlayerID, int32 Kills, int32 Deaths);
 	
 	/** 플레이어 체력 업데이트 */
 	UFUNCTION(BlueprintCallable, Category = "DeathMatch HUD")
@@ -54,6 +58,10 @@ public:
 	/** 메뉴 화면인지 확인 */
 	UFUNCTION(BlueprintPure, Category = "DeathMatch HUD")
 	bool IsMenuVisible() const;
+
+	/** 킬로그 업데이트 */
+	UFUNCTION(BlueprintCallable, Category = "DeathMatch HUD")
+	void UpdateKillLog(const FText& Killer, const FText& Victim) const;
 	
 protected:
 	/** 개인전 상태 위젯 */
@@ -68,11 +76,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widgets")
 	TSubclassOf<UUserWidget> InGameMenuWidgetClass;
 	
-private:
-	/** 개인전 상태 위젯 인스턴스 */
-	UPROPERTY()
-	UIndividualMatchStatusWidget* IndividualMatchStatusWidget;
-	
 	/** 게임 종료 위젯 인스턴스 */
 	UPROPERTY()
 	UUserWidget* GameOverWidget;
@@ -80,12 +83,10 @@ private:
 	/** 인게임 메뉴 위젯 인스턴스 */
 	UPROPERTY()
 	UUserWidget* InGameMenuWidget;
-	
+
+private:
 	/** 메뉴 표시 여부 */
 	bool bIsMenuVisible;
-	
-	/** 플레이어 정렬 타이머 */
-	FTimerHandle SortPlayersTimerHandle;
 	
 	/** 내 플레이어 ID */
 	int32 LocalPlayerID;

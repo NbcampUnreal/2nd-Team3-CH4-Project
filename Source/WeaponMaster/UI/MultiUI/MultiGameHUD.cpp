@@ -76,7 +76,7 @@ void AMultiGameHUD::TransferHUDBy(const EMapType MapType)
 
                 if (WrapStatusWidget)
                 {
-                    WrapStatusWidget->SetVisibility(ESlateVisibility::Visible);
+                    //WrapStatusWidget->SetVisibility(ESlateVisibility::Visible);
                 }
                 break;
             }
@@ -90,7 +90,7 @@ void AMultiGameHUD::TransferHUDBy(const EMapType MapType)
 
                 if (WrapStatusWidget)
                 {
-                    WrapStatusWidget->SetVisibility(ESlateVisibility::Visible);
+                    //WrapStatusWidget->SetVisibility(ESlateVisibility::Visible);
                 }
                 break;
             }

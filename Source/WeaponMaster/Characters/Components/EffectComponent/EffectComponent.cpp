@@ -150,7 +150,7 @@ void UEffectComponent::DeactivateBehaviorEffect(EBehaviorEffect BehaviorEffectTy
 	if (ENetMode NetMode = GetOwner()->GetNetMode(); NetMode == NM_Standalone)
 	{
 		// Standalone → 그냥 한번만 실행
-		InternalActivateBehaviorEffect(BehaviorEffectType);
+		InternalDeactivateBehaviorEffect(BehaviorEffectType);
 		return;
 	}
 	

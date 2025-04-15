@@ -4,6 +4,8 @@
 #include "GameState/WeaponMasterGameState.h"
 #include "Instance/WeaponMasterGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "UI/MultiUI/DeathMatchHUD.h"
+#include "UI/MultiUI/IndividualMatchStatusWidget.h"
 #include "UI/MultiUI/MultiGameHUD.h"
 #include "UI/MultiUI/SessionWidget.h"
 #include "UI/MultiUI/WrapStatusWidget.h"
@@ -55,6 +57,22 @@ void AEOSPlayerController::Client_UpdateInGameTimer_Implementation(const int32 T
     {
         MultiGameHUD->WrapStatusWidget->SetRemainTimer(TimerCountDown);
     }
+
+    if (ADeathMatchHUD* DeathMatchHUD = Cast<ADeathMatchHUD>(GetHUD()))
+    {
+        DeathMatchHUD->SetRemainingTime(TimerCountDown);
+    }
+}
+
+void AEOSPlayerController::Client_PlayerDead_Implementation(const FString& Killer, const FString& Victim)
+{
+    if (const ADeathMatchHUD* DeathMatchHUD = Cast<ADeathMatchHUD>(GetHUD()))
+    {
+        FText Winner = FText::FromString(Killer);
+        FText Looser = FText::FromString(Victim);
+        
+        DeathMatchHUD->UpdateKillLog(Winner, Looser);
+    }
 }
 
 void AEOSPlayerController::UpdateHUD(EMapType Map)
@@ -62,6 +80,11 @@ void AEOSPlayerController::UpdateHUD(EMapType Map)
     if (AMultiGameHUD* MultiHUD = Cast<AMultiGameHUD>(GetHUD()))
     {
         MultiHUD->TransferHUDBy(Map);
+    }
+
+    if (const ADeathMatchHUD* DeathMatchHUD = Cast<ADeathMatchHUD>(GetHUD()))
+    {
+        DeathMatchHUD->IndividualMatchStatusWidget->UpdateMatchTitle(Map);
     }
 }
 
@@ -193,6 +216,18 @@ void AEOSPlayerController::HandleTimerAction()
     }
 
     GetWorldTimerManager().ClearTimer(HUDTimerHandle);
+}
+
+void AEOSPlayerController::Client_UpdatePlayers_Implementation(const FString& PlayerName)
+{
+    if (!IsRunningDedicatedServer())
+    {
+        if (const ADeathMatchHUD* DeathMatchHUD = Cast<ADeathMatchHUD>(GetHUD()))
+        {
+            FString PN = PlayerName;
+            DeathMatchHUD->IndividualMatchStatusWidget->UpdatePlayer(PN);
+        }
+    }
 }
 
 void AEOSPlayerController::OnNetCleanup(class UNetConnection* Connection)

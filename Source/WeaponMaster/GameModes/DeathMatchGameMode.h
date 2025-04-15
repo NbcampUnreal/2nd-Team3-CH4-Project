@@ -1,8 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BattleGMInterface.h"
-#include "GameFramework/GameMode.h"
+#include "BaseGameMode.h"
 #include "Instance/WeaponMasterGameInstance.h"
 #include "DeathMatchGameMode.generated.h"
 
@@ -11,7 +10,7 @@ class ABaseBattleCharacter;
  * 개인전 데스매치 게임 모드
  */
 UCLASS()
-class WEAPONMASTER_API ADeathMatchGameMode : public AGameMode, public IBattleGMInterface
+class WEAPONMASTER_API ADeathMatchGameMode : public ABaseGameMode
 {
 	GENERATED_BODY()
 
@@ -21,10 +20,6 @@ public:
 	virtual void BeginPlay() override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
-
-	// BattleGMInterface 구현
-	virtual void SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController) override;
-	virtual void HandlePlayerDeath(AController* Controller) override;
 	
 	UFUNCTION(BlueprintCallable, Category = "Instance")
 	FORCEINLINE_DEBUGGABLE UWeaponMasterGameInstance* GetInstance() const

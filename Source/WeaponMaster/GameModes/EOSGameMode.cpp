@@ -1,9 +1,12 @@
 #include "EOSGameMode.h"
 
+#include "GLSMacroses.h"
 #include "GameState/WeaponMasterGameState.h"
+#include "PlayerState/WeaponMasterPlayerState.h"
 #include "Session/EOSGameSession.h"
 #include "WeaponMaster/PlayerControllers/EOSPlayerController.h"
 
+DEFINE_LOG_CATEGORY_STATIC(GLS_LOG_CATEGORY, Log, All);
 // 세션 로비 게임모드
 AEOSGameMode::AEOSGameMode()
 {
@@ -24,19 +27,22 @@ void AEOSGameMode::BeginPlay()
 void AEOSGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-
+	
 	TimerCountDown = FMath::Clamp(TimerCountDown + 20, 0, TimerCountDown);
 }
 
 void AEOSGameMode::SetTimer()
 {
-	GetWorldTimerManager().SetTimer(
+	if (IsRunningDedicatedServer())
+	{
+		GetWorldTimerManager().SetTimer(
 		PlayCountDownTimerHandle,
 		this,
 		&AEOSGameMode::PlayCountDownTimerAction,
 		1.0f,
 		true
-	);
+		);
+	}
 }
 
 void AEOSGameMode::PlayCountDownTimerAction()
@@ -168,6 +174,9 @@ void AEOSGameMode::RegisterPlayer(APlayerController* NewPlayer)
 
 		if (TSharedPtr<const FUniqueNetId> UniqueNetId = UniqueNetIdRepl.GetUniqueNetId())
 		{
+			AWeaponMasterPlayerState* PlayerState = NewPlayer->GetPlayerState<AWeaponMasterPlayerState>();
+			PlayerState->SetUniqueId(UniqueNetId);
+			
 			if (AEOSGameSession* MyGameSession = GetEOSGameSession())
 			{
 				MyGameSession->RegisterPlayer(NewPlayer, UniqueNetId, false);

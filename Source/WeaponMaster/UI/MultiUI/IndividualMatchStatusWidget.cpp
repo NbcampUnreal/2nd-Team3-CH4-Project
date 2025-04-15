@@ -1,39 +1,31 @@
 #include "IndividualMatchStatusWidget.h"
+
+#include "KillLogWidget.h"
+#include "PlayerStatusWidgetExtended.h"
 #include "Components/ScrollBox.h"
 #include "Components/VerticalBox.h"
 #include "Components/TextBlock.h"
 #include "../CommonUI/PlayerStatusWidget.h"
 #include "Components/ScrollBoxSlot.h"
 #include "Engine/World.h"
-#include "Kismet/GameplayStatics.h"
 
 void UIndividualMatchStatusWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     
-    // 매치 타이틀 설정
-    if (MatchTitleTextBlock)
-    {
-        MatchTitleTextBlock->SetText(FText::FromString(TEXT("개인전")));
-    }
+    ClearPlayerWidgets();
 }
 
 void UIndividualMatchStatusWidget::InitializePlayerStatus()
 {
-    if (!PlayerContainer || !PlayerStatusWidgetClass)
-    {
-        return;
-    }
+    if (!PlayerContainer || !PlayerStatusWidgetClass) return;
 
     ClearPlayerWidgets();
 }
 
 void UIndividualMatchStatusWidget::ClearPlayerWidgets()
 {
-    if (!PlayerContainer)
-    {
-        return;
-    }
+    if (!PlayerContainer) return;
 
     PlayerContainer->ClearChildren();
     PlayerWidgets.Empty();
@@ -41,12 +33,8 @@ void UIndividualMatchStatusWidget::ClearPlayerWidgets()
 
 void UIndividualMatchStatusWidget::SetRemainTimer(const int32 TimeRemain) const
 {
-    if (!RemainTimerTextBlock) 
-    {
-        return;
-    }
+    if (!RemainTimerTextBlock) return;
     
-    // 시간을 분:초 형식으로 변환
     const int32 Minutes = TimeRemain / 60;
     const int32 Seconds = TimeRemain % 60;
     
@@ -58,100 +46,77 @@ void UIndividualMatchStatusWidget::SetRemainTimer(const int32 TimeRemain) const
             : FText::AsNumber(Seconds)
     ));
 }
-    
-void UIndividualMatchStatusWidget::InitializeDummyPlayerStatus(int32 TotalPlayers, int32 LocalPlayerID)
+
+void UIndividualMatchStatusWidget::UpdateMatchTitle(const EMapType Map) const
 {
-    if (!PlayerContainer || !PlayerStatusWidgetClass)
-    {
-        return;
-    }
-
-    ClearPlayerWidgets();
-    MyPlayerID = LocalPlayerID;
+    FText Title;
     
-    // 최대 표시 플레이어 수 제한
-    if (TotalPlayers > MAX_VISIBLE_PLAYERS)
+    switch (Map)
     {
-        TotalPlayers = MAX_VISIBLE_PLAYERS;
-    }
-
-    // 각 플레이어에 대한 위젯 생성
-    for (int32 i = 0; i < TotalPlayers; ++i)
-    {
-        UPlayerStatusWidget* NewPlayerWidget = CreateWidget<UPlayerStatusWidget>(GetWorld(), PlayerStatusWidgetClass);
-        if (!NewPlayerWidget)
+    case EMapType::PVPMap:
         {
-            continue;
+            Title = FText::FromString(TEXT("데스매치"));
+            break;
         }
-
-        // 플레이어 ID 설정
-        const int32 PlayerID = i;
-        NewPlayerWidget->SetID(PlayerID);
-        
-        // 플레이어 이름 설정 (자신인 경우 표시)
-        FString PlayerName = FString::Printf(TEXT("플레이어 %d"), i + 1);
-        if (PlayerID == MyPlayerID)
+    case EMapType::PVEMap:
         {
-            PlayerName += TEXT(" (나)");
+            Title = FText::FromString(TEXT("협동모드"));
+            break;
         }
-        NewPlayerWidget->SetPlayerName(PlayerName);
-        
-        // 초기 체력 설정
-        NewPlayerWidget->UpdateHealth(100.0f, 100.0f);
-        
-        // 가시성 설정
-        NewPlayerWidget->SetVisibility(ESlateVisibility::Visible);
-        
-        // 스크롤 박스에 추가
-        if (UScrollBoxSlot* BoxSlot = Cast<UScrollBoxSlot>(PlayerContainer->AddChild(NewPlayerWidget)))
+    case EMapType::SessionMap:
         {
-            BoxSlot->SetPadding(FMargin(0, 0, 0, WidgetSpacing));
+            Title = FText::GetEmpty();
+            break;
         }
-        
-        // 맵에 저장
-        PlayerWidgets.Add(PlayerID, NewPlayerWidget);
-        
-        UE_LOG(LogTemp, Warning, TEXT("더미 플레이어 %d가 추가됨"), i + 1);
     }
     
-    // 초기 정렬
-    SortPlayersByScore();
-}
-
-void UIndividualMatchStatusWidget::UpdatePlayerKills(int32 PlayerID, int32 Kills)
-{
-    // PlayerStatusWidget에 킬 정보 업데이트 기능이 있다고 가정
-    if (UPlayerStatusWidget* PlayerWidget = PlayerWidgets.FindRef(PlayerID))
+    if (MatchTitleTextBlock)
     {
-        // 킬 정보 업데이트 함수가 PlayerStatusWidget에 추가되어야 함
-        // PlayerWidget->UpdateKills(Kills);
-        
-        // 플레이어 목록 재정렬
-        SortPlayersByScore();
+        MatchTitleTextBlock->SetText(Title);
     }
 }
 
-void UIndividualMatchStatusWidget::UpdatePlayerDeaths(int32 PlayerID, int32 Deaths)
+void UIndividualMatchStatusWidget::UpdatePlayerDeaths(const int32 PlayerID, const int32 Deaths) const
 {
-    // PlayerStatusWidget에 데스 정보 업데이트 기능이 있다고 가정
-    if (UPlayerStatusWidget* PlayerWidget = PlayerWidgets.FindRef(PlayerID))
+    if (UPlayerStatusWidgetExtended* PlayerWidget = PlayerWidgets.FindRef(PlayerID))
     {
-        // 데스 정보 업데이트 함수가 PlayerStatusWidget에 추가되어야 함
-        // PlayerWidget->UpdateDeaths(Deaths);
+        PlayerWidget->UpdateDeaths(Deaths);
     }
 }
 
-void UIndividualMatchStatusWidget::UpdatePlayerScore(int32 PlayerID, int32 Score)
+void UIndividualMatchStatusWidget::UpdatePlayer(FString& PlayerName)
 {
-    // PlayerStatusWidget에 점수 업데이트 기능이 있다고 가정
-    if (UPlayerStatusWidget* PlayerWidget = PlayerWidgets.FindRef(PlayerID))
-    {
-        // 점수 업데이트 함수가 PlayerStatusWidget에 추가되어야 함
-        // PlayerWidget->UpdateScore(Score);
+    if (!PlayerContainer || !PlayerStatusWidgetClass) return;
+    
+    UPlayerStatusWidgetExtended* NewPlayerWidget = CreateWidget<UPlayerStatusWidgetExtended>(GetWorld(), PlayerStatusWidgetClass);
+    if (!NewPlayerWidget) return;
+
+    // 플레이어 ID 설정
+    const int32 PlayerID = PlayerIndex;
+    NewPlayerWidget->SetID(PlayerID);
         
-        // 플레이어 목록 재정렬
-        SortPlayersByScore();
+    // 플레이어 이름 설정 (자신인 경우 표시)
+    if (PlayerID == MyPlayerID)
+    {
+        PlayerName += TEXT(" (나)");
     }
+    NewPlayerWidget->SetPlayerName(PlayerName);
+    
+    // 초기 체력 설정
+    NewPlayerWidget->UpdateHealth(100.0f, 100.0f);
+    
+    // 가시성 설정
+    NewPlayerWidget->SetVisibility(ESlateVisibility::Visible);
+    
+    // 스크롤 박스에 추가
+    if (UScrollBoxSlot* BoxSlot = Cast<UScrollBoxSlot>(PlayerContainer->AddChild(NewPlayerWidget)))
+    {
+        BoxSlot->SetPadding(FMargin(0, 0, 0, WidgetSpacing));
+    }
+    
+    // 맵에 저장
+    PlayerWidgets.Add(PlayerID, NewPlayerWidget);
+    ++PlayerIndex;
 }
 
 void UIndividualMatchStatusWidget::UpdatePlayerHealth(int32 PlayerID, float CurrentHealth, float MaxHealth)
@@ -170,39 +135,10 @@ void UIndividualMatchStatusWidget::SetPlayerVisibility(int32 PlayerID, bool bIsV
     }
 }
 
-void UIndividualMatchStatusWidget::SortPlayersByScore()
+void UIndividualMatchStatusWidget::UpdatePlayerKills(int32 PlayerID, int32 Kills)
 {
-    if (!PlayerContainer)
+    if (UPlayerStatusWidgetExtended* PlayerWidget = PlayerWidgets.FindRef(PlayerID))
     {
-        return;
-    }
-    
-    // 정렬을 위한 임시 배열
-    TArray<UPlayerStatusWidget*> SortedWidgets;
-    PlayerWidgets.GenerateValueArray(SortedWidgets);
-    
-    // 점수에 따라 정렬 (점수 필드가 PlayerStatusWidget에 추가되어야 함)
-    // 현재는 ID 기준으로 정렬
-    SortedWidgets.Sort([](const UPlayerStatusWidget& A, const UPlayerStatusWidget& B) {
-        // 실제로는 점수로 정렬해야 함
-        // return A.GetScore() > B.GetScore();
-        return A.GetCharacterID() < B.GetCharacterID();
-    });
-    
-    // 컨테이너를 비우고 정렬된 순서로 다시 추가
-    PlayerContainer->ClearChildren();
-    
-    for (int32 i = 0; i < SortedWidgets.Num(); ++i)
-    {
-        UPlayerStatusWidget* Widget = SortedWidgets[i];
-        if (!Widget)
-        {
-            continue;
-        }
-        
-        if (UScrollBoxSlot* BoxSlot = Cast<UScrollBoxSlot>(PlayerContainer->AddChild(Widget)))
-        {
-            BoxSlot->SetPadding(FMargin(0, 0, 0, WidgetSpacing));
-        }
+        PlayerWidget->UpdateKills(Kills);
     }
 }

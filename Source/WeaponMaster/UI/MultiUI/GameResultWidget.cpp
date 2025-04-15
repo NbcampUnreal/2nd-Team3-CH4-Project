@@ -20,6 +20,7 @@ void UGameResultWidget::NativeConstruct()
         FPlayerResultData Data;
         Data.Nickname = FString::Printf(TEXT("Player_%d"), i + 1);
         Data.Kills = FMath::RandRange(0, 10);
+        Data.Deaths = FMath::RandRange(0, 5);
         Data.Damage = FMath::RandRange(100, 9999);
         Data.Icon = nullptr;
 
@@ -58,6 +59,7 @@ void UGameResultWidget::PopulatePlayerEntries(const TArray<FPlayerResultData>& R
             Entry.Icon,
             FText::FromString(Entry.Nickname),
             Entry.Kills,
+            Entry.Deaths,
             Entry.Damage
         );
 

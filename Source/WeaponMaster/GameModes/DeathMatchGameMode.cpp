@@ -1,11 +1,7 @@
 #include "GameModes/DeathMatchGameMode.h"
 #include "CharacterSpawner/CharacterSpawner.h"
-#include "GameFramework/Character.h"
 #include "EngineUtils.h"
 #include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
-#include "Characters/Components/IBattleSystemUser.h"
-#include "Characters/Components/ItemComponent/ItemComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "PlayerControllers/EOSPlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "PlayerState/WeaponMasterPlayerState.h"
@@ -37,6 +33,10 @@ void ADeathMatchGameMode::PostLogin(APlayerController* NewPlayer)
 	// 데스매치는 각 플레이어를 개별 팀으로 취급
 	if (AWeaponMasterPlayerState* PlayerState = Cast<AWeaponMasterPlayerState>(NewPlayer->PlayerState))
 	{
+		// 게임 인스턴스에서 플레이어 이름 가져오기
+		FString PlayerName = GetPlayerNameFromGameInstance(NewPlayer);
+		PlayerState->SetPlayerName(PlayerName);
+		
 		// 각 플레이어에게 고유 ID 할당 (PlayerState의 PlayerId 이용)
 		int32 PlayerId = PlayerState->GetPlayerId();
 		PlayerState->SetTeamID(PlayerId); // 개인전이므로 팀 ID는 플레이어 ID와 동일하게 설정
@@ -127,7 +127,7 @@ void ADeathMatchGameMode::DisplayMatchResults()
         int32 Kills = GetPlayerKills(PlayerController);
         
         UE_LOG(LogTemp, Display, TEXT("플레이어: %s, 최종 킬 수: %d"), 
-            *PlayerController->GetName(), Kills);
+            *GetPlayerNameFromGameInstance(PlayerController), Kills);
         
         if (Kills > HighestKills)
         {
@@ -139,7 +139,7 @@ void ADeathMatchGameMode::DisplayMatchResults()
     if (WinningPlayer)
     {
         AWeaponMasterPlayerState* WinnerState = Cast<AWeaponMasterPlayerState>(WinningPlayer->PlayerState);
-        FString WinnerName = WinnerState ? WinnerState->GetPlayerName() : TEXT("알 수 없음");
+        FString WinnerName = GetPlayerNameFromGameInstance(WinningPlayer);
         
         UE_LOG(LogTemp, Warning, TEXT("매치 종료! 승자: %s (킬 수: %d)"), 
             *WinnerName, HighestKills);
@@ -181,121 +181,6 @@ void ADeathMatchGameMode::DisplayMatchResults()
     }
 }
 
-void ADeathMatchGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, FName ItemName, AController* OwnerController)
-{
-    if (!HasCharacterSpawner()) 
-    {
-        UE_LOG(LogTemp, Error, TEXT("캐릭터 스포너가 없습니다!"));
-        return;
-    }
-
-    // 랜덤 스폰 위치 선택
-    TArray<AActor*> SpawnerActors;
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacterSpawner::StaticClass(), SpawnerActors);
-    
-    if (SpawnerActors.Num() == 0)
-    {
-        UE_LOG(LogTemp, Error, TEXT("맵에 캐릭터 스포너가 없습니다!"));
-        return;
-    }
-    
-    // 스폰 위치 랜덤 선택 및 캐릭터 스폰
-    uint8 SpawnAttempts = 0;
-    while (SpawnAttempts < 10) // 최대 10번 시도
-    {
-        int32 RandomIndex = FMath::RandRange(0, SpawnerActors.Num() - 1);
-        ACharacterSpawner* Spawner = Cast<ACharacterSpawner>(SpawnerActors[RandomIndex]);
-        
-        if (ACharacter* SpawnedCharacter = Spawner->SpawnCharacter(CharacterClass))
-        {
-            // 컨트롤러 연결
-            SpawnedCharacter->SetOwner(OwnerController);
-            OwnerController->Possess(SpawnedCharacter);
-            
-            // 무기 장착
-            if (SpawnedCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
-            {
-                UItemComponent* ItemComponent = IBattleSystemUser::Execute_GetItemComponent(SpawnedCharacter);
-                ItemComponent->EquipItem(ItemName);
-                
-                UE_LOG(LogTemp, Display, TEXT("플레이어 캐릭터 스폰 성공: %s"), *OwnerController->GetName());
-                return;
-            }
-            else
-            {
-                UE_LOG(LogTemp, Error, TEXT("캐릭터가 IBattleSystemUser를 구현하지 않았습니다."));
-            }
-        }
-        
-        SpawnAttempts++;
-    }
-    
-    UE_LOG(LogTemp, Error, TEXT("유효한 스폰 위치를 찾을 수 없습니다."));
-}
-
-void ADeathMatchGameMode::HandlePlayerDeath(AController* Controller)
-{
-    if (!Controller) return;
-    
-    // 플레이어 스테이트 가져오기
-    AWeaponMasterPlayerState* VictimState = Cast<AWeaponMasterPlayerState>(Controller->PlayerState);
-    if (VictimState)
-    {
-        // 데스 카운트 증가
-        VictimState->AddDeath();
-        
-        // 킬러 찾기 (직접 구현 필요)
-        AController* KillerController = nullptr;
-        ABaseBattleCharacter* VictimCharacter = Cast<ABaseBattleCharacter>(Controller->GetPawn());
-        
-        if (VictimCharacter)
-        {
-            // 마지막 데미지를 준 컨트롤러 찾기 (구현 필요)
-            KillerController = FindLastDamagingController(VictimCharacter);
-            
-            // 킬러가 있고, 자살이 아닌 경우 킬 점수 증가
-            if (KillerController && KillerController != Controller)
-            {
-                AWeaponMasterPlayerState* KillerState = Cast<AWeaponMasterPlayerState>(KillerController->PlayerState);
-                if (KillerState)
-                {
-                    KillerState->AddKill();
-                    
-                    // 킬 로그
-                    FString KillerName = KillerState->GetPlayerName();
-                    FString VictimName = VictimState->GetPlayerName();
-                    
-                    UE_LOG(LogTemp, Warning, TEXT("플레이어 %s가 %s를 처치! 총 킬 수: %d"), 
-                        *KillerName, *VictimName, KillerState->GetKillCount());
-                    
-                    // HUD 업데이트
-                    UpdateAllPlayerHUDs();
-                }
-            }
-        }
-        
-        // 로그 기록
-        FString VictimName = VictimState->GetPlayerName();
-        UE_LOG(LogTemp, Warning, TEXT("플레이어 사망: %s"), *VictimName);
-    }
-    
-    // 리스폰 타이머 설정
-    FTimerHandle RespawnTimerHandle;
-    GetWorldTimerManager().SetTimer(
-        RespawnTimerHandle,
-        [this, Controller]()
-        {
-            if (Controller->IsPlayerController())
-            {
-                RestartPlayer(Controller);
-            }
-        },
-        RespawnDelay,
-        false
-    );
-}
-
-
 int32 ADeathMatchGameMode::GetPlayerKills(AController* Controller) const
 {
 	if (!Controller) return 0;
@@ -329,7 +214,7 @@ void ADeathMatchGameMode::UpdateAllPlayerHUDs()
 			if (!PlayerState) continue;
             
 			// 플레이어 ID는 PlayerId로 가정
-			int32 PlayerId = OtherPC->GetUniqueID(); // 또는 적절한 방법으로 ID 획득
+			int32 PlayerId = PlayerState->GetUniqueID(); 
 			int32 Kills = PlayerState->GetKillCount();
 			int32 Deaths = PlayerState->GetDeathCount();
             
@@ -339,7 +224,7 @@ void ADeathMatchGameMode::UpdateAllPlayerHUDs()
 			float MaxHealth = Character ? Character->GetMaxHP() : 100.0f;
             
 			// HUD 업데이트
-			DMHUD->UpdatePlayerStats(PlayerId, Kills, Deaths, Kills * 100); // 점수 = 킬 * 100
+			DMHUD->UpdatePlayerStats(PlayerId, Kills, Deaths); 
 			DMHUD->UpdatePlayerHealth(PlayerId, CurrentHealth, MaxHealth);
 		}
 	}

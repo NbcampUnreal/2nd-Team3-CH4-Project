@@ -7,9 +7,9 @@
 class UTextBlock;
 
 /**
- * Extended player status widget for use in different game modes
- * Extends the base PlayerStatusWidget with additional features like
- * kills, deaths tracking and local player highlighting.
+ * 다양한 게임 모드에서 사용할 수 있는 확장된 플레이어 상태 위젯
+ * 기본 PlayerStatusWidget을 다음과 같은 추가 기능으로 확장합니다.
+ * 킬, 사망 추적 및 로컬 플레이어 강조 표시.
  */
 UCLASS()
 class WEAPONMASTER_API UPlayerStatusWidgetExtended : public UPlayerStatusWidget

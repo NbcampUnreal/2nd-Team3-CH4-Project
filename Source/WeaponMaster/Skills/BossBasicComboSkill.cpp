@@ -55,8 +55,8 @@ int32 UBossBasicComboSkill::ProcessTargetActors(const TArray<AActor*>& TargetAct
 				OwnerCharacter,
 				10.0f,
 				LaunchVector,
-				{ EBehaviorEffect::Stiffness, EBehaviorEffect::Stun },
-				{ 2, 1 },
+				{ EBehaviorEffect::Stiffness },
+				{ 1 },
 				{},
 				{}
 			};

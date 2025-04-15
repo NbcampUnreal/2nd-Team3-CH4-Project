@@ -21,6 +21,7 @@ public class WeaponMaster : ModuleRules
 			"OnlineSubsystem",
 			"OnlineSubsystemEOS",
 			"OnlineSubsystemUtils",
+			"GLS"
 		});
 		
 		PrivateIncludePaths.Add("WeaponMaster");
