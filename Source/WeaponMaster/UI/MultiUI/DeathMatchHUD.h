@@ -71,6 +71,10 @@ public:
 	/** 데스카운트 증가 */
 	UFUNCTION()
 	void UpdateDeathCount(AWeaponMasterPlayerState* OwnerPS, int32 NewVal);
+
+	/** 데스카운트 증가 */
+	UFUNCTION()
+	void UpdateHealth(AWeaponMasterPlayerState* OwnerPS, float CurrentHealth, float MaxHealth);
 	
 protected:
 	/** 개인전 상태 위젯 */
