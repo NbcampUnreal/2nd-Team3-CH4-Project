@@ -47,15 +47,15 @@ int32 UIdentityLance::ProcessTargetActors(const TArray<AActor*>& TargetActors, f
 			
 			UE_LOG(LogTemp, Display, TEXT("UBasicLanceSlash::ProcessTargetActors : Target Cast Success!"));
 			FVector LaunchDirection = OwnerCharacter->GetActorForwardVector();
-			FVector LaunchVector = { LaunchDirection.X * 2000, 0.f, 100.f };
+			FVector LaunchVector = { LaunchDirection.X * 100, 0.f, 1500.f };
 			
 			FAttackData AttackData
 			{
 				OwnerCharacter,
 				FinalDamage,
 				LaunchVector,
-				{},
-				{},
+				{EBehaviorEffect::Stun},
+				{1.5f},
 				{},
 				{}
 			};
