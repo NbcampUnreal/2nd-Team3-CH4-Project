@@ -98,3 +98,29 @@ bool AAIBaseBattleCharacter::IsCanToAct() const
 
 	return bCanAct;
 }
+
+
+void AAIBaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
+{
+	Super::OnAttacked(AttackData);
+
+	if (HP <= 0.f)
+	{
+		Die();
+	}
+}
+
+void AAIBaseBattleCharacter::Die()
+{
+	UE_LOG(LogTemp, Warning, TEXT("죽었습니다."));
+	if (SpawnerOwner)
+	{
+		FTimerHandle RespawnTimer;
+		GetWorld()->GetTimerManager().SetTimer(
+			RespawnTimer,
+			FTimerDelegate::CreateUObject(SpawnerOwner, &AAISpawner::SpawnAI),
+			5.0f, // 5초 후 재소환
+			false
+		);
+	}
+}

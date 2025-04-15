@@ -47,7 +47,29 @@ void UBaseSkill::Initialize(ACharacter* Owner, UItemDataAsset* OwnerItem)
  */
 bool UBaseSkill::ActivateSkill()
 {
-    // 기존 코드 (쿨다운 체크 등)
+    // 쿨다운 체크
+    if (RemainingCooldown > 0.0f)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("스킬 %s 활성화 실패: 쿨다운 중 (남은 시간: %f)"), 
+            *SkillName, RemainingCooldown);
+        return false;
+    }
+    
+    // 소유자 캐릭터 확인
+    if (!OwnerCharacter)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("스킬 %s 활성화 실패: 소유자 캐릭터 없음"), *SkillName);
+        return false;
+    }
+    
+    // 이미 활성화 상태라면 중복 활성화 방지
+    if (bIsActive)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("스킬 %s 활성화 실패: 이미 활성화 상태"), *SkillName);
+        return false;
+    }
+    
+    UE_LOG(LogTemp, Warning, TEXT("스킬 %s 활성화 시작"), *SkillName);
     
     // 스킬 활성화 상태로 변경
     bIsActive = true;

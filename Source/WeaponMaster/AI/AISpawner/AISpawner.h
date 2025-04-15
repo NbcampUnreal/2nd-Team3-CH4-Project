@@ -33,6 +33,6 @@ protected:
 
 
     FTimerHandle SpawnTimer;
-
+public:
     void SpawnAI();
 };
