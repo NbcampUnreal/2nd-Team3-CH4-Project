@@ -2,6 +2,7 @@
 
 #include "ItemComponent.h"
 
+#include "NiagaraComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "WeaponMaster/Characters/TestCharacter.h"
 #include "WeaponMaster/Characters/WeaponMasterCharacter.h"
@@ -93,6 +94,17 @@ bool UItemComponent::EquipItem(FName ItemID)
         return false;
     }
     
+    // 메시 데이터 체크
+    if (NewItem->MeshData.Num() > 0)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[SERVER] Item %s has %d mesh data entries"), 
+            *NewItem->ItemName, NewItem->MeshData.Num());
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[SERVER] Item %s has no mesh data!"), *NewItem->ItemName);
+    }
+    
     // 이전 아이템 처리 - 아이템 스폰 등
     if (PreviousItem)
     {
@@ -111,7 +123,6 @@ bool UItemComponent::EquipItem(FName ItemID)
                 {
                     UE_LOG(LogTemp, Warning, TEXT("[SERVER] Found weapon mesh component, will destroy: %s"), *StaticMeshComp->GetName());
                     StaticMeshComp->DestroyComponent();
-                    break;
                 }
             }
         }
@@ -137,17 +148,48 @@ bool UItemComponent::EquipItem(FName ItemID)
         }
     }
     
-    // 아이템 메시 비동기 로드
-    if (NewItem && !NewItem->EquippedMesh.IsNull())
+    // 아이템 메시 비동기 로드 필요 확인
+    bool bNeedsLoading = false;
+    
+    // MeshData 구조 확인
+    if (NewItem && NewItem->MeshData.Num() > 0)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[SERVER] Loading mesh asynchronously for item: %s"), *NewItem->ItemName);
+        for (const FItemMeshData& MeshData : NewItem->MeshData)
+        {
+            if (!MeshData.Mesh.IsNull())
+            {
+                bNeedsLoading = true;
+                break;
+            }
+        }
+    }
+    
+    if (bNeedsLoading)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[SERVER] Loading meshes asynchronously for item: %s"), *NewItem->ItemName);
         
         // 비동기 로드 시작
         UAssetManager& AssetManager = UAssetManager::Get();
         FStreamableManager& StreamableManager = AssetManager.GetStreamableManager();
         
+        // 로드할 메시 목록 생성
+        TArray<FSoftObjectPath> AssetsToLoad;
+        
+        // MeshData 구조에서 에셋 추가
+        for (const FItemMeshData& MeshData : NewItem->MeshData)
+        {
+            if (!MeshData.Mesh.IsNull())
+            {
+                AssetsToLoad.Add(MeshData.Mesh.ToSoftObjectPath());
+            }
+            if (!MeshData.Effect.IsNull())
+            {
+                AssetsToLoad.Add(MeshData.Effect.ToSoftObjectPath());
+            }
+        }
+        
         LoadHandle = StreamableManager.RequestAsyncLoad(
-            NewItem->EquippedMesh.ToSoftObjectPath(),
+            AssetsToLoad,
             FStreamableDelegate::CreateUObject(this, &UItemComponent::OnMeshLoadCompleted)
         );
         
@@ -155,7 +197,7 @@ bool UItemComponent::EquipItem(FName ItemID)
     }
     else
     {
-        UE_LOG(LogTemp, Warning, TEXT("[SERVER] No mesh to load for item: %s"), NewItem ? *NewItem->ItemName : TEXT("INVALID"));
+        UE_LOG(LogTemp, Warning, TEXT("[SERVER] No meshes to load for item: %s"), NewItem ? *NewItem->ItemName : TEXT("INVALID"));
         
         // 메시가 없는 경우 바로 장착 완료
         if (NewItem)
@@ -335,9 +377,16 @@ void UItemComponent::AsyncLoadItem(FName ItemID)
     }
     
     UItemDataAsset* ItemData = GameDataManager->GetItemData(ItemID);
-    if (!ItemData || ItemData->EquippedMesh.IsNull())
+    if (!ItemData)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Failed to start async load for item %s"), *ItemID.ToString());
+        UE_LOG(LogTemp, Warning, TEXT("Failed to start async load for item %s: Item data not found"), *ItemID.ToString());
+        return;
+    }
+    
+    // 아이템의 메시 데이터가 있는지 확인
+    if (ItemData->MeshData.Num() == 0 || ItemData->MeshData[0].Mesh.IsNull())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Failed to start async load for item %s: No mesh data available"), *ItemID.ToString());
         return;
     }
     
@@ -346,12 +395,35 @@ void UItemComponent::AsyncLoadItem(FName ItemID)
     FStreamableManager& StreamableManager = AssetManager.GetStreamableManager();
     
     TArray<FSoftObjectPath> ItemsToLoad;
-    ItemsToLoad.Add(ItemData->EquippedMesh.ToSoftObjectPath());
     
-    LoadHandle = StreamableManager.RequestAsyncLoad(
-        ItemsToLoad,
-        FStreamableDelegate::CreateUObject(this, &UItemComponent::OnItemLoaded, ItemID)
-    );
+    // 모든 메시와 이펙트를 로드 목록에 추가
+    for (const FItemMeshData& MeshData : ItemData->MeshData)
+    {
+        if (!MeshData.Mesh.IsNull())
+        {
+            ItemsToLoad.Add(MeshData.Mesh.ToSoftObjectPath());
+        }
+        
+        if (!MeshData.Effect.IsNull())
+        {
+            ItemsToLoad.Add(MeshData.Effect.ToSoftObjectPath());
+        }
+    }
+    
+    if (ItemsToLoad.Num() > 0)
+    {
+        LoadHandle = StreamableManager.RequestAsyncLoad(
+            ItemsToLoad,
+            FStreamableDelegate::CreateUObject(this, &UItemComponent::OnItemLoaded, ItemID)
+        );
+        
+        UE_LOG(LogTemp, Warning, TEXT("Started async load for item %s with %d assets"), 
+            *ItemID.ToString(), ItemsToLoad.Num());
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("No assets to load for item %s"), *ItemID.ToString());
+    }
 }
 
 /**
@@ -393,7 +465,9 @@ void UItemComponent::OnItemLoaded(FName ItemID)
  */
 void UItemComponent::OnMeshLoadCompleted()
 {
-    UE_LOG(LogTemp, Warning, TEXT("[SERVER] Mesh load completed for item: %s"), EquippedItem ? *EquippedItem->ItemName : TEXT("Unknown"));
+    UE_LOG(LogTemp, Warning, TEXT("[%s] 아이템 %s의 메시 로드 완료"), 
+        GetOwnerRole() == ROLE_Authority ? TEXT("서버") : TEXT("클라이언트"),
+        EquippedItem ? *EquippedItem->ItemName : TEXT("Unknown"));
     
     // 로드 완료 후 처리
     if (EquippedItem)
@@ -448,21 +522,7 @@ void UItemComponent::AttachItemToSocket(UItemDataAsset* Item)
         return;
     }
     
-    // 메시 로드 확인
-    UStaticMesh* ItemMesh = Item->EquippedMesh.Get();
-    if (!ItemMesh)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Failed to load mesh for item %s"), *Item->ItemID.ToString()); 
-        return;
-    }
-
-    UE_LOG(LogTemp, Warning, TEXT("[%s] 아이템 %s 소켓 %s에 부착 (권한: %d)"), 
-    GetOwner()->HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
-    *Item->ItemName, 
-    *Item->SocketName.ToString(),
-    (int32)GetOwnerRole());
-    
-    // 기존 무기 메시 컴포넌트 제거 (중복 방지)
+    // 기존 무기 메시 컴포넌트 및 이펙트 컴포넌트 제거 (중복 방지)
     TArray<USceneComponent*> ChildComponents;
     MeshComp->GetChildrenComponents(true, ChildComponents);
     for (USceneComponent* Child : ChildComponents)
@@ -472,26 +532,108 @@ void UItemComponent::AttachItemToSocket(UItemDataAsset* Item)
         {
             StaticMeshComp->DestroyComponent();
         }
+        
+        UNiagaraComponent* NiagaraComp = Cast<UNiagaraComponent>(Child);
+        if (NiagaraComp && NiagaraComp->GetName().Contains(TEXT("Weapon_Effect")))
+        {
+            NiagaraComp->DestroyComponent();
+        }
     }
 
-    // 복제 가능한 무기 메시 컴포넌트 생성
-    FName ComponentName = FName(*FString::Printf(TEXT("Weapon_Mesh_%s"), *Item->ItemID.ToString()));
-    UStaticMeshComponent* WeaponMeshComp = NewObject<UStaticMeshComponent>(OwnerCharacter, ComponentName);
-    WeaponMeshComp->SetStaticMesh(ItemMesh);
-    WeaponMeshComp->SetCollisionProfileName(TEXT("Weapon"));
-    WeaponMeshComp->SetGenerateOverlapEvents(true);
-    WeaponMeshComp->SetIsReplicated(true); // 복제 활성화
-    WeaponMeshComp->AttachToComponent(MeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Item->SocketName);
-    WeaponMeshComp->RegisterComponent();
-    
-    // 스케일 적용
-    WeaponMeshComp->SetRelativeScale3D(Item->Scale);
-    
-    // 무기 충돌 이벤트 등록
-    WeaponMeshComp->OnComponentBeginOverlap.AddDynamic(this, &UItemComponent::HandleWeaponCollision);
-    
-    // 기본적으로 충돌 비활성화
-    SetWeaponCollisionEnabled(false);
+    UE_LOG(LogTemp, Warning, TEXT("[%s] 아이템 %s 부착 시작 (권한: %d)"), 
+        GetOwner()->HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
+        *Item->ItemName,
+        (int32)GetOwnerRole());
+
+    // MeshData 배열에 데이터가 있는지 확인
+    if (Item->MeshData.Num() > 0)
+    {
+        // 각 MeshData 항목을 순회하며 부착
+        for (int32 i = 0; i < Item->MeshData.Num(); ++i)
+        {
+            const FItemMeshData& MeshData = Item->MeshData[i];
+            
+            // 메시가 할당되지 않은 경우 건너뛰기
+            if (MeshData.Mesh.IsNull())
+            {
+                UE_LOG(LogTemp, Warning, TEXT("아이템 %s의 메시 데이터 %d: 메시가 NULL"), *Item->ItemName, i);
+                continue;
+            }
+            
+            // 메시 로드
+            UStaticMesh* ItemMesh = MeshData.Mesh.Get();
+            if (!ItemMesh)
+            {
+                UE_LOG(LogTemp, Warning, TEXT("아이템 %s의 메시 %d 로드 실패"), *Item->ItemID.ToString(), i); 
+                continue;
+            }
+            
+            UE_LOG(LogTemp, Warning, TEXT("[%s] 아이템 %s의 메시 %d를 소켓 %s에 부착 (권한: %d)"), 
+                GetOwner()->HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
+                *Item->ItemName, 
+                i,
+                *MeshData.SocketName.ToString(),
+                (int32)GetOwnerRole());
+            
+            // 복제 가능한 무기 메시 컴포넌트 생성
+            FName ComponentName = FName(*FString::Printf(TEXT("Weapon_Mesh_%s_%d"), *Item->ItemID.ToString(), i));
+            UStaticMeshComponent* WeaponMeshComp = NewObject<UStaticMeshComponent>(OwnerCharacter, ComponentName);
+            WeaponMeshComp->SetStaticMesh(ItemMesh);
+            WeaponMeshComp->SetCollisionProfileName(TEXT("Weapon"));
+            WeaponMeshComp->SetGenerateOverlapEvents(true);
+            WeaponMeshComp->SetIsReplicated(true); // 복제 활성화
+            WeaponMeshComp->AttachToComponent(MeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale, MeshData.SocketName);
+            WeaponMeshComp->RegisterComponent();
+            
+            // 스케일 적용
+            WeaponMeshComp->SetRelativeScale3D(MeshData.Scale);
+            
+            // 무기 충돌 이벤트 등록
+            WeaponMeshComp->OnComponentBeginOverlap.AddDynamic(this, &UItemComponent::HandleWeaponCollision);
+            
+            // 기본적으로 충돌 비활성화
+            WeaponMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+            
+            // 아이템에 이펙트 추가 (이펙트가 설정된 경우만)
+            if (!MeshData.Effect.IsNull())
+            {
+                UNiagaraSystem* EffectSystem = MeshData.Effect.LoadSynchronous();
+                if (EffectSystem)
+                {
+                    // 이펙트 컴포넌트 생성 및 설정
+                    FName EffectName = FName(*FString::Printf(TEXT("Weapon_Effect_%s_%d"), *Item->ItemID.ToString(), i));
+                    UNiagaraComponent* EffectComp = NewObject<UNiagaraComponent>(OwnerCharacter, EffectName);
+                    EffectComp->SetAsset(EffectSystem);
+                    EffectComp->SetIsReplicated(true); // 복제 활성화
+                    
+                    // 무기 메시에 이펙트 부착
+                    EffectComp->AttachToComponent(WeaponMeshComp, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+                    
+                    // 이펙트 위치 오프셋 적용
+                    EffectComp->SetRelativeLocation(MeshData.EffectOffset);
+                    
+                    // 이펙트 스케일 적용
+                    EffectComp->SetRelativeScale3D(MeshData.EffectScale);
+                    
+                    // 색상 파라미터 설정 (파라미터 이름이 있는 경우)
+                    if (!MeshData.EffectColorParameterName.IsNone())
+                    {
+                        EffectComp->SetVariableLinearColor(MeshData.EffectColorParameterName, MeshData.EffectColor);
+                    }
+                    
+                    // 컴포넌트 등록 및 활성화
+                    EffectComp->RegisterComponent();
+                    EffectComp->Activate(true);
+                    
+                    UE_LOG(LogTemp, Warning, TEXT("아이템 %s의 메시 %d에 이펙트 추가 완료"), *Item->ItemName, i);
+                }
+            }
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("아이템 %s: 메시 데이터가 없음"), *Item->ItemName);
+    }
 }
 
 void UItemComponent::HandleItemVisualEffects(UItemDataAsset* Item, bool bEquipping)
@@ -541,40 +683,48 @@ void UItemComponent::SetWeaponCollisionEnabled(bool bEnabled)
         return;
     }
     
-    // 무기 메시 컴포넌트 찾기
-    if (EquippedItem)
+    // 장착된 아이템이 없으면 반환
+    if (!EquippedItem)
     {
-        UStaticMeshComponent* WeaponMeshComp = nullptr;
-        TArray<USceneComponent*> ChildComponents;
-        OwnerCharacter->GetMesh()->GetChildrenComponents(true, ChildComponents);
+        return;
+    }
+    
+    // 모든 무기 메시 컴포넌트 찾기
+    TArray<UStaticMeshComponent*> WeaponMeshComps;
+    TArray<USceneComponent*> ChildComponents;
+    OwnerCharacter->GetMesh()->GetChildrenComponents(true, ChildComponents);
 
-        for (USceneComponent* ChildComp : ChildComponents)
+    for (USceneComponent* ChildComp : ChildComponents)
+    {
+        if (UStaticMeshComponent* StaticMeshComp = Cast<UStaticMeshComponent>(ChildComp))
         {
-            if (UStaticMeshComponent* StaticMeshComp = Cast<UStaticMeshComponent>(ChildComp))
+            if (StaticMeshComp->GetName().Contains(EquippedItem->ItemID.ToString()))
             {
-                if (StaticMeshComp->GetName().Contains(EquippedItem->ItemID.ToString()))
-                {
-                    WeaponMeshComp = StaticMeshComp;
-                    break;
-                }
+                WeaponMeshComps.Add(StaticMeshComp);
             }
         }
+    }
 
+    UE_LOG(LogTemp, Warning, TEXT("무기 충돌 %s: %d개의 메시 컴포넌트 찾음"), 
+        bEnabled ? TEXT("활성화") : TEXT("비활성화"), 
+        WeaponMeshComps.Num());
+
+    // 모든 무기 메시에 충돌 설정 적용
+    for (UStaticMeshComponent* WeaponMeshComp : WeaponMeshComps)
+    {
+        // 충돌 설정 변경
+        WeaponMeshComp->SetGenerateOverlapEvents(bEnabled);
         
-        if (WeaponMeshComp)
+        // 물리 시뮬레이션 설정
+        if (bEnabled)
         {
-            // 충돌 설정 변경
-            WeaponMeshComp->SetGenerateOverlapEvents(bEnabled);
-            
-            // 물리 시뮬레이션 설정 (필요시)
-            if (bEnabled)
-            {
-                WeaponMeshComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-            }
-            else
-            {
-                WeaponMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-            }
+            WeaponMeshComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+            UE_LOG(LogTemp, Warning, TEXT("무기 컴포넌트 %s의 충돌 활성화"), *WeaponMeshComp->GetName());
+        }
+        else
+        {
+            WeaponMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+            UE_LOG(LogTemp, Warning, TEXT("무기 컴포넌트 %s의 충돌 비활성화"), *WeaponMeshComp->GetName());
         }
     }
 }
