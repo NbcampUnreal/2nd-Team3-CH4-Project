@@ -14,6 +14,7 @@ AAIBaseBattleCharacter::AAIBaseBattleCharacter(const FObjectInitializer& ObjectI
 
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	bUseControllerRotationYaw = true;
+	FirstDie = false;
 }
 
 void AAIBaseBattleCharacter::BeginPlay()
@@ -105,17 +106,16 @@ void AAIBaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 
 	if (HP <= 0.f)
 	{
-		Die();
+		if (!FirstDie)
+		{
+			Die();
+			FirstDie = true;
+		}
 	}
 }
 
 void AAIBaseBattleCharacter::Die()
 {
-	UE_LOG(LogTemp, Warning, TEXT("죽었습니다."));
-	if (EffectComponent->GetActiveBehaviorEffects().Contains(EBehaviorEffect::Death))
-	{
-		return;
-	}
 	if (SpawnerOwner)
 	{
 		FTimerHandle RespawnTimer;
