@@ -1,7 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -57,9 +53,12 @@ protected:
 	UPROPERTY()
 	AActor* CurrentInteractor;
     
-	// 상호작용 위젯 표시
-	void ShowInteractionWidget(AActor* Interactor);
+	// 프롬프트 텍스트 업데이트
+	void UpdatePromptText();
     
-	// 상호작용 위젯 숨기기
-	void HideInteractionWidget();
+	// 위젯 생성
+	void CreateInteractionWidget();
+    
+	// 위젯 위치 업데이트
+	void UpdateWidgetPosition();
 };
