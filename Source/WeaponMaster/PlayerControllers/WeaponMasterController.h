@@ -18,6 +18,9 @@ public:
 
 	virtual void SetupInputComponent() override;
 
+	UFUNCTION(Client, Reliable)
+	void SetCurrentCharacterAtGI(TSubclassOf<ACharacter> CurrentCharacterClass);
+
 	// Battle IMC
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;

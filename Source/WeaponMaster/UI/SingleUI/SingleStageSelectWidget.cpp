@@ -77,7 +77,7 @@ void USingleStageSelectWidget::HandleStageSelected(const FStageInfo& SelectedInf
 
 void USingleStageSelectWidget::OnConfirmClicked()
 {
-	FName MapID = TEXT("SinglePlayMap");
+	FName MapID = TEXT("SingleMap");
 
 	if (!MapID.IsNone())
 	{
@@ -85,10 +85,7 @@ void USingleStageSelectWidget::OnConfirmClicked()
 		// 해당 맵으로 이동
 		UGameplayStatics::OpenLevel(this, MapID);
 	}
-	/*if (!CurrentStageInfo.MapID.IsNone())
-	{
-		UGameplayStatics::OpenLevel(this, CurrentStageInfo.MapID);
-	}*/
+
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Selected Map is Null!"));
