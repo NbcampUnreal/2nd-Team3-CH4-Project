@@ -104,6 +104,11 @@ bool UBaseSkill::ActivateSkill()
             }
         }
     }
+    else
+    {
+        EndSkill();
+        return false;
+    }
     
     // 스킬 로직 실행
     ExecuteSkill();
