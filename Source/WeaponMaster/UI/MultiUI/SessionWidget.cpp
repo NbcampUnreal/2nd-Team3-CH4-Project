@@ -20,14 +20,16 @@ void USessionWidget::NativeConstruct()
 
 void USessionWidget::SetTotalPlayers(const int32 TotalPlayers) const
 {
-	TotalPlayerText->SetText( FText::Format(
+	/*
+	TotalPlayerText->SetText(FText::Format(
 		NSLOCTEXT("SessionWidget", "PlayerCount", "{0} / 50"),
 		FText::AsNumber(TotalPlayers)
-	));
+	));*/
 }
 
 void USessionWidget::SetTimer(int32 TimeRemain) const
 {
+	if (!RemainTimeText) return;
 	RemainTimeText->SetText( FText::Format(
 		NSLOCTEXT("SessionWidget", "PlayerCount", "{0}"),
 		FText::AsNumber(TimeRemain)
@@ -36,6 +38,7 @@ void USessionWidget::SetTimer(int32 TimeRemain) const
 
 void USessionWidget::SetCooperateMapSelectedPlayers(const int32 TotalPlayers) const
 {
+	if (!CooperateText) return;
 	CooperateText->SetText( FText::Format(
 		NSLOCTEXT("SessionWidget", "PlayerCount", "{0} / 50"),
 		FText::AsNumber(TotalPlayers)
@@ -44,6 +47,7 @@ void USessionWidget::SetCooperateMapSelectedPlayers(const int32 TotalPlayers) co
 
 void USessionWidget::SetDeathMatchMapSelectedPlayers(const int32 TotalPlayers) const
 {
+	if (!DeathMatchText) return;
 	DeathMatchText->SetText( FText::Format(
 		NSLOCTEXT("SessionWidget", "PlayerCount", "{0} / 50"),
 		FText::AsNumber(TotalPlayers)
