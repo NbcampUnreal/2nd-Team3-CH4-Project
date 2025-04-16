@@ -22,6 +22,9 @@ public:
 
 	virtual void OnAttacked(const FAttackData& AttackData) override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AI|State")
+	bool bIsAttacking = true;
+
 // 랜덤 장착용 아이템 목록
 	UPROPERTY(EditAnywhere, Category = "AI|Item")
 	TArray<UItemDataAsset*> ItemAssets;

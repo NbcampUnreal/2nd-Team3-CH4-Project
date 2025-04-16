@@ -2,6 +2,7 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "AI/AICharacter/BossCharacter.h"
 
 AWeaponMasterAIController::AWeaponMasterAIController()
 {
@@ -45,6 +46,17 @@ void AWeaponMasterAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStim
 
 void AWeaponMasterAIController::EvaluateTargetPriority()
 {
+	if (!IsValid(GetPawn())) return;
+
+	if (ABossCharacter* Boss = Cast<ABossCharacter>(GetPawn()))
+	{
+		if (Boss->IsAttacking())
+		{
+			return;
+		}
+	}
+
+
 	TArray<AActor*> PerceivedActors;
 	AIPerception->GetCurrentlyPerceivedActors(UAISense_Sight::StaticClass(), PerceivedActors);
 
@@ -68,7 +80,8 @@ void AWeaponMasterAIController::EvaluateTargetPriority()
 		}
 	}
 
-	if (BestTarget)
+	UObject* CurrentTarget = GetBlackboardComponent()->GetValueAsObject(TEXT("TargetActor"));
+	if (BestTarget && CurrentTarget != BestTarget)
 	{
 		GetBlackboardComponent()->SetValueAsObject(TEXT("TargetActor"), BestTarget);
 	}

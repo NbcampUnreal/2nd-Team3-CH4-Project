@@ -11,7 +11,7 @@
 ABossCharacter::ABossCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	MaxHP = 50;
+	MaxHP = 1000;
 
 	BossStateComponent = CreateDefaultSubobject<UBossStateComponent>(TEXT("BossStateComponent"));
 	GetCharacterMovement()->bConstrainToPlane = true;
@@ -98,8 +98,8 @@ void ABossCharacter::ApplyBasicCombo()
 	{
 		if (SkillComponent)
 		{
-			SkillComponent->ExecuteSkill(0); // 0번째 스킬 실행
-			UE_LOG(LogTemp, Warning, TEXT("BossSkill 0"));
+			SkillComponent->ExecuteSkill(0);
+			SetIsAttackingForDuration(1.4f);
 		}
 	}
 }
@@ -122,7 +122,7 @@ void ABossCharacter::ApplyForwardCharge()
 		if (SkillComponent)
 		{
 			SkillComponent->ExecuteSkill(2);
-			UE_LOG(LogTemp, Warning, TEXT("BossSkill 2"));
+			SetIsAttackingForDuration(1.6f);
 		}
 	}
 
@@ -142,8 +142,7 @@ void ABossCharacter::ApplyAreaSkill()
 {
 	SetActorRotation(FRotator(0, 90.f, 0));
 	Multicast_PlayMontage(AreaChargeMontage,1);
-
-	// 3. 타이머로 실제 시전
+	SetIsAttackingForDuration(5.0f);
 	FTimerHandle Timer;
 	GetWorldTimerManager().SetTimer(Timer, this, &ABossCharacter::ExecuteAreaSkill, 2.0f, false);
 }
@@ -152,11 +151,9 @@ void ABossCharacter::ExecuteAreaSkill()
 {
 	if (HasAuthority())
 	{
-		//StartBasicCombo();
 		if (SkillComponent)
 		{
 			SkillComponent->ExecuteSkill(1);
-			UE_LOG(LogTemp, Warning, TEXT("BossSkill 1"));
 		}
 	}
 }
@@ -168,7 +165,7 @@ void ABossCharacter::ApplyPowerAttack()
 		if (SkillComponent)
 		{
 			SkillComponent->ExecuteSkill(3);
-			UE_LOG(LogTemp, Warning, TEXT("BossSkill 3"));
+			SetIsAttackingForDuration(2.6f);
 		}
 	}
 }
@@ -203,6 +200,32 @@ void ABossCharacter::Die()
 
 	SetActorEnableCollision(false); // 피격 안되게
 }
+
+void ABossCharacter::SetIsAttackingForDuration(float Duration)
+{
+	bIsAttacking = true;
+
+	// 기존 타이머 제거 후 새로 시작
+	GetWorldTimerManager().ClearTimer(AttackStateTimerHandle);
+	GetWorldTimerManager().SetTimer(
+		AttackStateTimerHandle,
+		this,
+		&ABossCharacter::ClearIsAttacking,
+		Duration,
+		false
+	);
+}
+
+void ABossCharacter::ClearIsAttacking()
+{
+	bIsAttacking = false;
+}
+
+bool ABossCharacter::IsAttacking()
+{
+	return bIsAttacking;  // 공격 중일 때 true
+}
+
 
 // !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!
 // !~!~!~!~ Battle System User Interface ~!~!~!~!
