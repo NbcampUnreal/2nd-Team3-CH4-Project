@@ -40,8 +40,8 @@ public:
 	bool bIsPortalActive = true;
 
     // 텔레포트 쿨다운 시간 (초)
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TelePortal", Replicated)
-    float TeleportCooldown = 1.f;
+   /* UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TelePortal", Replicated)
+    float TeleportCooldown = 1.f;*/
 
     UFUNCTION()
     void OnRep_PortalActive();
@@ -85,9 +85,7 @@ public:
     // 텔레포트 후 캐릭터 방향 처리
     void OrientCharacterAfterTeleport(ACharacter* Character, const FTransform& DestinationTransform);
 
-    // 텔레포트 쿨다운 완료 핸들러
-    UFUNCTION()
-    void OnTeleportCooldownComplete();
+
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Portal")
 	UStaticMeshComponent* PortalMesh = nullptr;

@@ -25,8 +25,6 @@ protected:
 
 public:
 
-
-    // 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     USceneComponent* RootComp;
 
@@ -39,16 +37,13 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     USceneComponent* DestinationLocation;
 
-    // 속성
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "JumpPad")
     AJumpPadActor* DestinationJumpPad;
 
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_JumpPadActive, Category = "JumpPad")
     bool bIsJumpPadActive;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "JumpPad")
-    float CooldownTime;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "JumpPad")
     float JumpForce;
@@ -77,7 +72,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "JumpPad|Materials")
     UMaterialInterface* InactiveMaterial;
 
-    // 함수
     UFUNCTION(BlueprintCallable, Category = "JumpPad")
     void SetJumpPadActive(bool bActive);
 
@@ -98,7 +92,7 @@ public:
     UFUNCTION()
     void OnTransportTimerTick();
 
-    // 이미 전송 중인지 확인하는 메서드 추가
+
     UFUNCTION(BlueprintCallable, Category = "JumpPad")
     bool IsTransporting() const;
 
@@ -109,23 +103,16 @@ public:
     void OnRep_IsAnimating();
 
 private:
-    // 원래 위치 (애니메이션용)
+
     FVector OriginalJumpPadLocation;
 
     UPROPERTY(ReplicatedUsing = OnRep_IsAnimating)
     bool bIsAnimating;
 
-    
-
-    // 현재 이동 중인 캐릭터
     UPROPERTY()
     ACharacter* CurrentTransportingCharacter;
 
-
-    // 타이머 핸들
-    FTimerHandle CooldownTimerHandle;
     FTimerHandle AnimationUpdateTimerHandle;
-    FTimerHandle AnimationCompleteTimerHandle;
 
 
     bool IsDestinationClear(ACharacter* Character);
@@ -133,14 +120,12 @@ private:
     void StartCharacterTransport(ACharacter* Character);
     void TransportCharacter(float DeltaTime);
     void CompleteTransport();
-    void OnCooldownComplete();
     void OrientCharacterAfterTransport(ACharacter* Character, const FTransform& DestinationTransform);
 
 
     void UpdateJumpPadAnimation();
     void CompleteJumpPadAnimation();
 
-    // 오버랩 이벤트 핸들러
     UFUNCTION()
     void OnJumpPadBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
         UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
@@ -150,7 +135,6 @@ private:
     void OnJumpPadEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
         UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-    // 네트워크 RPC
     UFUNCTION(Server, Reliable, WithValidation)
     void Server_LaunchCharacter(ACharacter* Character);
 

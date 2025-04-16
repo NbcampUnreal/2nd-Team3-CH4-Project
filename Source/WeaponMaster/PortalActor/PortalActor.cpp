@@ -48,7 +48,7 @@ void APortalActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
     DOREPLIFETIME(APortalActor, DestinationPortal);
     DOREPLIFETIME(APortalActor, bIsPortalActive);
-    DOREPLIFETIME(APortalActor, TeleportCooldown);
+   // DOREPLIFETIME(APortalActor, TeleportCooldown);
 }
 
 void APortalActor::BeginPlay()
@@ -83,6 +83,8 @@ bool APortalActor::IsDestinationClear(ACharacter* Character)
     // 목적지 주변 충돌 검사
     FVector DestLocation = DestinationPortal->TeleportLocation->GetComponentLocation();
     FQuat DestRotation = DestinationPortal->TeleportLocation->GetComponentQuat();
+    FVector Offset = DestRotation.GetForwardVector() * 300.f;
+    DestLocation += Offset;
 
     UCapsuleComponent* CapsuleComp = Character->GetCapsuleComponent();
     if (!CapsuleComp)
@@ -152,11 +154,6 @@ void APortalActor::OnPortalEndOverlap(UPrimitiveComponent* OverlappedComponent, 
     if (HasAuthority())
     {
         UE_LOG(LogTemp, Warning, TEXT("EndOverlap ServerSide"));
-        if (GetWorldTimerManager().IsTimerActive(TeleportCooldownTimerHandle))
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Clear TeleportCooldownTimerHandle"));
-            GetWorldTimerManager().ClearTimer(TeleportCooldownTimerHandle);
-        }
         SetPortalActive(true);
         DestinationPortal->SetPortalActive(true);
     }
@@ -236,11 +233,12 @@ void APortalActor::OrientCharacterAfterTeleport(ACharacter* Character, const FTr
 void APortalActor::Multicast_OnTeleportEffect_Implementation(ACharacter* Character)
 {
     FVector EffectLocation = GetActorLocation();
-
+    FVector DestinationEffectLocation = DestinationPortal->GetActorLocation();
     // Particle 재생
     if (TeleportEffectParticle)
     {
         UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TeleportEffectParticle, EffectLocation);
+        UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TeleportEffectParticle, DestinationEffectLocation);
     }
     // Sound 재생
     if (TeleportSound)
@@ -250,15 +248,6 @@ void APortalActor::Multicast_OnTeleportEffect_Implementation(ACharacter* Charact
 
 }
 
-void APortalActor::OnTeleportCooldownComplete()
-{
-    if (HasAuthority())
-    {
-        UE_LOG(LogTemp, Warning, TEXT("OnTeleportCooldownComplete"));
-        SetPortalActive(true);
-        DestinationPortal->SetPortalActive(true);
-    }
-}
 void APortalActor::OnRep_PortalActive()
 {
     UpdatePortalMaterial();
