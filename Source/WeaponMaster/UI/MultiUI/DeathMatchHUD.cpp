@@ -103,15 +103,7 @@ void ADeathMatchHUD::BindPlayerStatusWidget(AWeaponMasterPlayerState* WMPS)
     // 변경 이벤트 바인딩
     WMPS->OnKillCountChanged.AddDynamic(this, &ADeathMatchHUD::UpdateKillCount);
     WMPS->OnDeathCountChanged.AddDynamic(this, &ADeathMatchHUD::UpdateDeathCount);
-
-    AController* Controller = Cast<AController>(WMPS->GetOwner());
-    if (Controller)
-    {
-        if (ABaseBattleCharacter* Character = Cast<ABaseBattleCharacter>(Controller->GetPawn()))
-        {
-            Character->OnHealthChanged.AddDynamic(this, &ADeathMatchHUD::UpdateHealth);
-        }
-    }
+    WMPS->OnHealthChanged.AddDynamic(this, &ADeathMatchHUD::UpdateHealth);
 }
 
 void ADeathMatchHUD::UpdateHealth(AWeaponMasterPlayerState* OwnerPS, float CurrentHealth, float MaxHealth)

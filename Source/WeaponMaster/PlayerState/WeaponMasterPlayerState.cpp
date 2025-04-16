@@ -10,6 +10,7 @@ AWeaponMasterPlayerState::AWeaponMasterPlayerState()
 	bReplicates = true;
 	
 	// 초기값 설정
+	CharacterClass = nullptr;
 	TeamIdx = 0;
 	KillCount = 0;
 	DeathCount = 0;
@@ -99,3 +100,7 @@ void AWeaponMasterPlayerState::OnRep_TotalDamageCount()
 	OnTotalDamageCountChanged.Broadcast(this, TotalDamageDealt);
 }
 
+void AWeaponMasterPlayerState::OnHealthChangeBroadcast(const float HP, const float MaxHP)
+{
+	OnHealthChanged.Broadcast(this, HP, MaxHP);
+}
