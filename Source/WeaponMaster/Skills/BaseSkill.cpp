@@ -1,4 +1,6 @@
 #include "BaseSkill.h"
+
+#include "NiagaraFunctionLibrary.h"
 #include "WeaponMaster/Characters/TestCharacter.h"
 #include "GameFramework/Character.h"
 #include "Animation/AnimMontage.h"
