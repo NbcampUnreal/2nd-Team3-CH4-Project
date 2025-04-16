@@ -9,6 +9,7 @@
 #include "SSTCharacter.h"
 #include "Characters/Components/DamageSystemUser.h"
 #include "Characters/Components/IBattleSystemUser.h"
+#include "Characters/Components/DebuffWidgetUser.h"
 #include "BaseBattleCharacter.generated.h"
 
 class UStateComponent;
@@ -19,7 +20,7 @@ class UBaseSkill;
 
 UCLASS()
 class WEAPONMASTER_API ABaseBattleCharacter :
-public ASSTCharacter, public IBaseBattleInputBindFunctions, public IBattleSystemUser, public IDamageSystemUser
+public ASSTCharacter, public IBaseBattleInputBindFunctions, public IBattleSystemUser, public IDamageSystemUser, public IDebuffWidgetUser
 {
 	GENERATED_BODY()
 
@@ -51,7 +52,7 @@ protected:
 	TObjectPtr<ACharacter> LastAttacker;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Battle", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<UUserWidget> StatusWidget;
+	TSubclassOf<UUserWidget> DebuffWidgetClass;
 	
 	FTimerHandle LastAttackerTimerHandle;
 	FTimerHandle RespawnDelayTimerHandle;
@@ -178,5 +179,5 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Stats")
 	float GetMaxHP() const { return MaxHP; }
 
-	
+	virtual void UpdateDebuffWidget() override;
 };

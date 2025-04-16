@@ -5,6 +5,8 @@
 #include "Characters/Components/IBattleSystemUser.h"
 #include "Characters/Components/StateComponent/StateComponent.h"
 #include "Characters/Components/EffectComponent/EffectComponent.h"
+#include "Characters/Components/DebuffWidgetUser.h"
+#include "UI/CommonUI/DebuffWidget.h"
 
 void UBehaviorStateDecorator::Activate()
 {
@@ -97,6 +99,15 @@ void UBehaviorStateDecorator::Activate(float Duration)
 	{
 		UE_LOG(LogTemp, Error, TEXT("UBehaviorStateDecorator::Activate : EffectComponent Cast Failed!"));
 	}
+
+	if (auto DebuffWidgetUser = Cast<IDebuffWidgetUser>(OwnerCharacter))
+	{
+		DebuffWidgetUser->UpdateDebuffWidget();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UBehaviorStateDecorator::Activate :DebuffWidgetUser Cast Failed!"));
+	}
 }
 
 void UBehaviorStateDecorator::Deactivate()
@@ -149,6 +160,15 @@ void UBehaviorStateDecorator::Deactivate()
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("UBehaviorStateDecorator::Deactivate : EffectComponent Cast Failed!"));
+	}
+
+	if (auto DebuffWidgetUser = Cast<IDebuffWidgetUser>(OwnerCharacter))
+	{
+		DebuffWidgetUser->UpdateDebuffWidget();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UBehaviorStateDecorator::Deactivate :DebuffWidgetUser Cast Failed!"));
 	}
 }
 

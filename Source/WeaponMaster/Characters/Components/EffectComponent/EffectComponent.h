@@ -22,7 +22,7 @@ protected:
 	// RPC호출로 서버 클라 둘다 변경해주기 때문에 Replicated하지 않아도 되겠다.(하면 Deactivate시 두번 삭제)
 	// 근데 Simulated Proxy 애니메이션 재생하려면 해줘야함
 	// Owner빼고 Replicated 시키기
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "State")
+	UPROPERTY(ReplicatedUsing=OnRep_ActiveBehaviorEffects, VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	TArray<EBehaviorEffect> ActiveBehaviorEffects;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
@@ -56,6 +56,9 @@ protected:
 	UFUNCTION(Client, Reliable)
 	void ClientDeactivateBehaviorEffect(EBehaviorEffect BehaviorEffectType);
 
+	UFUNCTION()
+	void OnRep_ActiveBehaviorEffects();
+	
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
@@ -67,6 +70,5 @@ public:
 	void ActivateBehaviorEffect(EBehaviorEffect BehaviorEffectType);
 	void ActivateBehaviorEffectWithDuration(EBehaviorEffect BehaviorEffectType, float Duration);
 	void DeactivateBehaviorEffect(EBehaviorEffect BehaviorEffectType);
-
-
+	
 };
