@@ -14,7 +14,7 @@
 UBossForwardChargeSkill::UBossForwardChargeSkill()
 {
 	DefaultAttackSpeed = 1.0f;
-	SkillDamage = 15.0f;
+	SkillDamage = 35.0f;
 }
 
 void UBossForwardChargeSkill::ExecuteSkill()

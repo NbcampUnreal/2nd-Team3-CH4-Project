@@ -12,7 +12,7 @@
 UBossAreaSkill::UBossAreaSkill()
 {
     DefaultAttackSpeed = 0.8f;
-	SkillDamage = 50.0f;
+	SkillDamage = 100.0f;
 }
 
 void UBossAreaSkill::ExecuteSkill()

@@ -11,7 +11,7 @@
 
 UBossBasicComboSkill::UBossBasicComboSkill()
 {
-	SkillDamage = 10.0f;
+	SkillDamage = 20.0f;
 }
 
 void UBossBasicComboSkill::ExecuteSkill()
