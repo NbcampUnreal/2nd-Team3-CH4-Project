@@ -100,3 +100,7 @@ void AWeaponMasterPlayerState::OnRep_TotalDamageCount()
 	OnTotalDamageCountChanged.Broadcast(this, TotalDamageDealt);
 }
 
+void AWeaponMasterPlayerState::OnHealthChangeBroadcast(const float HP, const float MaxHP)
+{
+	OnHealthChanged.Broadcast(this, HP, MaxHP);
+}

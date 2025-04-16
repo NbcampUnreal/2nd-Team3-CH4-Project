@@ -17,7 +17,7 @@ class USkillComponent;
 class UWidgetComponent;
 class UBaseSkill;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHealthChanged, AWeaponMasterPlayerState*, OwnerPS, float, CurrentHealth, float, MaxHealth);
+// DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHealthChanged, AWeaponMasterPlayerState*, OwnerPS, float, CurrentHealth, float, MaxHealth);
 
 UCLASS()
 class WEAPONMASTER_API ABaseBattleCharacter :
@@ -29,8 +29,8 @@ public:
 	// Sets default values for this character's properties
 	ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(BlueprintAssignable)
-	FOnHealthChanged OnHealthChanged;
+	// UPROPERTY(BlueprintAssignable)
+	// FOnHealthChanged OnHealthChanged;
 
 protected:
 	// Components
