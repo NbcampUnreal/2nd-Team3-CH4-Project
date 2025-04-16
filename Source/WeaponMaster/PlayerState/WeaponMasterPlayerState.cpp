@@ -10,6 +10,7 @@ AWeaponMasterPlayerState::AWeaponMasterPlayerState()
 	bReplicates = true;
 	
 	// 초기값 설정
+	CharacterClass = nullptr;
 	TeamIdx = 0;
 	KillCount = 0;
 	DeathCount = 0;
