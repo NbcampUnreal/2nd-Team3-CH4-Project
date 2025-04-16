@@ -87,6 +87,8 @@ protected:
     // 시각/사운드 효과 초기화
     void InitializeEffects();
 
+    UFUNCTION(Server, Reliable)
+    void Server_ApplyDamage(AActor* TargetActor, const FHitResult& Hit);
 protected:
     // 발사체 메시 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
