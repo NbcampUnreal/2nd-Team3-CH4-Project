@@ -12,6 +12,16 @@ void UResultPlayerEntryWidget::NativeConstruct()
 	// 초기화가 필요하면 여기서 처리
 }
 
+FString TruncateNicName(const FString& Name, int32 MaxLength)
+{
+	if (Name.Len() <= MaxLength)
+	{
+		return Name;
+	}
+
+	return Name.Left(MaxLength) + TEXT("...");
+}
+
 void UResultPlayerEntryWidget::SetPlayerResultInfo(UTexture2D* InIcon, const FText& InNickname, int32 InKills, int32 InDeaths, int32 InDamage)
 {
 	if (PlayerIconImage)
@@ -21,7 +31,8 @@ void UResultPlayerEntryWidget::SetPlayerResultInfo(UTexture2D* InIcon, const FTe
 
 	if (NicknameText)
 	{
-		NicknameText->SetText(InNickname);
+		FString PlayerNickname = TruncateNicName(InNickname.ToString(), 7);
+		NicknameText->SetText(FText::FromString(PlayerNickname));
 	}
 
 	if (KillCountText)

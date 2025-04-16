@@ -18,12 +18,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Setup(const FText& KillerName, const FText& VictimName) const;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "KillLog")
+	UTexture2D* DefaultKillIcon;
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* KillerText;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* SkullIcon;
+	TObjectPtr<UImage> SkullIcon;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* VictimText;
