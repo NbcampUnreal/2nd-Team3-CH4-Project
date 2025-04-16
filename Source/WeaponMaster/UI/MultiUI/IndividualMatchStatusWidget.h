@@ -50,6 +50,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void UpdatePlayerKills(int32 PlayerID, int32 Kills);
 
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void UpdatePlayerName(int32 PlayerID, FString& PlayerName);
+
 	/** 플레이어 컨테이너 반환 */
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	UScrollBox* GetPlayerContainer() const { return PlayerContainer; }

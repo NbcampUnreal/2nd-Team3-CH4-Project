@@ -75,7 +75,6 @@ void UGameResultWidget::PopulatePlayerEntries(const TArray<FPlayerResultData>& R
 
 void UGameResultWidget::OnMainButtonClicked()
 {
-
     FName MapID = TEXT("StartMap");
 
     if (!MapID.IsNone())
