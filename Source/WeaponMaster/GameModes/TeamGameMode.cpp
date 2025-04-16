@@ -51,7 +51,8 @@ void ATeamGameMode::SpawnPlayerCharacter(APlayerController* Controller)
 				// SpawnCharacter->SetOwner(WMPC);
 				WMPC->Possess(SpawnCharacter);
 				WMPC->SetCurrentCharacterAtGI(CharacterClasses[CharacterClassRandomIndex]);
-				UE_LOG(LogTemp, Warning, TEXT("Possessed Pawn: %s"), *WMPC->GetPawn()->GetName());
+				UE_LOG(LogTemp, Display, TEXT("ATeamGameMode::SpawnPlayerCharacter : Chosen Character : %s"), *CharacterClasses[CharacterClassRandomIndex]->GetDisplayNameText().ToString());
+				UE_LOG(LogTemp, Display, TEXT("ATeamGameMode::SpawnPlayerCharacter : Possessed Pawn: %s"), *WMPC->GetPawn()->GetName());
 			}
 			else
 			{
@@ -61,6 +62,7 @@ void ATeamGameMode::SpawnPlayerCharacter(APlayerController* Controller)
 			if (SpawnCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 			{
 				UItemComponent* ItemComponent = IBattleSystemUser::Execute_GetItemComponent(SpawnCharacter);
+				UE_LOG(LogTemp, Display, TEXT("ATeamGameMode::SpawnPlayerCharacter : Chosen Item : %s"), *ItemNames[ItemNameRandomIndex].ToString())
 				ItemComponent->EquipItem(ItemNames[ItemNameRandomIndex]);
 			}
 			else
@@ -154,6 +156,7 @@ void ATeamGameMode::BroadcastGameResultsToClients(int32 Results)
 
 		if (const ABaseBattleCharacter* DefaultChar = WMPS->CharacterClass->GetDefaultObject<ABaseBattleCharacter>())
 		{
+			UE_LOG(LogTemp, Display, TEXT("ATeamGameMode::BroadcastGameResultsToClients : Chosen Character : %s"), *WMPS->CharacterClass->GetDisplayNameText().ToString());
 			Data.Icon = DefaultChar->GetCharacterThumbnail();
 		}
 		else
