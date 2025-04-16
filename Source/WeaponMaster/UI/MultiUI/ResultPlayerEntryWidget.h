@@ -22,6 +22,7 @@ public:
 protected:
 	virtual void NativeConstruct() override;
 
+
 	// 위젯 바인딩
 	UPROPERTY(meta = (BindWidget))
 	UImage* PlayerIconImage;
