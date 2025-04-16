@@ -189,7 +189,7 @@ void AEOSGameMode::TravelMap()
 {
 	UE_LOG(LogTemp, Warning, TEXT("TravelMap To [%s]"), *MapURL);
 	if (MapURL == "") return;
-	GetWorld()->SeamlessTravel(MapURL, true);
+	GetWorld()->ServerTravel(MapURL, true);
 }
 
 void AEOSGameMode::StartSession()
