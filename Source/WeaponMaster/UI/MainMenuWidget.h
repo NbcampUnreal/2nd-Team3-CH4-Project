@@ -103,15 +103,9 @@ protected:
     void UpdateButtonFocus();
 
     void PlaySound(TObjectPtr<USoundBase> Sound);
-
-    void UpdateGoldText(int32 Gold);
-
-    void LogMessage(const FString& Message);
     void UpdateButtonStyle(UButton* Button, bool bIsHovered);
 
     void OnDeleteButtonFocus();
-
-    virtual void NativeOnFocusLost(const FFocusEvent& InFocusEvent) override;
 
     FButtonStyle SavedStyle;
 
