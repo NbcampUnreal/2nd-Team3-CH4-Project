@@ -31,8 +31,6 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Item")
 	TArray<FName> ItemNames;
-
-	
 	
 	UPROPERTY()
 	int32 TimerCountDown = 30;
