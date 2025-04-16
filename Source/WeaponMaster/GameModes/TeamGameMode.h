@@ -33,7 +33,7 @@ private:
 	TArray<FName> ItemNames;
 	
 	UPROPERTY()
-	int32 TimerCountDown = 300;
+	int32 TimerCountDown = 120;
 
 	UFUNCTION()
 	void SetTimer();
