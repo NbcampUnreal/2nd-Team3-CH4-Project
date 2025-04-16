@@ -7,6 +7,7 @@
 #include "Characters/Components/IBattleSystemUser.h"
 #include "Characters/Components/DamageSystemUser.h"
 #include "WeaponMaster/Data/StatusTypes.h"
+#include "NiagaraFunctionLibrary.h"
 
 UBaseSkill::UBaseSkill()
 {
