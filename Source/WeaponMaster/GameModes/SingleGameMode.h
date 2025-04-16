@@ -18,6 +18,8 @@ public:
 	void OnPlayerLose();
 
 	virtual void RestartPlayer(AController* NewPlayer) override;
+
+	virtual void SpawnPlayerCharacter(APlayerController* Controller) override;
 	
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	void UpdatePlayerInfo();
@@ -27,6 +29,5 @@ public:
 	{
 		return Cast<UWeaponMasterGameInstance>(GetGameInstance());
 	}
-private:
-	bool HasCharacterSpawner() const;
+
 };

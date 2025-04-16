@@ -432,7 +432,7 @@ void ABaseBattleCharacter::OnDeath()
 
 						if (AWeaponMasterController* WMController = Cast<AWeaponMasterController>(GetController()))
 						{
-							GM->HandlePlayerDeath(CharacterClass, WMController, GetPlayerState()->GetPlayerName());
+							GM->HandlePlayerDeath(WMController, GetPlayerState()->GetPlayerName());
 						}
 					}
 					else

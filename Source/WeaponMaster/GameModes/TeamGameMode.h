@@ -18,8 +18,16 @@ public:
 	{
 		return Cast<UWeaponMasterGameInstance>(GetGameInstance());
 	}
+
+	virtual void SpawnPlayerCharacter(APlayerController* Controller) override;
 	
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Character")
+	TArray<TSubclassOf<ACharacter>> CharacterClasses;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Item")
+	TArray<FName> ItemNames;
+	
 	UPROPERTY()
 	int32 TimerCountDown = 300;
 
