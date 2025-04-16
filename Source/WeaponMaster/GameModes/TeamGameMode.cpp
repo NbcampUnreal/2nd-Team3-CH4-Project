@@ -12,6 +12,7 @@
 #include "GameFramework/GameStateBase.h"
 // #include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
 #include "Engine/World.h"
+#include "Session/EOSGameSession.h"
 
 void ATeamGameMode::BeginPlay()
 {
@@ -193,13 +194,38 @@ void ATeamGameMode::BroadcastGameResultsToClients(int32 Results)
 			}
 
 			PC->Client_ShowGameResult(ResultList);
+
+			if (AEOSGameSession* EOSGameSession = Cast<AEOSGameSession>(GameSession))
+			{
+				EOSGameSession->UnregisterPlayer(PC);
+			}
 		}
 	}
-}
 
+	if (AEOSGameSession* EOSGameSession = Cast<AEOSGameSession>(GameSession))
+	{
+		EOSGameSession->EndSession();
+	}
+
+	GetWorldTimerManager().SetTimer(
+		DestorySessionTimerHandle,
+		this,
+		&ATeamGameMode::DestroySession,
+		10.0f,
+		false
+	);
+}
 
 void ATeamGameMode::OnBossDefeated()
 {
 	GetWorldTimerManager().ClearTimer(PlayCountDownTimerHandle);
 	BroadcastGameResultsToClients(1000);
+}
+
+void ATeamGameMode::DestroySession()
+{
+	if (AEOSGameSession* EOSGameSession = Cast<AEOSGameSession>(GameSession))
+	{
+		EOSGameSession->DestroySession();
+	}
 }
