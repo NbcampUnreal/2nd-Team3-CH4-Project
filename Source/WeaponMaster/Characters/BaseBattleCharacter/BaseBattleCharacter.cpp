@@ -31,11 +31,11 @@
 // #include "UI/CommonUI/PlayerStatusWidget.h"
 #include "UI/SingleUI/SingleGameHUD.h"
 #include "Components/WidgetComponent.h"
+#include "UI/CommonUI/DebuffWidget.h"
 
 // Sets default values
 ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer.SetDefaultSubobjectClass<USSTCharacterMovementComponent>(
-		ACharacter::CharacterMovementComponentName))
+	: Super(ObjectInitializer)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
@@ -45,11 +45,10 @@ ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectIniti
 	EffectComponent = CreateDefaultSubobject<UEffectComponent>(TEXT("EffectComponent"));
 	ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
 	SkillComponent = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComponent"));
-	
+
+	// Status Effect Widget
 	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
 	WidgetComponent->SetupAttachment(RootComponent);
-	WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
-	WidgetComponent->SetDrawSize(FVector2D(200.f, 300.f));
 	
 	// Constants
 	MaxHP = 100.0f;
@@ -83,6 +82,16 @@ void ABaseBattleCharacter::BeginPlay()
 
 		SkillComponent->OnSkillStarted.AddDynamic(this, &ABaseBattleCharacter::OnSkillStarted);
 		SkillComponent->OnSkillEnded.AddDynamic(this, &ABaseBattleCharacter::OnSkillEnded);
+	}
+
+	// 블루프린트에서 설정한 Defualt 값은 생성자에서 못쓴다.
+	if (IsValid(DebuffWidgetClass))
+	{
+		WidgetComponent->SetWidgetClass(DebuffWidgetClass);
+		WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+		WidgetComponent->SetDrawAtDesiredSize(true);
+		// WidgetComponent->SetVisibility(true);
+		// WidgetComponent->SetHiddenInGame(false);
 	}
 
 	if (!HasAuthority())
@@ -710,6 +719,23 @@ UTexture2D* ABaseBattleCharacter::GetCharacterThumbnail() const
 		return CharacterThumbnail.LoadSynchronous();
 	}
 	return nullptr;
+}
+
+void ABaseBattleCharacter::UpdateDebuffWidget()
+{
+	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::UpdateDebuffWidget : Called."));
+	if (auto DebuffWidget = Cast<UDebuffWidget>(WidgetComponent->GetUserWidgetObject()))
+	{
+		if (IsValid(EffectComponent))
+		{
+		
+			DebuffWidget->UpdateWidget(EffectComponent->GetActiveBehaviorEffects());
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::UpdateDebuffWidget : DebuffWidget Cast Failed."));
+	}
 }
 
 void ABaseBattleCharacter::Server_RequestItemPickup_Implementation(AActor* ItemActor)

@@ -9,6 +9,7 @@
 #include "BehaviorEffects/SpecificEffects/StiffnessEffect.h"
 #include "BehaviorEffects/SpecificEffects/StunEffect.h"
 #include "BehaviorEffects/SpecificEffects/UsingSkillEffect.h"
+#include "Characters/Components/DebuffWidgetUser.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
@@ -46,9 +47,7 @@ void UEffectComponent::BeginPlay()
 	{
 		return;
 	}
-
 	
-
 	Initialize();
 }
 
@@ -57,6 +56,14 @@ void UEffectComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	DOREPLIFETIME_CONDITION(UEffectComponent, ActiveBehaviorEffects, COND_SkipOwner);
+}
+
+void UEffectComponent::OnRep_ActiveBehaviorEffects()
+{
+	if (auto DebuffWidgetUser = Cast<IDebuffWidgetUser>(GetOuter()))
+	{
+		DebuffWidgetUser->UpdateDebuffWidget();
+	}
 }
 
 // Called every frame
