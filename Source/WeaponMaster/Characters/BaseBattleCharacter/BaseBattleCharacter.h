@@ -17,8 +17,6 @@ class USkillComponent;
 class UWidgetComponent;
 class UBaseSkill;
 
-// DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHealthChanged, AWeaponMasterPlayerState*, OwnerPS, float, CurrentHealth, float, MaxHealth);
-
 UCLASS()
 class WEAPONMASTER_API ABaseBattleCharacter :
 public ASSTCharacter, public IBaseBattleInputBindFunctions, public IBattleSystemUser, public IDamageSystemUser
@@ -28,9 +26,6 @@ public ASSTCharacter, public IBaseBattleInputBindFunctions, public IBattleSystem
 public:
 	// Sets default values for this character's properties
 	ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer);
-
-	// UPROPERTY(BlueprintAssignable)
-	// FOnHealthChanged OnHealthChanged;
 
 protected:
 	// Components
@@ -46,14 +41,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USkillComponent> SkillComponent;
 
-	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	// TObjectPtr<UWidgetComponent> WidgetComponent;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UWidgetComponent> WidgetComponent;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Interacts", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AActor> InteractableActor;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<ACharacter> LastAttacker;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Battle", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UUserWidget> StatusWidget;
 	
 	FTimerHandle LastAttackerTimerHandle;
 	FTimerHandle RespawnDelayTimerHandle;

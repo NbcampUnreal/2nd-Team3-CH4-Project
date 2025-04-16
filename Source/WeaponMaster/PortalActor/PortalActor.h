@@ -7,6 +7,8 @@
 #include "PortalActor.generated.h"
 
 class UBoxComponent;
+class UNiagaraSystem;
+class UNiagaraComponent;
 
 UCLASS()
 class WEAPONMASTER_API APortalActor : public AActor
@@ -39,10 +41,6 @@ public:
     UPROPERTY(ReplicatedUsing = OnRep_PortalActive, VisibleAnywhere, BlueprintReadOnly, Category = "TelePortal")
 	bool bIsPortalActive = true;
 
-    // 텔레포트 쿨다운 시간 (초)
-   /* UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TelePortal", Replicated)
-    float TeleportCooldown = 1.f;*/
-
     UFUNCTION()
     void OnRep_PortalActive();
 
@@ -64,7 +62,7 @@ public:
 
 
     UFUNCTION(NetMulticast, Reliable)
-    void Multicast_OnTeleportEffect(ACharacter* Character);
+    void Multicast_OnTeleportEffect();
 
     // 포탈 활성화/비활성화 함수
     UFUNCTION(BlueprintCallable, Category = "Portal")
@@ -85,7 +83,8 @@ public:
     // 텔레포트 후 캐릭터 방향 처리
     void OrientCharacterAfterTeleport(ACharacter* Character, const FTransform& DestinationTransform);
 
-
+ //   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	//FVector ParticleScaleMultiplier = FVector(1.f, 1.f, 1.f);
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Portal")
 	UStaticMeshComponent* PortalMesh = nullptr;
@@ -110,6 +109,12 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
     UParticleSystem* TeleportEffectParticle = nullptr;
+
+   /* UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+    UNiagaraSystem* TeleportEffectVFX;*/
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+    UNiagaraComponent* NiagaraComponent;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
     USoundBase* TeleportSound = nullptr;

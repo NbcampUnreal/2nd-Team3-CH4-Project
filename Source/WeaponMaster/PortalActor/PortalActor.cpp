@@ -8,6 +8,8 @@
 #include "DrawDebugHelpers.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 APortalActor::APortalActor()
 {
@@ -31,6 +33,8 @@ APortalActor::APortalActor()
     PortalComponentMesh5 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PortalComponentMesh5"));
     PortalComponentMesh5->SetupAttachment(RootComponent);
 
+    NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
+    NiagaraComponent->SetupAttachment(RootComponent);
 
     PortalTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("PortalTrigger"));
     PortalTrigger->SetupAttachment(RootComponent);
@@ -48,7 +52,6 @@ void APortalActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
     DOREPLIFETIME(APortalActor, DestinationPortal);
     DOREPLIFETIME(APortalActor, bIsPortalActive);
-   // DOREPLIFETIME(APortalActor, TeleportCooldown);
 }
 
 void APortalActor::BeginPlay()
@@ -76,7 +79,6 @@ bool APortalActor::IsDestinationClear(ACharacter* Character)
 {
     if (!DestinationPortal || !Character)
     {
-        UE_LOG(LogTemp, Warning, TEXT("No Portal,Character"));
         return false;
     }
 
@@ -116,26 +118,21 @@ void APortalActor::OnPortalBeginOverlap(UPrimitiveComponent* OverlappedComponent
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
     bool bFromSweep, const FHitResult& SweepResult)
 {
-    UE_LOG(LogTemp, Warning, TEXT("Overlapped Component Name: %s"), *OverlappedComponent->GetName());
     ACharacter* Character = Cast<ACharacter>(OtherActor);
     if (!Character || !DestinationPortal)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Something Wrong"));
         return;
     }
 
     if (!bIsPortalActive)
     {
-        UE_LOG(LogTemp, Warning, TEXT("No Active"));
         return;
     }
 
     if (!HasAuthority())
     {
-        UE_LOG(LogTemp, Warning, TEXT("Client Return"));
         return;
     }
-    UE_LOG(LogTemp, Warning, TEXT("BeginOverlap ServerSide"));
 
     // 텔레포트 요청 실행 (서버 함수 호출)
     Server_TeleportCharacter(Character);
@@ -149,11 +146,9 @@ void APortalActor::OnPortalEndOverlap(UPrimitiveComponent* OverlappedComponent, 
     {
         return;
     }
-    UE_LOG(LogTemp, Warning, TEXT("Overlapped Component Name: %s"), *OverlappedComponent->GetName());
 
     if (HasAuthority())
     {
-        UE_LOG(LogTemp, Warning, TEXT("EndOverlap ServerSide"));
         SetPortalActive(true);
         DestinationPortal->SetPortalActive(true);
     }
@@ -175,7 +170,6 @@ void APortalActor::Server_TeleportCharacter_Implementation(ACharacter* Character
 
     if (ExecuteTeleport(Character))
     {
-        Multicast_OnTeleportEffect(Character);
         SetPortalActive(true);
         DestinationPortal->SetPortalActive(true);
     }
@@ -190,9 +184,9 @@ bool APortalActor::ExecuteTeleport(ACharacter* Character)
 
     if (!IsDestinationClear(Character))
     {
-        UE_LOG(LogTemp, Warning, TEXT("Teleport failed: Destination is blocked"));
         return false;
     }
+    Multicast_OnTeleportEffect();
 
     FTransform TeleportTransform = DestinationPortal->TeleportLocation->GetComponentTransform();
     FVector Offset = TeleportTransform.GetRotation().GetForwardVector() * 300.f;
@@ -230,17 +224,14 @@ void APortalActor::OrientCharacterAfterTeleport(ACharacter* Character, const FTr
 }
 
 
-void APortalActor::Multicast_OnTeleportEffect_Implementation(ACharacter* Character)
+void APortalActor::Multicast_OnTeleportEffect_Implementation()
 {
     FVector EffectLocation = GetActorLocation();
-    FVector DestinationEffectLocation = DestinationPortal->GetActorLocation();
-    // Particle 재생
-    if (TeleportEffectParticle)
+    if (NiagaraComponent)
     {
-        UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TeleportEffectParticle, EffectLocation);
-        UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TeleportEffectParticle, DestinationEffectLocation);
+        NiagaraComponent->Activate(true);
+        DestinationPortal->NiagaraComponent->Activate(true);
     }
-    // Sound 재생
     if (TeleportSound)
     {
         UGameplayStatics::PlaySoundAtLocation(GetWorld(), TeleportSound, EffectLocation);
@@ -260,9 +251,7 @@ void APortalActor::UpdatePortalMaterial()
         UMaterialInterface* MatToApply = bIsPortalActive ? ActiveMaterial : InactiveMaterial;
         if (MatToApply)
         {
-            UE_LOG(LogTemp, Warning, TEXT("IN Matr"));
             PortalMesh->SetMaterial(0, MatToApply);
         }
-        UE_LOG(LogTemp, Warning, TEXT("END Matr"));
     }
 }
