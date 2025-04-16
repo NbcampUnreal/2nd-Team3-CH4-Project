@@ -10,7 +10,7 @@
 #include "PlayerState/WeaponMasterPlayerState.h"
 #include "UI/MultiUI/GameResultWidget.h"
 #include "GameFramework/GameStateBase.h"
-#include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
+// #include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
 #include "Engine/World.h"
 
 void ATeamGameMode::BeginPlay()
