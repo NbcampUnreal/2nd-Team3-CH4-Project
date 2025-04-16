@@ -44,8 +44,6 @@ protected:
 	UFUNCTION()
 	void OnBackClicked();
 
-	void LogMessage(const FString& Message);
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<USoundBase> MoveSound;
 
@@ -56,7 +54,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
 	TSubclassOf<USelectWidget> SelectWidgetClass;
-
 	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
