@@ -1,5 +1,8 @@
 #include "WeaponMasterPlayerState.h"
 
+#include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
+#include "GameModes/TeamGameMode.h"
+#include "Instance/WeaponMasterGameInstance.h"
 #include "Net/UnrealNetwork.h"
 
 AWeaponMasterPlayerState::AWeaponMasterPlayerState()
@@ -7,11 +10,14 @@ AWeaponMasterPlayerState::AWeaponMasterPlayerState()
 	bReplicates = true;
 	
 	// 초기값 설정
+	CharacterClass = nullptr;
 	TeamIdx = 0;
 	KillCount = 0;
 	DeathCount = 0;
 	TotalDamageDealt = 0.0f;
 }
+
+
 
 void AWeaponMasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -22,6 +28,7 @@ void AWeaponMasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME(AWeaponMasterPlayerState, KillCount);
 	DOREPLIFETIME(AWeaponMasterPlayerState, DeathCount);
 	DOREPLIFETIME(AWeaponMasterPlayerState, TotalDamageDealt);
+	DOREPLIFETIME(AWeaponMasterPlayerState, CharacterClass);
 }
 
 void AWeaponMasterPlayerState::AddKill()

@@ -35,6 +35,8 @@ void ATeamGameMode::SpawnPlayerCharacter(APlayerController* Controller)
 
 	auto CharacterClassRandomIndex = FMath::RandRange(0, CharacterClasses.Num() - 1);
 	auto ItemNameRandomIndex = FMath::RandRange(0, ItemNames.Num() - 1);
+
+	Controller->GetPlayerState<AWeaponMasterPlayerState>()->CharacterClass = CharacterClasses[CharacterClassRandomIndex];
 	
 	while (--Cnt)
 	{
@@ -49,7 +51,8 @@ void ATeamGameMode::SpawnPlayerCharacter(APlayerController* Controller)
 				// SpawnCharacter->SetOwner(WMPC);
 				WMPC->Possess(SpawnCharacter);
 				WMPC->SetCurrentCharacterAtGI(CharacterClasses[CharacterClassRandomIndex]);
-				UE_LOG(LogTemp, Warning, TEXT("Possessed Pawn: %s"), *WMPC->GetPawn()->GetName());
+				UE_LOG(LogTemp, Display, TEXT("ATeamGameMode::SpawnPlayerCharacter : Chosen Character : %s"), *CharacterClasses[CharacterClassRandomIndex]->GetDisplayNameText().ToString());
+				UE_LOG(LogTemp, Display, TEXT("ATeamGameMode::SpawnPlayerCharacter : Possessed Pawn: %s"), *WMPC->GetPawn()->GetName());
 			}
 			else
 			{
@@ -59,6 +62,7 @@ void ATeamGameMode::SpawnPlayerCharacter(APlayerController* Controller)
 			if (SpawnCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 			{
 				UItemComponent* ItemComponent = IBattleSystemUser::Execute_GetItemComponent(SpawnCharacter);
+				UE_LOG(LogTemp, Display, TEXT("ATeamGameMode::SpawnPlayerCharacter : Chosen Item : %s"), *ItemNames[ItemNameRandomIndex].ToString())
 				ItemComponent->EquipItem(ItemNames[ItemNameRandomIndex]);
 			}
 			else
@@ -150,22 +154,16 @@ void ATeamGameMode::BroadcastGameResultsToClients(int32 Results)
 			Data.Kills = Kills;
 		}
 
-		UWeaponMasterGameInstance* GI = WMPS->GetGameInstance<UWeaponMasterGameInstance>();
-
-		if (GI && GI->CharacterClass)
+		if (const ABaseBattleCharacter* DefaultChar = WMPS->CharacterClass->GetDefaultObject<ABaseBattleCharacter>())
 		{
-			const ABaseBattleCharacter* DefaultChar = GI->CharacterClass->GetDefaultObject<ABaseBattleCharacter>();
-			if (DefaultChar)
-			{
-				UTexture2D* LoadedTexture = DefaultChar->GetCharacterThumbnail();
-				if (LoadedTexture)
-				{
-					Data.Icon = LoadedTexture;
-				}
-			}
-
+			UE_LOG(LogTemp, Display, TEXT("ATeamGameMode::BroadcastGameResultsToClients : Chosen Character : %s"), *WMPS->CharacterClass->GetDisplayNameText().ToString());
+			Data.Icon = DefaultChar->GetCharacterThumbnail();
 		}
-
+		else
+		{
+			UE_LOG(LogTemp, Display, TEXT("ATeamGameMode::BroadcastGameResultsToClients : Accessing DefaultCharacter Failed."))
+		}
+		
 		ResultList.Add(Data);
 	}
 

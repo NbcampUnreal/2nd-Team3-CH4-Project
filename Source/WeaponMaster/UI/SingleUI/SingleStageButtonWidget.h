@@ -23,7 +23,7 @@ struct FStageInfo
 	FText MapName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UTexture2D* MapThumbnail;
+	UTexture2D* MapThumbnail = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText MapDescription;

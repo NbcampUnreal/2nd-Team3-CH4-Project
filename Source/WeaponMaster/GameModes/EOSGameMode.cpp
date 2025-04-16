@@ -66,7 +66,7 @@ void AEOSGameMode::PlayCountDownTimerAction()
 			if (WeaponMasterGameState->IsVotedEqual())
 			{
 				// 강제로 랜덤 맵으로 이동 후 시작
-				MapURL = "/Game/WeaponMaster/Maps/Session/PVPMap";
+				MapURL = "/Game/WeaponMaster/Maps/Session/VSMap";
 			}
 			else
 			{
@@ -78,7 +78,7 @@ void AEOSGameMode::PlayCountDownTimerAction()
 				else
 				{
 					// 대전맵으로 이동
-					MapURL = "/Game/WeaponMaster/Maps/Session/PVPMap";
+					MapURL = "/Game/WeaponMaster/Maps/Session/VSMap";
 				}
 			}
 		}
