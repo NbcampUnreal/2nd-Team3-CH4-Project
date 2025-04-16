@@ -86,6 +86,14 @@ void ABaseBattleCharacter::BeginPlay()
 	{
 		SetupMontageEndedDelegate_Implementation();
 	}
+	
+	if (GetNetMode() != ENetMode::NM_DedicatedServer)
+	{
+		if (AWeaponMasterPlayerState* WMPS = GetPlayerState<AWeaponMasterPlayerState>())
+		{
+			WMPS->OnHealthChangeBroadcast(HP, MaxHP);
+		}
+	}
 }
 
 void ABaseBattleCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -100,7 +108,7 @@ void ABaseBattleCharacter::OnRep_HP()
     UE_LOG(LogTemp, Warning, TEXT("======= OnRep_HP 호출! 현재 HP: %f ======="), HP);
     if (AWeaponMasterPlayerState* WMPS = GetPlayerState<AWeaponMasterPlayerState>())
     {
-	    OnHealthChanged.Broadcast(WMPS, HP, MaxHP);
+	    WMPS->OnHealthChangeBroadcast(HP, MaxHP);
     }
     
     // 플레이어 상태 정보 구성

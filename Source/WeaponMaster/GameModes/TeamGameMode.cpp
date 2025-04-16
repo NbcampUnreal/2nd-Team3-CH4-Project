@@ -56,7 +56,7 @@ void ATeamGameMode::SpawnPlayerCharacter(APlayerController* Controller)
 			{
 				UE_LOG(LogTemp, Error, TEXT("ATeamGameMode::SetPlayerCharacter : Possess Failed."));
 			}
-			
+			UE_LOG(LogTemp, Display, TEXT("ATeamGameMode::SpawnPlayerCharacter : ItemNameRandomIndex : %d"), ItemNameRandomIndex);
 			if (SpawnCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 			{
 				UE_LOG(LogTemp, Error, TEXT("ATeamGameMode::SpawnCharacter : Execute_GetItemComponent"));
