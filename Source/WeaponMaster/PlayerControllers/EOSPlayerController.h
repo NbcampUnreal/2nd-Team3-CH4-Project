@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Instance/WeaponMasterGameInstance.h"
+#include "UI/MultiUI/GameResultWidget.h"
 #include "EOSPlayerController.generated.h"
 
 class USessionLobbyWidget;
@@ -54,7 +55,13 @@ public:
 	
 	UFUNCTION()
 	void SetSelectedPlayerWidget();
-	
+
+	//게임 결과창
+	UFUNCTION(Client, Reliable)
+	void Client_ShowGameResult(const TArray<FPlayerResultData>& ResultList);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<class UGameResultWidget> GameResultWidgetClass;
 protected:
 	UFUNCTION(Server, Reliable)
 	void Server_RegisterPlayer(APlayerController* PlayerController);
@@ -67,6 +74,9 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void Server_SetDeathMatchMapSelected(bool IsVoted);
+
+	UPROPERTY()
+	class UGameResultWidget* GameResultWidgetInstance;
 
 private:
 	UPROPERTY()

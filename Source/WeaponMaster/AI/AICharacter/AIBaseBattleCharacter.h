@@ -47,4 +47,6 @@ private:
 	virtual void BeginPlay() override;
 
 	void Die();
+
+	bool FirstDie;
 };

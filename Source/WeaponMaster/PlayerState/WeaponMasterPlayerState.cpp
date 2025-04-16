@@ -92,3 +92,4 @@ void AWeaponMasterPlayerState::OnRep_TotalDamageCount()
 {
 	OnTotalDamageCountChanged.Broadcast(this, TotalDamageDealt);
 }
+
