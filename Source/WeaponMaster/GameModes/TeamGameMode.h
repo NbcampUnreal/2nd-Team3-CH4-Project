@@ -33,7 +33,7 @@ private:
 	TArray<FName> ItemNames;
 	
 	UPROPERTY()
-	int32 TimerCountDown = 120;
+	int32 TimerCountDown = 300;
 
 	UFUNCTION()
 	void SetTimer();
@@ -43,4 +43,10 @@ private:
 
 	UFUNCTION()
 	void PlayCountDownTimerAction();
+
+	UPROPERTY()
+	FTimerHandle DestorySessionTimerHandle;
+
+	UFUNCTION()
+	void DestroySession();
 };
