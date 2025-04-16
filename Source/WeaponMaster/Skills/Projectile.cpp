@@ -162,6 +162,11 @@ void AProjectile::InitializeEffects()
 	}
 }
 
+void AProjectile::Server_ApplyDamage_Implementation(AActor* TargetActor, const FHitResult& Hit)
+{
+	ApplyDamage(TargetActor, Hit);
+}
+
 void AProjectile::MulticastSpawnImpactEffect_Implementation(const FVector& Location, const FRotator& Rotation)
 {
 	// 충돌 이펙트 재생 (서버와 모든 클라이언트에서 실행됨)
@@ -328,6 +333,7 @@ void AProjectile::HandleImpact(AActor* OtherActor, const FHitResult& Hit)
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("OtherActor : %s"), *OtherActor->GetName());
+    
 	// 충돌 시간 타임스탬프 확인 (매우 짧은 시간 내 중복 충돌 방지)
 	float CurrentTime = GetWorld()->GetTimeSeconds();
 	if (CurrentTime - LastImpactTime < 0.05f) // 50ms 간격
@@ -337,12 +343,25 @@ void AProjectile::HandleImpact(AActor* OtherActor, const FHitResult& Hit)
 	}
 	LastImpactTime = CurrentTime;
 
-	// 데미지 적용
-	ApplyDamage(OtherActor, Hit);
+	// 서버에서는 직접 데미지 적용, 클라이언트는 서버에 요청
+	if (HasAuthority())
+	{
+		ApplyDamage(OtherActor, Hit);
+	}
+	else
+	{
+		// 클라이언트의 경우, 인스티게이터가 자신의 소유일 때만 Server_ApplyDamage 호출
+		AActor* InstigatorActor = GetInstigator();
+		if (InstigatorActor && InstigatorActor->GetLocalRole() == ROLE_AutonomousProxy)
+		{
+			Server_ApplyDamage(OtherActor, Hit);
+		}
+		// 그렇지 않으면 서버 측 충돌이 처리하도록 함
+	}
 
 	// 이펙트 스폰
 	SpawnImpactEffect(Hit);
-	
+    
 	// 델리게이트 호출 (이벤트 브로드캐스트)
 	OnProjectileHit.Broadcast(OtherActor);
 
@@ -389,12 +408,27 @@ void AProjectile::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AProjectile::ApplyDamage(AActor* TargetActor, const FHitResult& Hit)
 {
+	// 서버에서만 실행되어야 함
+	if (!HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ApplyDamage: 서버가 아닌 곳에서 직접 호출됨"));
+		return;
+	}
+
 	if (!TargetActor)
 	{
 		return;
 	}
 
-	// 대상이 캐릭터인 경우에만 처리
+	// 자기 참조 체크 추가
+	if (TargetActor == GetOwner() || TargetActor == GetInstigator())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ApplyDamage: 자기 참조 공격 방지 - Owner: %s, Instigator: %s"),
+			GetOwner() ? *GetOwner()->GetName() : TEXT("None"),
+			GetInstigator() ? *GetInstigator()->GetName() : TEXT("None"));
+		return;
+	}
+
 	ACharacter* TargetCharacter = Cast<ACharacter>(TargetActor);
 	if (!TargetCharacter)
 	{
@@ -403,7 +437,7 @@ void AProjectile::ApplyDamage(AActor* TargetActor, const FHitResult& Hit)
 
 	// 넉백 방향 계산 - 발사체 진행 방향을 기준으로 함
 	FVector KnockbackDirection;
-	
+    
 	if (ProjectileMovement && !ProjectileMovement->Velocity.IsNearlyZero())
 	{
 		// 발사체의 현재 속도 방향으로 넉백
@@ -414,7 +448,7 @@ void AProjectile::ApplyDamage(AActor* TargetActor, const FHitResult& Hit)
 		// 발사체 -> 타겟 방향으로 넉백
 		KnockbackDirection = (TargetCharacter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
 	}
-	
+    
 	// 약간 위쪽으로 넉백 방향 조정 (점프 효과)
 	KnockbackDirection.Z = FMath::Max(KnockbackDirection.Z, 0.2f);
 
@@ -424,18 +458,18 @@ void AProjectile::ApplyDamage(AActor* TargetActor, const FHitResult& Hit)
 		// 효과 배열 생성
 		TArray<EBehaviorEffect> BehaviorEffects;
 		TArray<float> BehaviorEffectsDurations;
-		
+        
 		// 효과 적용이 활성화된 경우만 추가
 		if (bApplyEffect)
 		{
 			BehaviorEffects.Add(MainEffect);
 			BehaviorEffectsDurations.Add(EffectDuration);
 		}
-		
+        
 		// 비어있는 NonBehaviorEffects 및 Duration 배열 생성
 		TArray<EBehaviorEffect> NonBehaviorEffects;
 		TArray<float> NonBehaviorEffectsDurations;
-		
+        
 		// 데미지 구조체 구성
 		FAttackData AttackData;
 		AttackData.Attacker = GetInstigator();
@@ -445,9 +479,12 @@ void AProjectile::ApplyDamage(AActor* TargetActor, const FHitResult& Hit)
 		AttackData.BehaviorEffectsDurations = BehaviorEffectsDurations;
 		AttackData.NonBehaviorEffects = NonBehaviorEffects;
 		AttackData.NonBehaviorEffectsDurations = NonBehaviorEffectsDurations;
-		
+        
 		// 데미지 적용
 		DamageTarget->OnAttacked(AttackData);
+        
+		UE_LOG(LogTemp, Log, TEXT("서버에서 데미지 적용: 대상=%s, 데미지=%.1f, 발사체=%s"), 
+			*TargetActor->GetName(), Damage, *GetName());
 	}
 }
 
