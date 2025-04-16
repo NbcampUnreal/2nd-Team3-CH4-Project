@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Instance/WeaponMasterGameInstance.h"
+#include "UI/MultiUI/GameResultWidget.h"
 #include "EOSPlayerController.generated.h"
 
 class USessionLobbyWidget;
@@ -26,6 +27,7 @@ class WEAPONMASTER_API AEOSPlayerController : public APlayerController
 
 public:
 	AEOSPlayerController();
+	
 	virtual void BeginPlay() override;
 	
 	// EOS 서버에서 보내주는 정보
@@ -43,17 +45,23 @@ public:
 	// 플레이어 사망정보
 	UFUNCTION(Client, Reliable)
 	void Client_PlayerDead(const FString& Killer, const FString& Victim);
-
+	
 	// 플레이어 등록
 	UFUNCTION(Client, Reliable)
-	void Client_UpdatePlayers(const FString& PlayerName);
+	void Client_UpdatePlayers();
 
 	UFUNCTION()
 	void UpdateHUD(EMapType Map);
 	
 	UFUNCTION()
 	void SetSelectedPlayerWidget();
-	
+
+	//게임 결과창
+	UFUNCTION(Client, Reliable)
+	void Client_ShowGameResult(const TArray<FPlayerResultData>& ResultList);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<class UGameResultWidget> GameResultWidgetClass;
 protected:
 	UFUNCTION(Server, Reliable)
 	void Server_RegisterPlayer(APlayerController* PlayerController);
@@ -66,6 +74,9 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void Server_SetDeathMatchMapSelected(bool IsVoted);
+
+	UPROPERTY()
+	class UGameResultWidget* GameResultWidgetInstance;
 
 private:
 	UPROPERTY()
@@ -94,6 +105,12 @@ private:
 
 	UFUNCTION()
 	void HandleTimerAction();
+
+	UPROPERTY()
+	FTimerHandle PlayerStatusTimerHandle;
+
+	UFUNCTION()
+	void SetPlayerStatus();
 
 	UFUNCTION()
 	void AddDelegate();

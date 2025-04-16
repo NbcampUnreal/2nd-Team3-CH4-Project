@@ -1,17 +1,51 @@
+// BaseSkill.h 리팩토링
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Data/StatusTypes.h"
 #include "UObject/NoExportTypes.h"
 #include "GameFramework/DamageType.h"
 #include "BaseSkill.generated.h"
 
 class UNiagaraSystem;
-enum class ECCSkillCategory : uint8;
 class ATestCharacter;
 class UItemDataAsset;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillStartedDelegate, UBaseSkill*, Skill);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillEndedDelegate, UBaseSkill*, Skill);
+
+/**
+ * 효과 적용 데이터 구조체
+ */
+USTRUCT(BlueprintType)
+struct FSkillEffectParams
+{
+    GENERATED_BODY()
+    
+    // 적용할 행동 효과 목록
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+    TArray<EBehaviorEffect> Effects;
+    
+    // 효과 지속 시간 목록 (Effects 배열과 인덱스 일치)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+    TArray<float> Durations;
+    
+    // 넉백/런치 방향 승수
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Launch")
+    FVector LaunchDirectionMultiplier = FVector(1000.0f, 0.0f, 100.0f);
+    
+    // 수직 런치 여부 (true=수직 런치, false=전방 런치)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Launch")
+    bool bVerticalLaunch = false;
+    
+    // 기본 생성자
+    FSkillEffectParams()
+    {
+        // 기본값으로 비어있는 효과와 지속시간 배열
+        Effects.Empty();
+        Durations.Empty();
+    }
+};
 
 /**
  * 스킬 타입 열거형
@@ -145,10 +179,11 @@ public:
     /**
      * 액터 오브젝트 배열을 받아 처리하는 함수
      * @param TargetActors 스킬이 적용될 대상 액터들의 배열
+     * @param AdditionalDamage 추가 데미지
      * @return 성공적으로 처리된 액터 수
      */
     UFUNCTION(BlueprintCallable, Category = "Skill")
-    virtual int32 ProcessTargetActors(const TArray<AActor*>& TargetActors, float Damage);
+    virtual int32 ProcessTargetActors(const TArray<AActor*>& TargetActors, float AdditionalDamage = 0.0f);
     
     /**
      * 아이템의 기본 데미지를 안전하게 가져오는 함수
@@ -165,6 +200,38 @@ public:
      */
     UFUNCTION(BlueprintPure, Category = "Skill")
     float GetItemAttackSpeed() const;
+
+    /**
+     * 단일 대상에 효과 적용하는 공통 로직
+     * @param Target 효과를 적용할 대상
+     * @param Damage 적용할 데미지
+     * @return 적용 성공 여부
+     */
+    UFUNCTION(BlueprintCallable, Category = "Skill")
+    virtual bool ApplyEffectToTarget(AActor* Target, float Damage);
+
+    /**
+     * 타겟에 적용할 효과 파라미터 가져오기 (자식 클래스에서 오버라이드)
+     * @return 효과 파라미터
+     */
+    UFUNCTION(BlueprintCallable, Category = "Skill")
+    virtual FSkillEffectParams GetEffectParams();
+
+    /**
+     * 데미지 계산
+     * @param AdditionalDamage 추가 데미지
+     * @return 최종 데미지
+     */
+    UFUNCTION(BlueprintCallable, Category = "Skill")
+    virtual float CalculateDamage(float AdditionalDamage = 0.0f);
+
+    /**
+     * 이펙트 생성 유틸리티 함수
+     * @param Location 이펙트를 생성할 위치 
+     * @param Rotation 이펙트 회전
+     */
+    UFUNCTION(BlueprintCallable, Category = "Skill|Effects")
+    void SpawnEffect(const FVector& Location, const FRotator& Rotation);
 
     virtual bool IsSupportedForNetworking() const override
     {
@@ -186,6 +253,7 @@ public:
     // 스킬 종료 델리게이트
     UPROPERTY(BlueprintAssignable, Category = "Skill")
     FOnSkillEndedDelegate OnSkillEnded;
+
 protected:
     // 스킬 ID
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Info")
@@ -207,25 +275,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Timing")
     float CooldownTime;
     
-    // 스킬 지속 시간
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Timing")
-    float SkillDuration;
-    
     // 스킬 데미지
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Combat")
     float SkillDamage;
-    
-    // 스킬 데미지 타입
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Combat")
-    TSubclassOf<UDamageType> DamageType;
-    
-    // CC 효과 타입
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Combat")
-    ECCSkillCategory CCEffect;
-    
-    // CC 효과 지속 시간
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Combat")
-    float CCDuration;
     
     // 스킬 몽타주
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Animation")
@@ -242,6 +294,10 @@ protected:
     // 스킬 아이콘
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|UI")
     TSoftObjectPtr<UTexture2D> SkillIcon;
+    
+    // 효과 파라미터
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill|Effects")
+    FSkillEffectParams EffectParams;
     
     // 소유자 캐릭터
     UPROPERTY(Transient)

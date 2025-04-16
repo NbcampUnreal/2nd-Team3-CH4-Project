@@ -2,7 +2,6 @@
 
 
 #include "UI/SingleUI/SingleStageSelectWidget.h"
-#include "Components/VerticalBox.h"
 #include "Components/HorizontalBox.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
@@ -22,6 +21,7 @@ void USingleStageSelectWidget::NativeConstruct()
 	{
 		BackButton->OnClicked.AddDynamic(this, &USingleStageSelectWidget::OnBackButtonClicked);
 	}
+	
 	CreateStageButtons();
 }
 
@@ -29,7 +29,7 @@ void USingleStageSelectWidget::CreateStageButtons()
 {
 	// 맵 데이터 추가
 	FStageInfo Map1;
-	Map1.MapID = "PracticeMap";
+	Map1.MapID = "SinglePlayMap";
 	Map1.MapName = FText::FromString(TEXT("연습장"));
 	Map1.MapDescription = FText::FromString(TEXT("기본 조작을 익히는 공간입니다."));
 	Map1.MapThumbnail = LoadObject<UTexture2D>(nullptr, TEXT("/Game/WeaponMaster/Assets/Image/TestSingleMapImage.TestSingleMapImage"));

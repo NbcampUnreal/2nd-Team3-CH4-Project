@@ -4,7 +4,6 @@
 #include "AI/AICharacter/AIBaseBattleCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "WeaponMaster/Data/ItemDataAsset.h"
-#include "SSTCharacterMovementComponent.h"
 #include "Characters/Components/EffectComponent/EffectComponent.h"
 
 AAIBaseBattleCharacter::AAIBaseBattleCharacter(const FObjectInitializer& ObjectInitializer)	: Super(ObjectInitializer)
@@ -15,6 +14,7 @@ AAIBaseBattleCharacter::AAIBaseBattleCharacter(const FObjectInitializer& ObjectI
 
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	bUseControllerRotationYaw = true;
+	FirstDie = false;
 }
 
 void AAIBaseBattleCharacter::BeginPlay()
@@ -97,4 +97,33 @@ bool AAIBaseBattleCharacter::IsCanToAct() const
 	UE_LOG(LogTemp, Warning, TEXT("[IsAbleToAct] 최종 결과: %s"), bCanAct ? TEXT("True") : TEXT("False"));
 
 	return bCanAct;
+}
+
+
+void AAIBaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
+{
+	Super::OnAttacked(AttackData);
+
+	if (HP <= 0.f)
+	{
+		if (!FirstDie)
+		{
+			Die();
+			FirstDie = true;
+		}
+	}
+}
+
+void AAIBaseBattleCharacter::Die()
+{
+	if (SpawnerOwner)
+	{
+		FTimerHandle RespawnTimer;
+		GetWorld()->GetTimerManager().SetTimer(
+			RespawnTimer,
+			FTimerDelegate::CreateUObject(SpawnerOwner, &AAISpawner::SpawnAI),
+			5.0f, // 5초 후 재소환
+			false
+		);
+	}
 }

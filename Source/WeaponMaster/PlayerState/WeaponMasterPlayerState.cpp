@@ -4,6 +4,8 @@
 
 AWeaponMasterPlayerState::AWeaponMasterPlayerState()
 {
+	bReplicates = true;
+	
 	// 초기값 설정
 	TeamIdx = 0;
 	KillCount = 0;
@@ -75,3 +77,19 @@ void AWeaponMasterPlayerState::SetTotalDamageDealt(float NewDamage)
 		UE_LOG(LogTemp, Display, TEXT("플레이어 %s의 총 데미지 설정: %.2f"), *GetPlayerName(), TotalDamageDealt);
 	}
 }
+
+void AWeaponMasterPlayerState::OnRep_KillCount()
+{
+	OnKillCountChanged.Broadcast(this, KillCount);
+}
+
+void AWeaponMasterPlayerState::OnRep_DeathCount()
+{
+	OnDeathCountChanged.Broadcast(this, DeathCount);
+}
+
+void AWeaponMasterPlayerState::OnRep_TotalDamageCount()
+{
+	OnTotalDamageCountChanged.Broadcast(this, TotalDamageDealt);
+}
+

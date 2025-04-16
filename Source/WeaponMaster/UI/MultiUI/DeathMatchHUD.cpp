@@ -2,11 +2,14 @@
 #include "IndividualMatchStatusWidget.h"
 #include "KillLogWidget.h"
 #include "Blueprint/UserWidget.h"
+#include "Characters/WeaponMasterCharacter.h"
+#include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
+#include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerController.h"
-#include "GameFramework/PlayerState.h"
+#include "PlayerState/WeaponMasterPlayerState.h"
 
 ADeathMatchHUD::ADeathMatchHUD()
 {
@@ -18,17 +21,6 @@ ADeathMatchHUD::ADeathMatchHUD()
 void ADeathMatchHUD::BeginPlay()
 {
     Super::BeginPlay();
-    
-    // 플레이어 컨트롤러 가져오기
-    APlayerController* PC = GetOwningPlayerController();
-    if (PC)
-    {
-        // 로컬 플레이어 ID 가져오기 (PlayerState에서) 수정해야함
-        if (PC->PlayerState)
-        {
-            LocalPlayerID = PC->PlayerState->GetPlayerId();
-        }
-    }
     
     InitializeHUD();
 }
@@ -52,6 +44,9 @@ void ADeathMatchHUD::InitializeHUD()
     {
         return;
     }
+
+    FTimerHandle DelayHandle;
+    GetWorld()->GetTimerManager().SetTimer(DelayHandle, this, &ADeathMatchHUD::TryBindPlayerState, 0.2f, false);
     
     // 개인전 상태 위젯 생성
     IndividualMatchStatusWidget = CreateWidget<UIndividualMatchStatusWidget>(PC, IndividualMatchStatusWidgetClass);
@@ -67,16 +62,73 @@ void ADeathMatchHUD::InitializeHUD()
     }
 }
 
-void ADeathMatchHUD::UpdatePlayerStats(int32 PlayerID, int32 Kills, int32 Deaths)
+void ADeathMatchHUD::TryBindPlayerState()
 {
-    if (!IndividualMatchStatusWidget)
+    bool bAllBound = true;
+
+    if (AGameStateBase* GS = GetWorld()->GetGameState())
     {
-        return;
+        for (APlayerState* PS : GS->PlayerArray)
+        {
+            if (AWeaponMasterPlayerState* WMPS = Cast<AWeaponMasterPlayerState>(PS))
+            {
+                if (!BoundPlayerStates.Contains(WMPS))
+                {
+                    BindPlayerStatusWidget(WMPS);
+                    BoundPlayerStates.Add(WMPS);
+                }
+            }
+            else
+            {
+                bAllBound = false;
+            }
+        }
     }
+
+    if (!bAllBound)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("PlayerState 아직 도착 안 한 플레이어 있음. 재시도 예정"));
+        GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ADeathMatchHUD::TryBindPlayerState);
+    }
+}
+
+void ADeathMatchHUD::BindPlayerStatusWidget(AWeaponMasterPlayerState* WMPS)
+{
+    if (!WMPS) return;
     
-    // 플레이어 킬, 데스
-    IndividualMatchStatusWidget->UpdatePlayerKills(PlayerID, Kills);
-    IndividualMatchStatusWidget->UpdatePlayerDeaths(PlayerID, Deaths);
+    UE_LOG(LogTemp, Warning, TEXT("KillCount Delegate 바인딩 완료: %s, Controller isLocal: %s"),
+       *WMPS->GetPlayerName(),
+       GetOwningPlayerController()->IsLocalController() ? TEXT("YES") : TEXT("NO"));
+    
+    // 변경 이벤트 바인딩
+    WMPS->OnKillCountChanged.AddDynamic(this, &ADeathMatchHUD::UpdateKillCount);
+    WMPS->OnDeathCountChanged.AddDynamic(this, &ADeathMatchHUD::UpdateDeathCount);
+
+    AController* Controller = Cast<AController>(WMPS->GetOwner());
+    if (Controller)
+    {
+        if (ABaseBattleCharacter* Character = Cast<ABaseBattleCharacter>(Controller->GetPawn()))
+        {
+            Character->OnHealthChanged.AddDynamic(this, &ADeathMatchHUD::UpdateHealth);
+        }
+    }
+}
+
+void ADeathMatchHUD::UpdateHealth(AWeaponMasterPlayerState* OwnerPS, float CurrentHealth, float MaxHealth)
+{
+    UpdatePlayerHealth(OwnerPS->GetPlayerId(), CurrentHealth, MaxHealth);
+}
+
+void ADeathMatchHUD::UpdateKillCount(AWeaponMasterPlayerState* OwnerPS, int32 NewVal)
+{
+    if (!IndividualMatchStatusWidget) return;
+    IndividualMatchStatusWidget->UpdatePlayerKills(OwnerPS->GetPlayerId(), NewVal);
+}
+
+void ADeathMatchHUD::UpdateDeathCount(AWeaponMasterPlayerState* OwnerPS, int32 NewVal)
+{
+    if (!IndividualMatchStatusWidget) return;
+    IndividualMatchStatusWidget->UpdatePlayerDeaths(OwnerPS->GetPlayerId(), NewVal);
 }
 
 void ADeathMatchHUD::UpdatePlayerHealth(int32 PlayerID, float CurrentHealth, float MaxHealth)

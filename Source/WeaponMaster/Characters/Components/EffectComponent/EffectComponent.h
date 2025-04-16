@@ -28,6 +28,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	TMap<EBehaviorEffect, UBehaviorStateDecorator*> BehaviorEffectMapper;
 
+	
+
 	void Initialize();
 	
 	// Called when the game starts

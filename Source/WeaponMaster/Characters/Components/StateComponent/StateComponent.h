@@ -6,6 +6,7 @@
 #include "ISSTInputBindFunctions.h"
 #include "Characters/BaseBattleCharacter/IBaseBattleInputBindFunctions.h"
 #include "States/IBehaviorState.h"
+#include "Characters/Components/StateComponent/BufferedInput/BaseBufferedInput.h"
 #include "Components/ActorComponent.h"
 #include "States/CharacterBehaviorState.h"
 #include "StateComponent.generated.h"
@@ -23,6 +24,8 @@ public:
 
 	FOnStateComponentReady OnStateComponentReady;
 	bool bIsComponentReady;
+	
+	TQueue<TUniquePtr<FBaseBufferedInput>> BufferedInputQueue;
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = "true"))

@@ -16,8 +16,11 @@ public:
 
 	UPROPERTY()
 	AAISpawner* SpawnerOwner;
+
 	UFUNCTION(BlueprintCallable)
 	void LookAtTarget(const AActor* TargetActor);
+
+	virtual void OnAttacked(const FAttackData& AttackData) override;
 
 // 랜덤 장착용 아이템 목록
 	UPROPERTY(EditAnywhere, Category = "AI|Item")
@@ -42,4 +45,8 @@ public:
 
 private:
 	virtual void BeginPlay() override;
+
+	void Die();
+
+	bool FirstDie;
 };

@@ -26,8 +26,21 @@ void UResultPlayerEntryWidget::SetPlayerResultInfo(UTexture2D* InIcon, const FTe
 
 	if (KillCountText)
 	{
-		FString KillString = FString::Printf(TEXT("%d Kill"), InKills);
-		KillCountText->SetText(FText::FromString(KillString));
+		if (InKills == 999)
+		{
+			FString KillString = FString::Printf(TEXT("토벌 실패"));
+			KillCountText->SetText(FText::FromString(KillString));
+		}
+		else if (InKills == 1000)
+		{
+			FString KillString = FString::Printf(TEXT("토벌 성공"));
+			KillCountText->SetText(FText::FromString(KillString));
+		}
+		else
+		{
+			FString KillString = FString::Printf(TEXT("%d Kill"), InKills);
+			KillCountText->SetText(FText::FromString(KillString));
+		}
 	}
 
 	if (DeathsCountText)
@@ -41,4 +54,3 @@ void UResultPlayerEntryWidget::SetPlayerResultInfo(UTexture2D* InIcon, const FTe
 		DamageText->SetText(FText::AsNumber(InDamage));
 	}
 }
-
