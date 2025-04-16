@@ -69,7 +69,6 @@ void ATeamGameMode::SpawnPlayerCharacter(APlayerController* Controller)
 			{
 				UE_LOG(LogTemp, Error, TEXT("ATeamGameMode::SetPlayerCharacter : SpawnCharacter doesn't implement IBattleSystemUser."));
 			}
-
 			
 			break;
 		}
