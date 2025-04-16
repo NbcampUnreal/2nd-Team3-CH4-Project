@@ -1,12 +1,15 @@
 
 #include "WeaponMaster/GameModes/SingleGameMode.h"
-#include "EngineUtils.h"
+// #include "EngineUtils.h"
 #include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
 #include "CharacterSpawner/CharacterSpawner.h"
-#include "GameFramework/PlayerState.h"
+// #include "GameFramework/PlayerState.h"
+#include "Kismet/GameplayStatics.h"
+#include "PlayerControllers/WeaponMasterController.h"
 #include "UI/CommonUI/PlayerStatusWidget.h"
 #include "UI/SingleUI/SingleGameHUD.h"
-#include "PlayerState/WeaponMasterPlayerState.h"
+// #include "PlayerState/WeaponMasterPlayerState.h"
+#include "Characters/Components/ItemComponent/ItemComponent.h"
 
 void ASingleGameMode::BeginPlay()
 {
@@ -58,6 +61,56 @@ void ASingleGameMode::RestartPlayer(AController* NewPlayer)
 	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ASingleGameMode::UpdatePlayerInfo);
 }
 
+void ASingleGameMode::SpawnPlayerCharacter(APlayerController* Controller)
+{
+	Super::SpawnPlayerCharacter(Controller);
+
+	UE_LOG(LogTemp, Warning, TEXT("ASingleGameMode::SpawnPlayerCharacter : Called."));
+	
+	if (!HasCharacterSpawner()) return;
+	
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacterSpawner::StaticClass(), FoundActors);
+
+	uint32 Cnt = 50000;
+
+	while (--Cnt)
+	{
+		uint8 RandomSpawnerIndex = FMath::RandRange(0, FoundActors.Num() - 1);
+		ACharacterSpawner* CharacterSpawner = Cast<ACharacterSpawner>(FoundActors[RandomSpawnerIndex]);
+
+		if (const UWeaponMasterGameInstance* WMGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
+		{
+			if (ACharacter* SpawnCharacter = CharacterSpawner->SpawnCharacter(WMGI->CharacterClass))
+			{
+				if (AWeaponMasterController* WMPC = Cast<AWeaponMasterController>(Controller))
+				{
+					// Possess할때 Owner설정도 됨!
+					// SpawnCharacter->SetOwner(WMPC);
+					WMPC->Possess(SpawnCharacter);
+					UE_LOG(LogTemp, Warning, TEXT("Possessed Pawn: %s"), *WMPC->GetPawn()->GetName());
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("ATeamGameMode::SetPlayerCharacter : Possess Failed."));
+				}
+				
+				if (SpawnCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
+				{
+					UItemComponent* ItemComponent = IBattleSystemUser::Execute_GetItemComponent(SpawnCharacter);
+					ItemComponent->EquipItem(WMGI->ItemName);
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("ATeamGameMode::SetPlayerCharacter : SpawnCharacter doesn't implement IBattleSystemUser."));
+				}
+			
+				break;
+			}
+		}
+	}
+}
+
 void ASingleGameMode::UpdatePlayerInfo()
 {
 	// 플레이어 컨트롤러 가져오기
@@ -97,13 +150,4 @@ void ASingleGameMode::UpdatePlayerInfo()
 	// HUD 업데이트
 	SingleHUD->UpdatePlayerStatus(StatusInfo);
 	UE_LOG(LogTemp, Display, TEXT("Player info updated with name: %s"), *PlayerName);
-}
-
-bool ASingleGameMode::HasCharacterSpawner() const
-{
-	for (TActorIterator<ACharacterSpawner> It(GetWorld()); It; ++It)
-	{
-		return true; 
-	}
-	return false;
 }
