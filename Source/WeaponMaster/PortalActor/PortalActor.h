@@ -8,18 +8,6 @@
 
 class UBoxComponent;
 
-USTRUCT()
-struct FTeleportedActorInfo
-{
-    GENERATED_BODY()
-
-    UPROPERTY()
-    float TimeStamp;
-
-    FTeleportedActorInfo() : TimeStamp(0.0f) {}
-    FTeleportedActorInfo(float InTimeStamp) : TimeStamp(InTimeStamp) {}
-};
-
 UCLASS()
 class WEAPONMASTER_API APortalActor : public AActor
 {
