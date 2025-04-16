@@ -33,12 +33,12 @@ void UUsingSkillEffect::Deactivate()
 		UStateComponent* StateComponent = IBattleSystemUser::Execute_GetStateComponent(OwnerCharacter);
 		TQueue<TUniquePtr<FBaseBufferedInput>>& BufferedInputQueue = StateComponent->BufferedInputQueue;
 
-		TUniquePtr<FBaseBufferedInput> Input;
-		while (BufferedInputQueue.Dequeue(Input))
+		TUniquePtr<FBaseBufferedInput> BufferedInput;
+		while (BufferedInputQueue.Dequeue(BufferedInput))
 		{
-			if (Input->IsValidInput())
+			if (BufferedInput->IsValidInput())
 			{
-				Input->Operate();
+				BufferedInput->Operate();
 				break;
 			}
 			else

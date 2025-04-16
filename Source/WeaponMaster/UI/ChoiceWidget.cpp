@@ -66,7 +66,6 @@ void UChoiceWidget::OnNextClicked()
 		else
 		{
 			PlaySound(SelectSound);
-			LogMessage("State END Go to Next Level");
 			FTimerHandle TimerHandle;
 			FTimerDelegate TimerDelegate = FTimerDelegate::CreateLambda([this]()
 				{
@@ -97,20 +96,12 @@ void UChoiceWidget::OnBackClicked()
 		else
 		{
 			PlaySound(SelectSound);
-			LogMessage("State END Go to Prev Level");
 			PrevButtonClicked.Broadcast();
 		}
 	}
 }
 //2 .그다음에 DA나 DT 활용해서 이미지파일 집어넣자 
 
-void UChoiceWidget::LogMessage(const FString& Message)
-{
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, Message);
-	}
-}
 void UChoiceWidget::PlaySound(TObjectPtr<USoundBase> Sound)
 {
 	if (!ensure(Sound))
@@ -129,6 +120,7 @@ void UChoiceWidget::UnHighlightSelectWidget()
 {
 	SelectWidgets[WidgetIndex]->UpdateHighlight(false);
 }
+
 void UChoiceWidget::ChangeSelectWidgetState(EWidgetState ChangedState)
 {
 	for (USelectWidget* Temp : SelectWidgets)
@@ -136,10 +128,12 @@ void UChoiceWidget::ChangeSelectWidgetState(EWidgetState ChangedState)
 		Temp->SetWidgetState(ChangedState);
 	}
 }
+
 TArray<TObjectPtr<USelectWidget>> UChoiceWidget::GetSelectWidgets()
 {
 	return SelectWidgets;
 }
+
 FReply UChoiceWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
 	FKey Key = InKeyEvent.GetKey();
@@ -147,7 +141,6 @@ FReply UChoiceWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEve
 	if (Key == EKeys::Left)
 	{
 		UnHighlightSelectWidget();
-		LogMessage("Left");
 		WidgetIndex = (WidgetIndex - 1 + SelectWidgets.Num()) % SelectWidgets.Num();
 		if (MoveSound)
 		{

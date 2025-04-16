@@ -75,12 +75,10 @@ void UMainMenuWidget::SetupUIInputMode(UUserWidget* Widget)
 //For Keyboard Event
 FReply UMainMenuWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
-    LogMessage("NativeOnKeyDown");
     FKey Key = InKeyEvent.GetKey();
     bool bIsHandled = false;
     if (Key == EKeys::Up)
     {
-        LogMessage("Up");
         OnDeleteButtonFocus();
         CurrentButtonIndex = (CurrentButtonIndex - 1 + MenuButtons.Num()) % MenuButtons.Num();
         UpdateButtonFocus();
@@ -92,7 +90,6 @@ FReply UMainMenuWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyE
     }
     else if (Key == EKeys::Down)
     {
-        LogMessage("Down");
         OnDeleteButtonFocus();
         CurrentButtonIndex = (CurrentButtonIndex + 1) % MenuButtons.Num();
         UpdateButtonFocus();
@@ -104,7 +101,6 @@ FReply UMainMenuWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyE
     }
     else if (Key == EKeys::Enter)
     {
-        LogMessage("Enter");
         if (MenuButtons.IsValidIndex(CurrentButtonIndex))
         {
             UButton* ClickedButton = MenuButtons[CurrentButtonIndex];
@@ -135,7 +131,6 @@ void UMainMenuWidget::OnButtonHovered()
         if (FocusedButton)
         {
             FString TestText = FString::Printf(TEXT("Index: %d"), CurrentButtonIndex);
-            LogMessage(TestText);
             UpdateButtonStyle(FocusedButton, false);
         }
     }
@@ -143,7 +138,6 @@ void UMainMenuWidget::OnButtonHovered()
 
 void UMainMenuWidget::UpdateButtonFocus()
 {
-    LogMessage("UpdateButtonFocus");
     if (MenuButtons.IsValidIndex(CurrentButtonIndex))
     {
         UButton* FocusedButton = MenuButtons[CurrentButtonIndex];
@@ -157,7 +151,6 @@ void UMainMenuWidget::UpdateButtonFocus()
 }
 void UMainMenuWidget::OnDeleteButtonFocus()
 {
-    LogMessage("DeleteButtonFocus");
     if (MenuButtons.IsValidIndex(CurrentButtonIndex))
     {
         UButton* FocusedButton = MenuButtons[CurrentButtonIndex];
@@ -194,34 +187,12 @@ void UMainMenuWidget::PlaySound(TObjectPtr<USoundBase> Sound)
     }
     UGameplayStatics::PlaySound2D(this, Sound);
 }
-void UMainMenuWidget::LogMessage(const FString& Message)
-{
-    if (GEngine)
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, Message);
-    }
-}
-void UMainMenuWidget::NativeOnFocusLost(const FFocusEvent& InFocusEvent)
-{
-    Super::NativeOnFocusLost(InFocusEvent);
-
-    //if (APlayerController* PC = GetOwningPlayer())
-    //{
-    //    FInputModeUIOnly InputMode;
-    //    InputMode.SetWidgetToFocus(this->TakeWidget());
-    //    PC->SetInputMode(InputMode);
-    //    //테스트용
-    //    PC->bShowMouseCursor = true;
-    //}
-    //LogMessage("Focus Reset");
-}
 
 // SingleSelectionWidget 보여주기 함수
 void UMainMenuWidget::ShowSingleSelectionMenu()
 {
     if (!ensure(SingleSelectionWidgetClass))
     {
-        LogMessage("SingleSelectionWidgetClass가 설정되지 않았습니다!");
         return;
     }
     
@@ -250,8 +221,6 @@ void UMainMenuWidget::ShowSingleSelectionMenu()
         
         // UI 입력 모드 설정
         SetupUIInputMode(SingleSelectionWidget);
-        
-        LogMessage("싱글 선택 메뉴 위젯 표시됨");
     }
 }
 
@@ -261,8 +230,6 @@ void UMainMenuWidget::ShowSingleSelectionMenu()
 //////////////////////
 void UMainMenuWidget::OnSingleButtonClicked()
 {
-    LogMessage("SingleButtonClicked");
-    
     if (SelectSound)
     {
         PlaySound(SelectSound);
@@ -277,8 +244,6 @@ void UMainMenuWidget::OnSingleButtonClicked()
 
 void UMainMenuWidget::OnMultiButtonClicked()
 {
-    LogMessage("CoopButtonClicked");
-    
     if (SelectSound)
     {
         PlaySound(SelectSound);
@@ -293,8 +258,6 @@ void UMainMenuWidget::OnMultiButtonClicked()
 
 void UMainMenuWidget::OnShopButtonClicked()
 {
-    LogMessage("ShopButtonClicked - 아직 구현되지 않음");
-    
     if (SelectSound)
     {
         PlaySound(SelectSound);
@@ -308,8 +271,6 @@ void UMainMenuWidget::OnShopButtonClicked()
 
 void UMainMenuWidget::OnExitButtonClicked()
 {
-    LogMessage("ExitButtonClicked");
-    
     if (SelectSound)
     {
         PlaySound(SelectSound);
@@ -340,5 +301,4 @@ void UMainMenuWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const FPoi
    }
     CurrentButtonIndex = 0;
     UpdateButtonStyle(MenuButtons[CurrentButtonIndex], true);
-    LogMessage("Focus Reset");
 }

@@ -19,11 +19,20 @@ public:
 		return Cast<UWeaponMasterGameInstance>(GetGameInstance());
 	}
 
+	virtual void SpawnPlayerCharacter(APlayerController* Controller) override;
+	
+
 	UFUNCTION()
 	void BroadcastGameResultsToClients(int32 Results);
 
 	void OnBossDefeated();
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Character")
+	TArray<TSubclassOf<ACharacter>> CharacterClasses;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Item")
+	TArray<FName> ItemNames;
+	
 	UPROPERTY()
 	int32 TimerCountDown = 30;
 

@@ -56,6 +56,14 @@ void AWeaponMasterController::SetupInputComponent()
 										   this, &AWeaponMasterController::Chat);
 }
 
+void AWeaponMasterController::SetCurrentCharacterAtGI_Implementation(TSubclassOf<ACharacter> CurrentCharacterClass)
+{
+	if (auto CastedGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
+	{
+		CastedGI->CharacterClass = CurrentCharacterClass;
+	}
+}
+
 void AWeaponMasterController::Chat()
 {
 	if (const AMultiGameHUD* MultiGameHUD = Cast<AMultiGameHUD>(GetHUD()))

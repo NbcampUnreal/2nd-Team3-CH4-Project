@@ -44,7 +44,7 @@ void ABaseGameMode::PostLogin(APlayerController* NewPlayer)
 		TSubclassOf<ACharacter> CharacterClass = CastedGameInstance->CharacterClass;
 		FName ItemName = CastedGameInstance->ItemName;
 	
-		SpawnPlayerCharacter(CharacterClass, NewPlayer);
+		SpawnPlayerCharacter(NewPlayer);
 
 		for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
 		{
@@ -69,53 +69,16 @@ bool ABaseGameMode::HasCharacterSpawner() const
 	return false;
 }
 
-void ABaseGameMode::SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, APlayerController* Controller)
+void ABaseGameMode::SpawnPlayerCharacter(APlayerController* Controller)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ABaseGameMode::SpawnPlayerCharacter"))
-	if (!HasCharacterSpawner()) return;
-
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacterSpawner::StaticClass(), FoundActors);
-
-	uint32 Cnt = 50000;
-
-	while (--Cnt)
-	{
-		uint8 RandomSpawnerIndex = FMath::RandRange(0, FoundActors.Num() - 1);
-		ACharacterSpawner* CharacterSpawner = Cast<ACharacterSpawner>(FoundActors[RandomSpawnerIndex]);
-
-		if (ACharacter* SpawnCharacter = CharacterSpawner->SpawnCharacter(CharacterClass))
-		{
-			if (AWeaponMasterController* WMPC = Cast<AWeaponMasterController>(Controller))
-			{
-				// Possess할때 Owner설정도 됨!
-				SpawnCharacter->SetOwner(WMPC);
-				WMPC->Possess(SpawnCharacter);
-				UE_LOG(LogTemp, Warning, TEXT("Possessed Pawn: %s"), *WMPC->GetPawn()->GetName());
-			}
-
-			if (const UWeaponMasterGameInstance* WMGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
-			{
-				if (SpawnCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
-				{
-					UItemComponent* ItemComponent = IBattleSystemUser::Execute_GetItemComponent(SpawnCharacter);
-					ItemComponent->EquipItem(WMGI->ItemName);
-				}
-				else
-				{
-					UE_LOG(LogTemp, Error, TEXT("ATeamGameMode::SetPlayerCharacter : SpawnCharacter doesn't implement IBattleSystemUser."));
-				}
-			}
-			break;
-		}
-	}
+	// 하위 게임모드에서 구현
 }
 
-void ABaseGameMode::HandlePlayerDeath(const TSubclassOf<ACharacter>& CharacterClass, APlayerController* Controller, const FString& AttackerName)
+void ABaseGameMode::HandlePlayerDeath(APlayerController* Controller, const FString& AttackerName)
 {
 	// 게임모드에 특정 함수 호출
 	// 타이머 + 흑백UI
-	SpawnPlayerCharacter(CharacterClass, Controller);
+	SpawnPlayerCharacter(Controller);
 
 	// Kill Log
 	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
