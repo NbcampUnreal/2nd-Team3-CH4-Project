@@ -8,6 +8,7 @@
 #include "DrawDebugHelpers.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraComponent.h"
 
 AJumpPadActor::AJumpPadActor()
 {
@@ -25,6 +26,12 @@ AJumpPadActor::AJumpPadActor()
     JumpPadMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("JumpPadMesh"));
     JumpPadMesh->SetupAttachment(RootComp);
 
+    JumpPadMesh2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("JumpPadMesh2"));
+    JumpPadMesh2->SetupAttachment(RootComp);
+
+    NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
+    NiagaraComponent->SetupAttachment(RootComponent);
+
     DestinationLocation = CreateDefaultSubobject<USceneComponent>(TEXT("DestinationLocation"));
     DestinationLocation->SetupAttachment(RootComp);
     DestinationLocation->SetRelativeLocation(FVector(0.0f, 0.0f, 300.0f));
@@ -32,8 +39,8 @@ AJumpPadActor::AJumpPadActor()
     // 기본값 설정
     bIsJumpPadActive = true;
     JumpForce = 2000.f;
-    AnimationDuration = 0.5f;
-    JumpPadAnimHeight = 2000.0f;
+    AnimationDuration = 3.0f;
+    JumpPadAnimHeight = 1000.0f;
     TransportSpeed = 3000.f;
     DestinationOffset = 300.0f;
     bIsAnimating = false;
@@ -105,6 +112,7 @@ void AJumpPadActor::StopTransportTimer()
         {
             CurrentTransportingCharacter = nullptr;
         }
+        Multicast_EndJumpEffect();
     }
 }
 
@@ -123,12 +131,13 @@ void AJumpPadActor::OnRep_JumpPadActive()
 
 void AJumpPadActor::UpdateJumpPadMaterial()
 {
-    if (JumpPadMesh)
+	if (JumpPadMesh && DestinationJumpPad->JumpPadMesh)
     {
         UMaterialInterface* MatToApply = bIsJumpPadActive ? ActiveMaterial : InactiveMaterial;
         if (MatToApply)
         {
             JumpPadMesh->SetMaterial(0, MatToApply);
+            DestinationJumpPad->JumpPadMesh->SetMaterial(0, MatToApply);
         }
     }
 }
@@ -137,7 +146,6 @@ bool AJumpPadActor::IsDestinationClear(ACharacter* Character)
 {
     if (!DestinationJumpPad || !Character)
     {
-        UE_LOG(LogTemp, Warning, TEXT("No Destination JumpPad or Character"));
         return false;
     }
 
@@ -234,7 +242,7 @@ void AJumpPadActor::Server_LaunchCharacter_Implementation(ACharacter* Character)
     if (ExecuteJumpAndTransport(Character))
     {
         // 성공 시 효과 트리거
-        Multicast_OnJumpEffect(Character);
+        Multicast_OnJumpEffect();
     }
 }
 
@@ -253,7 +261,6 @@ bool AJumpPadActor::ExecuteJumpAndTransport(ACharacter* Character)
     // 목적지가 있으면 목적지가 비어있는지 확인
     if (DestinationJumpPad && !IsDestinationClear(Character))
     {
-        UE_LOG(LogTemp, Warning, TEXT("Jump failed: Destination is blocked"));
         return false;
     }
    
@@ -263,7 +270,6 @@ bool AJumpPadActor::ExecuteJumpAndTransport(ACharacter* Character)
     {
         //MovementComp->AddImpulse(FVector(0, 0, JumpForce), true);
         Character->LaunchCharacter(FVector(0, 0, JumpForce), false, true);
-        Multicast_PlayJumpPadAnimation();
     }
 
     if (DestinationJumpPad)
@@ -275,11 +281,11 @@ bool AJumpPadActor::ExecuteJumpAndTransport(ACharacter* Character)
             }, 0.5f, false);
     }
     SetJumpPadActive(false);
-
     if (DestinationJumpPad)
     {
         DestinationJumpPad->SetJumpPadActive(false);
     }
+    Multicast_PlayJumpPadAnimation();
     return true;
 }
 void AJumpPadActor::OnTransportTimerTick()
@@ -371,11 +377,11 @@ void AJumpPadActor::CompleteTransport()
     CurrentTransportingCharacter = nullptr;
 
     SetJumpPadActive(true);
-
     if (DestinationJumpPad)
     {
         DestinationJumpPad->SetJumpPadActive(true);
     }
+    Multicast_EndJumpEffect();
 }
 void AJumpPadActor::TransportCharacter(float DeltaTime)
 {
@@ -447,6 +453,9 @@ void AJumpPadActor::Multicast_PlayJumpPadAnimation_Implementation()
         &AJumpPadActor::UpdateJumpPadAnimation,
         0.016f,
         true);
+    
+    UpdateJumpPadMaterial();
+
 }
 void AJumpPadActor::UpdateJumpPadAnimation()
 {
@@ -496,14 +505,16 @@ void AJumpPadActor::CompleteJumpPadAnimation()
     bIsAnimating = false;
 }
 
-void AJumpPadActor::Multicast_OnJumpEffect_Implementation(ACharacter* Character)
+void AJumpPadActor::Multicast_OnJumpEffect_Implementation()
 {
     FVector EffectLocation = GetActorLocation();
 
-    if (JumpEffectParticle)
+    if (NiagaraComponent)
     {
-        UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), JumpEffectParticle, EffectLocation);
+        NiagaraComponent->Activate(true);
+        DestinationJumpPad->NiagaraComponent->Activate(true);
     }
+
     if (JumpSound)
     {
         UGameplayStatics::PlaySoundAtLocation(
@@ -514,4 +525,8 @@ void AJumpPadActor::Multicast_OnJumpEffect_Implementation(ACharacter* Character)
             1.0f,
             0.0f);
     }
+}
+void AJumpPadActor::Multicast_EndJumpEffect_Implementation()
+{
+    UpdateJumpPadMaterial();
 }
