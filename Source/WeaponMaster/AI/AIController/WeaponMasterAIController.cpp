@@ -48,11 +48,14 @@ void AWeaponMasterAIController::EvaluateTargetPriority()
 {
 	if (!IsValid(GetPawn())) return;
 
-	ABossCharacter* AIChar = Cast<ABossCharacter>(GetPawn());
-	if (!AIChar || AIChar->IsAttacking())
+	if (ABossCharacter* Boss = Cast<ABossCharacter>(GetPawn()))
 	{
-		return;
+		if (Boss->IsAttacking())
+		{
+			return;
+		}
 	}
+
 
 	TArray<AActor*> PerceivedActors;
 	AIPerception->GetCurrentlyPerceivedActors(UAISense_Sight::StaticClass(), PerceivedActors);
