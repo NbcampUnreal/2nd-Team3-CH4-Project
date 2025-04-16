@@ -42,7 +42,7 @@ struct FPlayerControllerCollection
 };
 
 UCLASS()
-class WEAPONMASTER_API AEOSGameMode : public AGameMode
+class WEAPONMASTER_API AEOSGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 

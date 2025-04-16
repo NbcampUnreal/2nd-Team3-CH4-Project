@@ -30,7 +30,7 @@
 #include "PlayerState/WeaponMasterPlayerState.h"
 // #include "UI/CommonUI/PlayerStatusWidget.h"
 #include "UI/SingleUI/SingleGameHUD.h"
-// #include "Components/WidgetComponent.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer)
@@ -45,8 +45,11 @@ ABaseBattleCharacter::ABaseBattleCharacter(const FObjectInitializer& ObjectIniti
 	EffectComponent = CreateDefaultSubobject<UEffectComponent>(TEXT("EffectComponent"));
 	ItemComponent = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
 	SkillComponent = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComponent"));
-	// WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
-	// WidgetComponent->SetupAttachment(GetRootComponent());
+	
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
+	WidgetComponent->SetupAttachment(RootComponent);
+	WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	WidgetComponent->SetDrawSize(FVector2D(200.f, 300.f));
 	
 	// Constants
 	MaxHP = 100.0f;
@@ -86,6 +89,14 @@ void ABaseBattleCharacter::BeginPlay()
 	{
 		SetupMontageEndedDelegate_Implementation();
 	}
+	
+	if (GetNetMode() != ENetMode::NM_DedicatedServer)
+	{
+		if (AWeaponMasterPlayerState* WMPS = GetPlayerState<AWeaponMasterPlayerState>())
+		{
+			WMPS->OnHealthChangeBroadcast(HP, MaxHP);
+		}
+	}
 }
 
 void ABaseBattleCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -100,7 +111,7 @@ void ABaseBattleCharacter::OnRep_HP()
     UE_LOG(LogTemp, Warning, TEXT("======= OnRep_HP 호출! 현재 HP: %f ======="), HP);
     if (AWeaponMasterPlayerState* WMPS = GetPlayerState<AWeaponMasterPlayerState>())
     {
-	    OnHealthChanged.Broadcast(WMPS, HP, MaxHP);
+	    WMPS->OnHealthChangeBroadcast(HP, MaxHP);
     }
     
     // 플레이어 상태 정보 구성

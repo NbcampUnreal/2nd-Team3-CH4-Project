@@ -5,6 +5,7 @@
 #include "WeaponMasterPlayerState.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnStatChanged, AWeaponMasterPlayerState*, OwnerPS, int32, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHealthChanged, AWeaponMasterPlayerState*, OwnerPS, float, CurrentHealth, float, MaxHealth);
 
 UCLASS()
 class WEAPONMASTER_API AWeaponMasterPlayerState : public APlayerState
@@ -13,7 +14,13 @@ class WEAPONMASTER_API AWeaponMasterPlayerState : public APlayerState
 	
 public:
 	AWeaponMasterPlayerState();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnHealthChanged OnHealthChanged;
 	
+	UPROPERTY(Replicated)
+	TSubclassOf<ACharacter> CharacterClass;
+
 	UPROPERTY(Replicated)
 	int32 TeamIdx;
 	
@@ -43,7 +50,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnStatChanged OnTotalDamageCountChanged;
-
+	
 	/** 팀 ID 반환 */
 	UFUNCTION(BlueprintCallable, Category = "PlayerState")
 	uint8 GetTeamID() const { return TeamIdx; }
@@ -90,4 +97,8 @@ public:
 	
 	// 리플리케이션 오버라이드
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	void OnHealthChangeBroadcast(const float HP, const float MaxHP);
 };
+
+

@@ -21,7 +21,6 @@ public:
 
 	virtual void SpawnPlayerCharacter(APlayerController* Controller) override;
 	
-
 	UFUNCTION()
 	void BroadcastGameResultsToClients(int32 Results);
 
@@ -34,7 +33,7 @@ private:
 	TArray<FName> ItemNames;
 	
 	UPROPERTY()
-	int32 TimerCountDown = 30;
+	int32 TimerCountDown = 120;
 
 	UFUNCTION()
 	void SetTimer();
