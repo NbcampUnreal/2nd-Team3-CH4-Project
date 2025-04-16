@@ -64,10 +64,7 @@ void AJumpPadActor::BeginPlay()
     JumpTrigger->OnComponentBeginOverlap.AddDynamic(this, &AJumpPadActor::OnJumpPadBeginOverlap);
     JumpTrigger->OnComponentEndOverlap.AddDynamic(this, &AJumpPadActor::OnJumpPadEndOverlap);
 
-    // 초기 위치 저장 (애니메이션용)
     OriginalJumpPadLocation = JumpPadMesh->GetRelativeLocation();
-
-    UpdateJumpPadMaterial();
 }
 bool AJumpPadActor::IsTransporting() const
 {
@@ -97,9 +94,10 @@ void AJumpPadActor::StopTransportTimer()
 {
     if (HasAuthority())
     {
-        GetWorldTimerManager().ClearTimer(TransportTimerHandle);
-
-        // 점프 패드 활성화
+        if (GetWorldTimerManager().IsTimerActive(TransportTimerHandle))
+        {
+            GetWorldTimerManager().ClearTimer(TransportTimerHandle);
+        }
         SetJumpPadActive(true);
 
         // 목적지 점프패드도 활성화
@@ -123,17 +121,11 @@ void AJumpPadActor::SetJumpPadActive(bool bActive)
         bIsJumpPadActive = bActive;
     }
 }
-
-void AJumpPadActor::OnRep_JumpPadActive()
-{
-    UpdateJumpPadMaterial();
-}
-
-void AJumpPadActor::UpdateJumpPadMaterial()
+void AJumpPadActor::UpdateJumpPadMaterial(bool IsJumping)
 {
 	if (JumpPadMesh && DestinationJumpPad->JumpPadMesh)
     {
-        UMaterialInterface* MatToApply = bIsJumpPadActive ? ActiveMaterial : InactiveMaterial;
+        UMaterialInterface* MatToApply = IsJumping ? ActiveMaterial : InactiveMaterial;
         if (MatToApply)
         {
             JumpPadMesh->SetMaterial(0, MatToApply);
@@ -210,20 +202,6 @@ void AJumpPadActor::OnJumpPadEndOverlap(UPrimitiveComponent* OverlappedComponent
         return;
     }
 
-    // 서버에서만 처리
-    if (HasAuthority())
-    {
-        if (!IsTransporting())
-        {
-            SetJumpPadActive(true);
-
-            // 목적지가 있으면 목적지 점프 패드도 활성화
-            if (DestinationJumpPad)
-            {
-                DestinationJumpPad->SetJumpPadActive(true);
-            }
-        }
-    }
 }
 
 bool AJumpPadActor::Server_LaunchCharacter_Validate(ACharacter* Character)
@@ -268,7 +246,6 @@ bool AJumpPadActor::ExecuteJumpAndTransport(ACharacter* Character)
     UCharacterMovementComponent* MovementComp = Character->GetCharacterMovement();
     if (MovementComp)
     {
-        //MovementComp->AddImpulse(FVector(0, 0, JumpForce), true);
         Character->LaunchCharacter(FVector(0, 0, JumpForce), false, true);
     }
 
@@ -381,34 +358,7 @@ void AJumpPadActor::CompleteTransport()
     {
         DestinationJumpPad->SetJumpPadActive(true);
     }
-    Multicast_EndJumpEffect();
-}
-void AJumpPadActor::TransportCharacter(float DeltaTime)
-{
-    if (!CurrentTransportingCharacter || !DestinationJumpPad)
-    {
-        return;
-    }
-
-
-    FVector CurrentLocation = CurrentTransportingCharacter->GetActorLocation();
-    FVector TargetLocation = DestinationJumpPad->DestinationLocation->GetComponentLocation();
-    FVector ForwardDir = DestinationJumpPad->DestinationLocation->GetForwardVector();
-    TargetLocation += ForwardDir * DestinationOffset;
-
-    FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
-
-    float MoveDistance = TransportSpeed * DeltaTime;
-    FVector NewLocation = CurrentLocation + Direction * MoveDistance;
-
-    float DistanceToTarget = FVector::Distance(CurrentLocation, TargetLocation);
-    if (DistanceToTarget <= MoveDistance * 1.5f)
-    {
-
-        NewLocation = TargetLocation;
-        CompleteTransport();
-    }
-    CurrentTransportingCharacter->SetActorLocation(NewLocation);
+   Multicast_EndJumpEffect();
 }
 void AJumpPadActor::OrientCharacterAfterTransport(ACharacter* Character, const FTransform& DestinationTransform)
 {
@@ -454,7 +404,7 @@ void AJumpPadActor::Multicast_PlayJumpPadAnimation_Implementation()
         0.016f,
         true);
     
-    UpdateJumpPadMaterial();
+    UpdateJumpPadMaterial(false);
 
 }
 void AJumpPadActor::UpdateJumpPadAnimation()
@@ -476,27 +426,12 @@ void AJumpPadActor::UpdateJumpPadAnimation()
 }
 void AJumpPadActor::OnRep_IsAnimating()
 {
-    // 애니메이션 상태가 바뀔 때 실행할 로직
-    if (bIsAnimating)
+    if (!bIsAnimating)
     {
-        //// 애니메이션이 시작될 때
-        //OriginalJumpPadLocation = JumpPadMesh->GetRelativeLocation();
-        //AnimationStartTime = GetWorld()->GetTimeSeconds();
+		GetWorldTimerManager().ClearTimer(AnimationUpdateTimerHandle);
+		JumpPadMesh->SetRelativeLocation(OriginalJumpPadLocation);
+    }
 
-        //// 애니메이션 업데이트 타이머 시작
-        //GetWorldTimerManager().SetTimer(
-        //    AnimationUpdateTimerHandle,
-        //    this,
-        //    &AJumpPadActor::UpdateJumpPadAnimation,
-        //    0.016f,
-        //    true);
-    }
-    else
-    {
-        // 애니메이션이 종료될 때
-        GetWorldTimerManager().ClearTimer(AnimationUpdateTimerHandle);
-        JumpPadMesh->SetRelativeLocation(OriginalJumpPadLocation);
-    }
 }
 void AJumpPadActor::CompleteJumpPadAnimation()
 {
@@ -528,5 +463,5 @@ void AJumpPadActor::Multicast_OnJumpEffect_Implementation()
 }
 void AJumpPadActor::Multicast_EndJumpEffect_Implementation()
 {
-    UpdateJumpPadMaterial();
+    UpdateJumpPadMaterial(true);
 }

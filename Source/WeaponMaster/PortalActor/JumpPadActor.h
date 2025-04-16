@@ -47,7 +47,7 @@ public:
     AJumpPadActor* DestinationJumpPad;
 
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_JumpPadActive, Category = "JumpPad")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "JumpPad")
     bool bIsJumpPadActive;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "JumpPad")
@@ -80,11 +80,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "JumpPad")
     void SetJumpPadActive(bool bActive);
 
-    UFUNCTION()
-    void OnRep_JumpPadActive();
-
     UFUNCTION(BlueprintCallable, Category = "JumpPad")
-    void UpdateJumpPadMaterial();
+    void UpdateJumpPadMaterial(bool IsJumping);
 
     UPROPERTY()
     FTimerHandle TransportTimerHandle;
@@ -110,8 +107,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
     UNiagaraComponent* NiagaraComponent;
 
-  /*  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
-    FVector ParticleScaleMultiplier = FVector(1.f, 1.f, 1.f);*/
 private:
 
     FVector OriginalJumpPadLocation;
@@ -128,7 +123,6 @@ private:
     bool IsDestinationClear(ACharacter* Character);
     bool ExecuteJumpAndTransport(ACharacter* Character);
     void StartCharacterTransport(ACharacter* Character);
-    void TransportCharacter(float DeltaTime);
     void CompleteTransport();
     void OrientCharacterAfterTransport(ACharacter* Character, const FTransform& DestinationTransform);
 
