@@ -35,6 +35,8 @@ void ATeamGameMode::SpawnPlayerCharacter(APlayerController* Controller)
 
 	auto CharacterClassRandomIndex = FMath::RandRange(0, CharacterClasses.Num() - 1);
 	auto ItemNameRandomIndex = FMath::RandRange(0, ItemNames.Num() - 1);
+
+	Controller->GetPlayerState<AWeaponMasterPlayerState>()->CharacterClass = CharacterClasses[CharacterClassRandomIndex];
 	
 	while (--Cnt)
 	{
@@ -150,22 +152,15 @@ void ATeamGameMode::BroadcastGameResultsToClients(int32 Results)
 			Data.Kills = Kills;
 		}
 
-		UWeaponMasterGameInstance* GI = WMPS->GetGameInstance<UWeaponMasterGameInstance>();
-
-		if (GI && GI->CharacterClass)
+		if (const ABaseBattleCharacter* DefaultChar = WMPS->CharacterClass->GetDefaultObject<ABaseBattleCharacter>())
 		{
-			const ABaseBattleCharacter* DefaultChar = GI->CharacterClass->GetDefaultObject<ABaseBattleCharacter>();
-			if (DefaultChar)
-			{
-				UTexture2D* LoadedTexture = DefaultChar->GetCharacterThumbnail();
-				if (LoadedTexture)
-				{
-					Data.Icon = LoadedTexture;
-				}
-			}
-
+			Data.Icon = DefaultChar->GetCharacterThumbnail();
 		}
-
+		else
+		{
+			UE_LOG(LogTemp, Display, TEXT("ATeamGameMode::BroadcastGameResultsToClients : Accessing DefaultCharacter Failed."))
+		}
+		
 		ResultList.Add(Data);
 	}
 

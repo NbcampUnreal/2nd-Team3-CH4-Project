@@ -15,7 +15,7 @@ class FOnlineSessionSearchResult;
 UENUM(BlueprintType)
 enum class EMapType : uint8
 {
-	PVPMap     UMETA(DisplayName = "PVPMap"),
+	PVPMap     UMETA(DisplayName = "VSMap"),
 	PVEMap        UMETA(DisplayName = "PVEMap"),
 	SessionMap     UMETA(DisplayName = "SessionMap")
 };
