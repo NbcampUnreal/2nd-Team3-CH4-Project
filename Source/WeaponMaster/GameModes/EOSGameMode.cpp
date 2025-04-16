@@ -18,7 +18,7 @@ void AEOSGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (AEOSGameSession* EOSSession = Cast<AEOSGameSession>(GameSessionClass))
+	if (AEOSGameSession* EOSSession = Cast<AEOSGameSession>(GameSession))
 	{
 		EOSSession->OnSessionReturnValue.AddUObject(this, &AEOSGameMode::HandleProcessResult);
 	}

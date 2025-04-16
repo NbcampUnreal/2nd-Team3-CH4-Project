@@ -75,6 +75,7 @@ void ATeamGameMode::SpawnPlayerCharacter(APlayerController* Controller)
 			
 			if (SpawnCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 			{
+				UE_LOG(LogTemp, Error, TEXT("ATeamGameMode::SpawnCharacter : Execute_GetItemComponent"));
 				UItemComponent* ItemComponent = IBattleSystemUser::Execute_GetItemComponent(SpawnCharacter);
 				// UE_LOG(LogTemp, Display, TEXT("ATeamGameMode::SpawnPlayerCharacter : Chosen Item : %s"), *ItemNames[ItemNameRandomIndex].ToString())
 				UE_LOG(LogTemp, Display, TEXT("ATeamGameMode::SpawnPlayerCharacter : Item Selected"));
@@ -92,8 +93,6 @@ void ATeamGameMode::SpawnPlayerCharacter(APlayerController* Controller)
 
 void ATeamGameMode::SetTimer()
 {
-	UE_LOG(LogTemp, Warning, TEXT("SetTimer called"));
-
 	GetWorldTimerManager().SetTimer(
 		PlayCountDownTimerHandle,
 		this,
@@ -105,9 +104,7 @@ void ATeamGameMode::SetTimer()
 
 void ATeamGameMode::PlayCountDownTimerAction()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Timer Tick: %d"), TimerCountDown);
-
-	if (TimerCountDown > 0 || TimerCountDown != 0)
+	if (TimerCountDown > 0)
 	{
 		--TimerCountDown;
 	}
@@ -170,7 +167,6 @@ void ATeamGameMode::BroadcastGameResultsToClients(int32 Results)
 
 		if (const ABaseBattleCharacter* DefaultChar = WMPS->CharacterClass->GetDefaultObject<ABaseBattleCharacter>())
 		{
-			UE_LOG(LogTemp, Display, TEXT("ATeamGameMode::BroadcastGameResultsToClients : Chosen Character : %s"), *WMPS->CharacterClass->GetDisplayNameText().ToString());
 			Data.Icon = DefaultChar->GetCharacterThumbnail();
 		}
 		else

@@ -142,6 +142,14 @@ void UIndividualMatchStatusWidget::UpdatePlayerKills(int32 PlayerID, int32 Kills
     }
 }
 
+void UIndividualMatchStatusWidget::UpdatePlayerName(int32 PlayerID, FString& PlayerName)
+{
+    if (UPlayerStatusWidgetExtended* PlayerWidget = PlayerWidgets.FindRef(PlayerID))
+    {
+        PlayerWidget->SetPlayerName(PlayerName);
+    }
+}
+
 void UIndividualMatchStatusWidget::UpdatePlayerDeaths(const int32 PlayerID, const int32 Deaths) const
 {
     if (UPlayerStatusWidgetExtended* PlayerWidget = PlayerWidgets.FindRef(PlayerID))
