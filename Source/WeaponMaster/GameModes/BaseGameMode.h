@@ -17,8 +17,8 @@ public:
 	virtual bool HasCharacterSpawner() const;
 	
 	// BattleGMInterface
-	virtual void SpawnPlayerCharacter(TSubclassOf<ACharacter> CharacterClass, APlayerController* Controller) override;
-	virtual void HandlePlayerDeath(const TSubclassOf<ACharacter>& CharacterClass, APlayerController* Controller, const FString& AttackerName) override;
+	virtual void SpawnPlayerCharacter(APlayerController* Controller) override;
+	virtual void HandlePlayerDeath(APlayerController* Controller, const FString& AttackerName) override;
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	
