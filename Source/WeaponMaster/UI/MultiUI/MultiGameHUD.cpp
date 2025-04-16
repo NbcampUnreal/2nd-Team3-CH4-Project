@@ -68,7 +68,7 @@ void AMultiGameHUD::TransferHUDBy(const EMapType MapType)
     {
         case EMapType::PVPMap:
             {
-                UE_LOG(LogTemp, Warning, TEXT("PVPMap"));
+                UE_LOG(LogTemp, Warning, TEXT("VSMap"));
                 if (MapSelectWidget)
                 {
                     MapSelectWidget->SetVisibility(ESlateVisibility::Hidden);
