@@ -48,6 +48,7 @@ void ATeamGameMode::SpawnPlayerCharacter(APlayerController* Controller)
 				// Possess할때 Owner설정도 됨!
 				// SpawnCharacter->SetOwner(WMPC);
 				WMPC->Possess(SpawnCharacter);
+				WMPC->SetCurrentCharacterAtGI(CharacterClasses[CharacterClassRandomIndex]);
 				UE_LOG(LogTemp, Warning, TEXT("Possessed Pawn: %s"), *WMPC->GetPawn()->GetName());
 			}
 			else
@@ -64,10 +65,10 @@ void ATeamGameMode::SpawnPlayerCharacter(APlayerController* Controller)
 			{
 				UE_LOG(LogTemp, Error, TEXT("ATeamGameMode::SetPlayerCharacter : SpawnCharacter doesn't implement IBattleSystemUser."));
 			}
-		
+
+			
 			break;
 		}
-		
 	}
 }
 
