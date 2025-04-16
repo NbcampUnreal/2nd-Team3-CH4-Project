@@ -11,6 +11,8 @@ class UStaticMeshComponent;
 class ACharacter;
 class USoundBase;
 class UParticleSystem;
+class UNiagaraComponent;
+
 
 UCLASS()
 class WEAPONMASTER_API AJumpPadActor : public AActor
@@ -33,6 +35,9 @@ public:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     UStaticMeshComponent* JumpPadMesh;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    UStaticMeshComponent* JumpPadMesh2;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     USceneComponent* DestinationLocation;
@@ -102,6 +107,11 @@ public:
     UFUNCTION()
     void OnRep_IsAnimating();
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+    UNiagaraComponent* NiagaraComponent;
+
+  /*  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+    FVector ParticleScaleMultiplier = FVector(1.f, 1.f, 1.f);*/
 private:
 
     FVector OriginalJumpPadLocation;
@@ -142,6 +152,9 @@ private:
     void Multicast_PlayJumpPadAnimation();
 
     UFUNCTION(NetMulticast, Reliable)
-    void Multicast_OnJumpEffect(ACharacter* Character);
+    void Multicast_OnJumpEffect();
+
+    UFUNCTION(NetMulticast, Reliable)
+    void Multicast_EndJumpEffect();
 
 };
