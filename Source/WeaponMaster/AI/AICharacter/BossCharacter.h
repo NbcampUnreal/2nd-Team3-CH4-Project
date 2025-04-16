@@ -45,6 +45,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Die();
 
+	bool IsAttacking();
+
 	//보스 몽타주
 	UPROPERTY(EditAnywhere, Category = "Death|Montage")
 	UAnimMontage* DeathMontage;
@@ -64,6 +66,15 @@ private:
 	FRotator DesiredRotation;
 	bool bShouldRotate = false;
 	float RotationInterpSpeed = 5.f;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boss|Combat")
+	bool bIsAttacking = false;
+
+	FTimerHandle AttackStateTimerHandle;
+
+	void SetIsAttackingForDuration(float Duration);
+
+	void ClearIsAttacking();
 
 ///보스 공격 패턴
 public:
