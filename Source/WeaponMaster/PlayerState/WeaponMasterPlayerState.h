@@ -13,6 +13,9 @@ class WEAPONMASTER_API AWeaponMasterPlayerState : public APlayerState
 	
 public:
 	AWeaponMasterPlayerState();
+
+	UPROPERTY(Replicated)
+	TSubclassOf<ACharacter> CharacterClass;
 	
 	UPROPERTY(Replicated)
 	int32 TeamIdx;
