@@ -37,7 +37,7 @@ void USingleStageSelectWidget::CreateStageButtons()
 	FStageInfo Map2;
 	Map2.MapID = "ICEMap";
 	Map2.MapName = FText::FromString(TEXT("빙산맵"));
-	Map2.MapDescription = FText::FromString(TEXT("점점 사라지는 발판에서 싸우는 맵입니다."));
+	Map2.MapDescription = FText::FromString(TEXT("추가 예정"));
 	Map2.MapThumbnail = LoadObject<UTexture2D>(nullptr, TEXT("/Game/WeaponMaster/Assets/Image/ICEMAP_Image.ICEMAP_Image"));
 
 	StageList = { Map1, Map2 };
