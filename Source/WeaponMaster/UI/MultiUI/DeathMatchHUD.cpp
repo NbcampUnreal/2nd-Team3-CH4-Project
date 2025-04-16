@@ -104,8 +104,7 @@ void ADeathMatchHUD::BindPlayerStatusWidget(AWeaponMasterPlayerState* WMPS)
     WMPS->OnKillCountChanged.AddDynamic(this, &ADeathMatchHUD::UpdateKillCount);
     WMPS->OnDeathCountChanged.AddDynamic(this, &ADeathMatchHUD::UpdateDeathCount);
 
-    AController* Controller = Cast<AController>(WMPS->GetOwner());
-    if (Controller)
+    if (AController* Controller = Cast<AController>(WMPS->GetOwner()))
     {
         if (ABaseBattleCharacter* Character = Cast<ABaseBattleCharacter>(Controller->GetPawn()))
         {

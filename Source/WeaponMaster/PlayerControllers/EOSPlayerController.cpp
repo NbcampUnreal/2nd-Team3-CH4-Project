@@ -288,6 +288,13 @@ void AEOSPlayerController::HandleProcessResult(EPlayerEOSStateType State, ESessi
         {
             if (Result == ESessionResultType::Success)
             {
+                if (AWeaponMasterPlayerState* WMPS = Cast<AWeaponMasterPlayerState>(PlayerState))
+                {
+                    if (const UWeaponMasterGameInstance* WMGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
+                    {
+                        WMPS->SetPlayerName(WMGI->GetPlayerName());
+                    }
+                }
                 Server_RegisterPlayer(this);
                 break;
             }
