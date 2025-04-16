@@ -1,17 +1,16 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "InteractionComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/PlayerController.h"
-#include "Components/TextBlock.h"
-#include "Kismet/GameplayStatics.h"
 #include "GameFramework/Pawn.h"
+#include "Components/TextBlock.h"
 
-UInteractionComponent::UInteractionComponent(): InteractionWidget(nullptr), CurrentInteractor(nullptr)
+UInteractionComponent::UInteractionComponent()
 {
-    PrimaryComponentTick.bCanEverTick = false; // 틱 비활성화
-    InteractionPrompt = FText::FromString(TEXT("F를 눌러 장착"));
+    PrimaryComponentTick.bCanEverTick = false;
+    InteractionWidgetClass = nullptr;
+    InteractionWidget = nullptr;
+    CurrentInteractor = nullptr;
+    InteractionPrompt = FText::FromString(TEXT("상호작용"));
 }
 
 void UInteractionComponent::BeginPlay()
@@ -21,98 +20,169 @@ void UInteractionComponent::BeginPlay()
 
 void UInteractionComponent::SetInteractionPrompt(const FText& NewPrompt)
 {
+    // 텍스트 저장만 하고 위젯 업데이트는 하지 않음
     InteractionPrompt = NewPrompt;
-    
-    // 이미 위젯이 표시되어 있다면 텍스트 업데이트
+    // 텍스트 설정 로직 제거
+}
+
+void UInteractionComponent::UpdatePromptText()
+{
     if (InteractionWidget)
     {
-        UTextBlock* PromptText = Cast<UTextBlock>(InteractionWidget->GetWidgetFromName(TEXT("PromptText")));
-        if (PromptText)
+        UTextBlock* TextLabel = Cast<UTextBlock>(InteractionWidget->GetWidgetFromName(TEXT("TextLabel")));
+        if (TextLabel)
         {
-            PromptText->SetText(InteractionPrompt);
+            TextLabel->SetText(InteractionPrompt);
         }
     }
 }
 
 void UInteractionComponent::Interact(AActor* Interactor)
 {
-    UE_LOG(LogTemp, Warning, TEXT("[%s] %s의 상호작용 요청"), 
-        GetOwner() && GetOwner()->HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
-        *Interactor->GetName());
-    
-    // 상호작용 이벤트 발생
-    OnInteract.Broadcast(Interactor);
+    // 상호작용 이벤트 발생 전 인자 검증
+    if (Interactor && OnInteract.IsBound())
+    {
+        OnInteract.Broadcast(Interactor);
+    }
 }
 
 void UInteractionComponent::EnableInteraction(AActor* Interactor)
 {
-    if (Interactor)
+    // 기존 위젯이 있으면 제거 (안전)
+    DisableInteraction();
+    
+    if (!Interactor)
     {
-        CurrentInteractor = Interactor;
-        ShowInteractionWidget(Interactor);
+        return;
+    }
+    
+    // 인터랙터 참조 저장
+    CurrentInteractor = Interactor;
+    
+    // 위젯 클래스 확인
+    if (!InteractionWidgetClass)
+    {
+        UE_LOG(LogTemp, Error, TEXT("InteractionWidgetClass is not set!"));
+        return;
+    }
+    
+    // 상호작용자가 로컬 플레이어인지 확인
+    APawn* InteractorPawn = Cast<APawn>(CurrentInteractor);
+    if (!InteractorPawn || !InteractorPawn->IsLocallyControlled())
+    {
+        return;
+    }
+    
+    APlayerController* PC = Cast<APlayerController>(InteractorPawn->GetController());
+    if (!PC)
+    {
+        return;
+    }
+    
+    // 위젯 생성 - 텍스트 설정 없이!
+    InteractionWidget = CreateWidget<UUserWidget>(PC, InteractionWidgetClass);
+    if (InteractionWidget)
+    {
+        // 텍스트 설정 로직 제거 - 위젯만 화면에 추가
+        InteractionWidget->AddToViewport();
+        
+        // 화면상 위치 설정
+        FVector2D ScreenLocation;
+        if (PC->ProjectWorldLocationToScreen(
+            GetOwner()->GetActorLocation() + FVector(0, 0, 100),
+            ScreenLocation))
+        {
+            InteractionWidget->SetPositionInViewport(ScreenLocation);
+        }
     }
 }
 
 void UInteractionComponent::DisableInteraction()
 {
-    HideInteractionWidget();
+    // 위젯 제거
+    if (InteractionWidget)
+    {
+        // 위젯과 관련된 참조 정리
+        if (InteractionWidget->IsInViewport())
+        {
+            InteractionWidget->RemoveFromParent();
+        }
+        
+        // 참조 정리
+        InteractionWidget = nullptr;
+    }
+    
+    // 상호작용자 참조 정리
     CurrentInteractor = nullptr;
 }
 
-void UInteractionComponent::ShowInteractionWidget(AActor* Interactor)
+void UInteractionComponent::CreateInteractionWidget()
 {
-    // 이미 위젯이 표시되어 있다면 리턴
-    if (InteractionWidget)
+    // 위젯 클래스 확인
+    if (!InteractionWidgetClass)
+    {
+        UE_LOG(LogTemp, Error, TEXT("InteractionWidgetClass is not set!"));
+        return;
+    }
+    
+    // 상호작용자 확인
+    APawn* InteractorPawn = Cast<APawn>(CurrentInteractor);
+    if (!InteractorPawn || !InteractorPawn->IsLocallyControlled())
+    {
+        return;
+    }
+    
+    // 플레이어 컨트롤러 확인
+    APlayerController* PC = Cast<APlayerController>(InteractorPawn->GetController());
+    if (!PC)
     {
         return;
     }
     
     // 위젯 생성
-    if (InteractionWidgetClass)
+    InteractionWidget = CreateWidget<UUserWidget>(PC, InteractionWidgetClass);
+    if (!InteractionWidget)
     {
-        // 상호작용하는 액터의 플레이어 컨트롤러 얻기
-        APawn* InteractorPawn = Cast<APawn>(Interactor);
-        APlayerController* PC = nullptr;
-
-        if (InteractorPawn && InteractorPawn->IsLocallyControlled())
-        {
-            // 로컬 플레이어인 경우에만 위젯 표시
-            PC = Cast<APlayerController>(InteractorPawn->GetController());
-            
-            if (PC)
-            {
-                InteractionWidget = CreateWidget<UUserWidget>(PC, InteractionWidgetClass);
-                if (InteractionWidget)
-                {
-                    // 위젯 표시
-                    InteractionWidget->AddToViewport();
-                    
-                    // 프롬프트 텍스트 설정
-                    UTextBlock* PromptText = Cast<UTextBlock>(InteractionWidget->GetWidgetFromName(TEXT("PromptText")));
-                    if (PromptText)
-                    {
-                        PromptText->SetText(InteractionPrompt);
-                    }
-                    
-                    // 소유자 위치에 위젯 위치 설정 (월드 -> 스크린 좌표)
-                    FVector2D ScreenLocation;
-                    if (PC->ProjectWorldLocationToScreen(
-                        GetOwner()->GetActorLocation() + FVector(0, 0, 100), // 오브젝트 위에 위치
-                        ScreenLocation))
-                    {
-                        InteractionWidget->SetPositionInViewport(ScreenLocation);
-                    }
-                }
-            }
-        }
+        return;
     }
+    
+    // 텍스트 설정 후 화면에 추가
+    UpdatePromptText();
+    InteractionWidget->AddToViewport();
+    
+    // 화면상 위치 설정
+    UpdateWidgetPosition();
 }
 
-void UInteractionComponent::HideInteractionWidget()
+void UInteractionComponent::UpdateWidgetPosition()
 {
-    if (InteractionWidget)
+    if (!InteractionWidget || !GetOwner() || !CurrentInteractor)
     {
-        InteractionWidget->RemoveFromParent();
-        InteractionWidget = nullptr;
+        return;
+    }
+    
+    // 컨트롤러 얻기
+    APawn* InteractorPawn = Cast<APawn>(CurrentInteractor);
+    if (!InteractorPawn)
+    {
+        return;
+    }
+    
+    APlayerController* PC = Cast<APlayerController>(InteractorPawn->GetController());
+    if (!PC)
+    {
+        return;
+    }
+    
+    // 화면 좌표 계산
+    FVector2D ScreenLocation;
+    bool bProjectSuccess = PC->ProjectWorldLocationToScreen(
+        GetOwner()->GetActorLocation() + FVector(0, 0, 100),
+        ScreenLocation
+    );
+    
+    if (bProjectSuccess)
+    {
+        InteractionWidget->SetPositionInViewport(ScreenLocation);
     }
 }

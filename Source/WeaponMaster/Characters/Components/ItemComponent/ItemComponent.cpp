@@ -230,108 +230,95 @@ void UItemComponent::UnequipItem()
         return;
     }
     
-    // 로그 추가
-    UE_LOG(LogTemp, Warning, TEXT("Unequipping item: %s"), *EquippedItem->ItemName);
-
-    UE_LOG(LogTemp, Warning, TEXT("[%s] 아이템 %s 해제 시도 (권한: %d)"), 
-    GetOwnerRole() == ROLE_Authority ? TEXT("서버") : TEXT("클라이언트"),
-    EquippedItem ? *EquippedItem->ItemName : TEXT("없음"),
-    (int32)GetOwnerRole());
-    
-    // Store reference to the item being unequipped
+    // 저장해둘 아이템 데이터
     UItemDataAsset* ItemToSpawn = EquippedItem;
     
-    // Handle visual effects for unequipping
+    // 시각 효과 처리 및 충돌 비활성화
     HandleItemVisualEffects(EquippedItem, false);
-    
-    // Disable weapon collision
     SetWeaponCollisionEnabled(false);
     
-    // 클라이언트에서 호출된 경우 서버에 요청
+    // 권한에 따른 처리
     if (GetOwnerRole() < ROLE_Authority)
     {
+        // 클라이언트: 서버에 요청만 보냄
         Server_UnequipItem(ItemToSpawn->ItemID);
     }
     else
     {
-        // 서버에서는 아이템 스폰 직접 처리
+        // 서버: 아이템 스폰 처리
         SpawnPickupItem(ItemToSpawn);
     }
     
-    // Broadcast unequip event
+    // 이벤트 발생 및 참조 정리
     OnItemUnequipped.Broadcast();
-    
-    // Clear item reference
     EquippedItem = nullptr;
 }
 
 
+
 void UItemComponent::SpawnPickupItem(UItemDataAsset* ItemData)
 {
-    if (!ItemData)
+    if (!GetOwner() || !GetOwner()->HasAuthority())
     {
-        UE_LOG(LogTemp, Error, TEXT("[SERVER] Cannot spawn pickup: ItemData is null"));
+        // 서버가 아니면 무시
         return;
     }
     
-    UE_LOG(LogTemp, Warning, TEXT("[SERVER] Attempting to spawn pickup item: %s"), *ItemData->ItemName);
+    if (!ItemData || !PickupItemClass)
+    {
+        UE_LOG(LogTemp, Error, TEXT("[SERVER] Cannot spawn pickup: Invalid data"));
+        return;
+    }
     
-    // Get owner character
+    // 캐릭터 위치 가져오기
     ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
-    if (!OwnerCharacter)
+    if (!OwnerCharacter || !GetWorld())
     {
-        UE_LOG(LogTemp, Error, TEXT("[SERVER] Cannot spawn pickup: Owner character is invalid"));
         return;
     }
     
-    // Get the world
-    UWorld* World = GetWorld();
-    if (!World)
-    {
-        UE_LOG(LogTemp, Error, TEXT("[SERVER] Cannot spawn pickup: World is invalid"));
-        return;
-    }
-    
-    // Calculate spawn location (in front of the character)
+    // 스폰 위치 계산 (캐릭터 앞)
     FVector CharacterLocation = OwnerCharacter->GetActorLocation();
     FVector CharacterForward = OwnerCharacter->GetActorForwardVector();
-    FVector SpawnLocation = CharacterLocation + (CharacterForward * 100.0f); // 100 units in front of character
+    FVector SpawnLocation = CharacterLocation + (CharacterForward * 100.0f); 
     
-    // Add a small random offset
+    // 약간의 랜덤 오프셋 추가
     SpawnLocation.X += FMath::RandRange(-20.0f, 20.0f);
     SpawnLocation.Y += FMath::RandRange(-20.0f, 20.0f);
-    SpawnLocation.Z += 50.0f; // Spawn a bit above ground level
+    SpawnLocation.Z += 50.0f;
     
-    // Prepare spawn parameters
+    // 스폰 파라미터 설정
     FActorSpawnParameters SpawnParams;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
     SpawnParams.Owner = OwnerCharacter;
     
-    checkf(PickupItemClass, TEXT("[UItemComponent::SpawnPickupItem] PickupItemClass is not set"));
-    
-    // Spawn the pickup item actor
-    APickupableItem* PickupItem = World->SpawnActor<APickupableItem>(PickupItemClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
+    // 아이템 액터 스폰
+    APickupableItem* PickupItem = GetWorld()->SpawnActor<APickupableItem>(
+        PickupItemClass, 
+        SpawnLocation, 
+        FRotator::ZeroRotator, 
+        SpawnParams
+    );
     
     if (PickupItem)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[SERVER] Successfully spawned pickup item: %s"), *ItemData->ItemName);
-        
-        // Set the item ID and data
+        // 아이템 설정
         PickupItem->ItemID = ItemData->ItemID;
-        
-        // Load the mesh
+        PickupItem->ItemData = ItemData; // 직접 데이터 설정
         PickupItem->LoadItemData();
         
-        // Add impulse for a bit of physical movement
+        // 물리 효과 적용
         if (PickupItem->MeshComponent && PickupItem->MeshComponent->IsSimulatingPhysics())
         {
-            FVector RandomImpulse = FVector(FMath::RandRange(-100.0f, 100.0f), FMath::RandRange(-100.0f, 100.0f), FMath::RandRange(50.0f, 150.0f));
+            FVector RandomImpulse = FVector(
+                FMath::RandRange(-100.0f, 100.0f), 
+                FMath::RandRange(-100.0f, 100.0f), 
+                FMath::RandRange(50.0f, 150.0f)
+            );
             PickupItem->MeshComponent->AddImpulse(RandomImpulse);
         }
-    }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("[SERVER] Failed to spawn pickup item"));
+        
+        UE_LOG(LogTemp, Warning, TEXT("[SERVER] 성공적으로 아이템 스폰: %s"), *ItemData->ItemName);
     }
 }
 

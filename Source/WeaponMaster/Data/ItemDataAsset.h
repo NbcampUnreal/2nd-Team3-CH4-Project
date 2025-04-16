@@ -47,10 +47,6 @@ struct FItemMeshData
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effect")
     FLinearColor EffectColor;
     
-    // 설명 (에디터용)
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Description")
-    FString MeshDescription;
-    
     // 기본 생성자
     FItemMeshData()
         : SocketName(TEXT("hand_r"))
@@ -59,7 +55,6 @@ struct FItemMeshData
         , EffectScale(FVector(1.0f, 1.0f, 1.0f))
         , EffectColorParameterName(TEXT("Color"))
         , EffectColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f))
-        , MeshDescription(TEXT(""))
     {
     }
 };
