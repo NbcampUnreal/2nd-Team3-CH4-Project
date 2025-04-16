@@ -1,4 +1,6 @@
 #include "PickupableItem.h"
+
+#include "Characters/Components/ItemComponent/ItemComponent.h"
 #include "Components/SphereComponent.h"
 #include "InteractionComponent/InteractionComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -123,10 +125,9 @@ void APickupableItem::LoadItemData()
 
 void APickupableItem::ProcessPickup(AActor* Interactor)
 {
-    // 서버에서만 처리되어야 함
+    // 서버에서만 처리
     if (!HasAuthority())
     {
-        UE_LOG(LogTemp, Warning, TEXT("ProcessPickup: 클라이언트에서 호출됨, 무시"));
         return;
     }
     
@@ -138,9 +139,6 @@ void APickupableItem::ProcessPickup(AActor* Interactor)
     
     if (Character->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
     {
-        UE_LOG(LogTemp, Warning, TEXT("[서버] %s의 아이템 %s 획득 처리 중"), 
-            *Character->GetName(), *ItemData->ItemName);
-            
         bool bPickedUp = IBattleSystemUser::Execute_EquipItem(Character, ItemID);
         
         if (bPickedUp)
@@ -155,9 +153,21 @@ void APickupableItem::ProcessPickup(AActor* Interactor)
                 }
             }
             
-            // 모든 클라이언트에게 아이템 파괴 전파
-            UE_LOG(LogTemp, Warning, TEXT("[서버] 아이템 %s 파괴"), *GetName());
-            Destroy();
+            // 먼저 모든 클라이언트에게 아이템 숨김 처리
+            Client_OnPickupSuccess();
+            
+            // 잠시 대기 후 아이템 파괴 (네트워크 동기화를 위한 지연)
+            FTimerHandle DestroyTimerHandle;
+            GetWorldTimerManager().SetTimer(
+                DestroyTimerHandle,
+                FTimerDelegate::CreateLambda([this]()
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("[서버] 아이템 %s 파괴"), *GetName());
+                    Destroy();
+                }),
+                0.2f,  // 0.2초 지연
+                false
+            );
         }
     }
 }
@@ -188,22 +198,7 @@ void APickupableItem::OnPickup(AActor* Interactor)
     
     if (Character->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
     {
-        UE_LOG(LogTemp, Warning, TEXT("OnPickup: 캐릭터 %s가 아이템 %s 획득 시도"), 
-               *Character->GetName(), ItemData ? *ItemData->ItemName : TEXT("Unknown"));
-               
-        // 추가: 직접 서버 RPC 호출
-        if (!HasAuthority())
-        {
-            UE_LOG(LogTemp, Warning, TEXT("OnPickup: 클라이언트에서 서버 RequestItemPickup RPC 호출"));
-            Server_OnPickedUp(Interactor);
-        }
-        else
-        {
-            UE_LOG(LogTemp, Warning, TEXT("OnPickup: 서버에서 직접 ProcessPickup 호출"));
-            ProcessPickup(Character);
-        }
-        
-        // 기존 코드 유지
+        // 직접 Server_OnPickedUp 호출 부분 제거하고 아래 코드만 유지
         IBattleSystemUser::Execute_RequestItemPickup(Character, this);
     }
 }
@@ -216,10 +211,10 @@ void APickupableItem::Client_OnPickupSuccess_Implementation()
 }
 
 void APickupableItem::OnInteractionBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
-                                         UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
-                                         bool bFromSweep, const FHitResult& SweepResult)
+                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
+                                       bool bFromSweep, const FHitResult& SweepResult)
 {
-    // ACharacter로 캐스팅 후 IBattleSystemUser 인터페이스 확인
+    // 캐릭터 확인
     ACharacter* Character = Cast<ACharacter>(OtherActor);
     if (!Character)
     {
@@ -228,10 +223,17 @@ void APickupableItem::OnInteractionBegin(UPrimitiveComponent* OverlappedComponen
     
     if (Character->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
     {
+        // 상호작용 액터 설정
         IBattleSystemUser::Execute_SetInteractableActor(Character, this);
-
-        // 상호작용 UI 표시
-        InteractionComponent->EnableInteraction(Character);
+        
+        // 상호작용 UI 표시 - 텍스트 설정 호출 제거
+        UInteractionComponent* InteractionComp = FindComponentByClass<UInteractionComponent>();
+        if (InteractionComp)
+        {
+            // 텍스트 설정 함수 호출 제거
+            // 위젯만 활성화
+            InteractionComp->EnableInteraction(Character);
+        }
     }
 }
 
