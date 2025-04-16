@@ -7,11 +7,16 @@
 #include "PlayerControllers/WeaponMasterController.h"
 #include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
 #include "Characters/Components/ItemComponent/ItemComponent.h"
+#include "PlayerState/WeaponMasterPlayerState.h"
+#include "UI/MultiUI/GameResultWidget.h"
+#include "GameFramework/GameStateBase.h"
+#include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
+#include "Engine/World.h"
 
 void ATeamGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
+	UE_LOG(LogTemp, Warning, TEXT("BeginPlay called in ATeamGameMode"));
 	SetTimer();
 }
 
@@ -68,6 +73,8 @@ void ATeamGameMode::SpawnPlayerCharacter(APlayerController* Controller)
 
 void ATeamGameMode::SetTimer()
 {
+	UE_LOG(LogTemp, Warning, TEXT("SetTimer called"));
+
 	GetWorldTimerManager().SetTimer(
 		PlayCountDownTimerHandle,
 		this,
@@ -79,6 +86,8 @@ void ATeamGameMode::SetTimer()
 
 void ATeamGameMode::PlayCountDownTimerAction()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Timer Tick: %d"), TimerCountDown);
+
 	if (TimerCountDown > 0 || TimerCountDown != 0)
 	{
 		--TimerCountDown;
@@ -95,7 +104,93 @@ void ATeamGameMode::PlayCountDownTimerAction()
 	if (TimerCountDown == 0)
 	{
 		// Score Board 이동
-		
+		UE_LOG(LogTemp, Warning, TEXT("Timer ended. Calling BroadcastGameResultsToClients()"));
+
 		GetWorldTimerManager().ClearTimer(PlayCountDownTimerHandle);
+
+		BroadcastGameResultsToClients(999);
 	}
+}
+
+void ATeamGameMode::BroadcastGameResultsToClients(int32 Results)
+{
+	FString CurrentMapName = GetWorld()->GetMapName();
+	TArray<FPlayerResultData> ResultList;
+
+	if (!GameState)	return;
+
+	for (APlayerState* PS : GameState->PlayerArray)
+	{
+		AWeaponMasterPlayerState* WMPS = Cast<AWeaponMasterPlayerState>(PS);
+		if (!WMPS)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Cast to AWeaponMasterPlayerState 실패"));
+			continue;
+		}
+
+		const FString Name = WMPS->GetPlayerName();
+		const int32 Kills = WMPS->GetKillCount();
+		const int32 Deaths = WMPS->GetDeathCount();
+		const float Damage = WMPS->GetTotalDamageDealt();
+		UE_LOG(LogTemp, Warning, TEXT("플레이어 정보 수집됨: %s / K: %d / D: %d / DMG: %.2f"),
+			*Name, Kills, Deaths, Damage);
+
+		FPlayerResultData Data;
+
+		Data.Nickname = Name;
+		Data.Deaths = Deaths;
+		Data.Damage = FMath::RoundToInt(Damage);
+		if (CurrentMapName.Contains(TEXT("PVEMap")))
+		{
+			Data.Kills = Results;
+		}
+		else
+		{
+			Data.Kills = Kills;
+		}
+
+		UWeaponMasterGameInstance* GI = WMPS->GetGameInstance<UWeaponMasterGameInstance>();
+
+		if (GI && GI->CharacterClass)
+		{
+			const ABaseBattleCharacter* DefaultChar = GI->CharacterClass->GetDefaultObject<ABaseBattleCharacter>();
+			if (DefaultChar)
+			{
+				UTexture2D* LoadedTexture = DefaultChar->GetCharacterThumbnail();
+				if (LoadedTexture)
+				{
+					Data.Icon = LoadedTexture;
+				}
+			}
+
+		}
+
+		ResultList.Add(Data);
+	}
+
+	if (ResultList.Num() == 0)return;
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		if (AEOSPlayerController* PC = Cast<AEOSPlayerController>(It->Get()))
+		{
+			if (!IsValid(PC))
+			{
+				continue;
+			}
+			if (!PC->GameResultWidgetClass)
+			{
+				continue;
+			}
+
+			PC->Client_ShowGameResult(ResultList);
+		}
+	}
+}
+
+
+void ATeamGameMode::OnBossDefeated()
+{
+	GetWorldTimerManager().ClearTimer(PlayCountDownTimerHandle);
+	BroadcastGameResultsToClients(1000);
 }

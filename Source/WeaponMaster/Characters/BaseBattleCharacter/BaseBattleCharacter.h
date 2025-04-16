@@ -17,7 +17,7 @@ class USkillComponent;
 class UWidgetComponent;
 class UBaseSkill;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, CurrentHealth, float, MaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHealthChanged, AWeaponMasterPlayerState*, OwnerPS, float, CurrentHealth, float, MaxHealth);
 
 UCLASS()
 class WEAPONMASTER_API ABaseBattleCharacter :
