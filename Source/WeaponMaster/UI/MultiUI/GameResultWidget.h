@@ -11,25 +11,26 @@ class UResultPlayerEntryWidget;
 class UTexture2D;
 class UUserSelectButton;
 
+
 USTRUCT(BlueprintType)
 struct FPlayerResultData
 {
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadWrite)
-	UTexture2D* Icon;
+	UTexture2D* Icon = nullptr;
 
 	UPROPERTY(BlueprintReadWrite)
-	FString  Nickname;
+	FString Nickname;
 
 	UPROPERTY(BlueprintReadWrite)
-	int32 Kills;
+	int32 Kills = 0;
 
 	UPROPERTY(BlueprintReadWrite)
-	int32 Deaths;
+	int32 Deaths = 0;
 
 	UPROPERTY(BlueprintReadWrite)
-	int32 Damage;
+	int32 Damage = 0;
 };
 
 UCLASS()
