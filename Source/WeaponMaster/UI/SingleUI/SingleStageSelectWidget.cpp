@@ -32,7 +32,7 @@ void USingleStageSelectWidget::CreateStageButtons()
 	Map1.MapID = "SinglePlayMap";
 	Map1.MapName = FText::FromString(TEXT("연습장"));
 	Map1.MapDescription = FText::FromString(TEXT("기본 조작을 익히는 공간입니다."));
-	Map1.MapThumbnail = LoadObject<UTexture2D>(nullptr, TEXT("/Game/WeaponMaster/Assets/Image/TestSingleMapImage.TestSingleMapImage"));
+	Map1.MapThumbnail = LoadObject<UTexture2D>(nullptr, TEXT("/Game/WeaponMaster/Assets/Image/SingleMapIcon.SingleMapIcon"));
 
 	FStageInfo Map2;
 	Map2.MapID = "ICEMap";
