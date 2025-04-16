@@ -4,36 +4,45 @@
 #include "GameFramework/PlayerState.h"
 #include "WeaponMasterPlayerState.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnStatChanged, AWeaponMasterPlayerState*, OwnerPS, int32, NewValue);
+
 UCLASS()
 class WEAPONMASTER_API AWeaponMasterPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 	
-protected:
-	// 싱글일때 0
-	// 협력전일때 0
-	// 팀전일때 0, 1
-	// 리플리케이트 되도록
+public:
+	AWeaponMasterPlayerState();
+	
 	UPROPERTY(Replicated)
 	int32 TeamIdx;
 	
-	// 플레이어 전투 통계
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Stats")
+	UPROPERTY(ReplicatedUsing=OnRep_KillCount, BlueprintReadOnly, Category = "Stats")
 	int32 KillCount;
+
+	UFUNCTION()
+	void OnRep_KillCount();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStatChanged OnKillCountChanged;
 	
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Stats")
+	UPROPERTY(ReplicatedUsing=OnRep_DeathCount, BlueprintReadOnly, Category = "Stats")
 	int32 DeathCount;
+
+	UFUNCTION()
+	void OnRep_DeathCount();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStatChanged OnDeathCountChanged;
 	
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Stats")
+	UPROPERTY(ReplicatedUsing=OnRep_TotalDamageCount, BlueprintReadOnly, Category = "Stats")
 	float TotalDamageDealt;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Stats")
-	int32 AIKillCount;
+	UFUNCTION()
+	void OnRep_TotalDamageCount();
 
-public:
-	AWeaponMasterPlayerState();
-
-	FUniqueNetIdRepl UniqueId;
+	UPROPERTY(BlueprintAssignable)
+	FOnStatChanged OnTotalDamageCountChanged;
 
 	/** 팀 ID 반환 */
 	UFUNCTION(BlueprintCallable, Category = "PlayerState")

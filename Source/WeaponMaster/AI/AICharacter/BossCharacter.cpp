@@ -5,12 +5,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
+#include "PlayerState/WeaponMasterPlayerState.h"
+#include "GameModes/TeamGameMode.h"
 
 ABossCharacter::ABossCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	MaxHP = 500;
+	MaxHP = 50;
 
 	BossStateComponent = CreateDefaultSubobject<UBossStateComponent>(TEXT("BossStateComponent"));
 	GetCharacterMovement()->bConstrainToPlane = true;
@@ -191,6 +192,15 @@ void ABossCharacter::Die()
 		}
 	}
 
+	if (GetWorld())
+	{
+		AGameModeBase* GM = UGameplayStatics::GetGameMode(this);
+		if (ATeamGameMode* TeamGM = Cast<ATeamGameMode>(GM))
+		{
+			TeamGM->OnBossDefeated();
+		}
+	}
+
 	SetActorEnableCollision(false); // 피격 안되게
 }
 
@@ -247,6 +257,19 @@ AActor* ABossCharacter::GetInteractableActor_Implementation() const
 
 void ABossCharacter::OnAttacked(const FAttackData& AttackData)
 {
+	auto CastedAttacker = Cast<ACharacter>(AttackData.Attacker);
+
+	APlayerController* AttackerPC = Cast<APlayerController>(CastedAttacker->GetController());
+	if (AttackerPC && AttackerPC->PlayerState)
+	{
+		AWeaponMasterPlayerState* AttackerPS = Cast<AWeaponMasterPlayerState>(AttackerPC->PlayerState);
+		if (AttackerPS)
+		{
+			// 실제 입힌 데미지 계산 (기존 HP - 새 HP, 죽은 경우는 기존 HP만큼)
+			float ActualDamage = AttackData.Damage;
+			AttackerPS->AddDamageDealt(ActualDamage);
+		}
+	}
 
 	LaunchCharacter(AttackData.LaunchVector/3, true, true);
 	if(CurrentHP - AttackData.Damage <= 0)

@@ -17,6 +17,8 @@ class USkillComponent;
 class UWidgetComponent;
 class UBaseSkill;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHealthChanged, AWeaponMasterPlayerState*, OwnerPS, float, CurrentHealth, float, MaxHealth);
+
 UCLASS()
 class WEAPONMASTER_API ABaseBattleCharacter :
 public ASSTCharacter, public IBaseBattleInputBindFunctions, public IBattleSystemUser, public IDamageSystemUser
@@ -26,6 +28,9 @@ public ASSTCharacter, public IBaseBattleInputBindFunctions, public IBattleSystem
 public:
 	// Sets default values for this character's properties
 	ABaseBattleCharacter(const FObjectInitializer& ObjectInitializer);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnHealthChanged OnHealthChanged;
 
 protected:
 	// Components
@@ -51,6 +56,7 @@ protected:
 	TObjectPtr<ACharacter> LastAttacker;
 	
 	FTimerHandle LastAttackerTimerHandle;
+	FTimerHandle RespawnDelayTimerHandle;
 	
 	// Constants
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stats", meta = (AllowPrivateAccess = "true"))
@@ -123,6 +129,8 @@ public:
 	virtual void ExecuteSkill_Implementation(int32 SkillIndex) override;
 
 	// Character -> StateComponent
+	virtual UStateComponent* GetStateComponent_Implementation() const override;
+	
 	virtual TScriptInterface<UBehaviorState> GetBehaviorState_Implementation() const override;
 
 	virtual void SetBehaviorState_Implementation(const TScriptInterface<UBehaviorState>& NewState) override;
@@ -171,4 +179,6 @@ public:
 	/** 최대 HP 반환 */
 	UFUNCTION(BlueprintCallable, Category = "Stats")
 	float GetMaxHP() const { return MaxHP; }
+
+	
 };

@@ -16,8 +16,10 @@ AAISpawner::AAISpawner()
 void AAISpawner::BeginPlay()
 {
     Super::BeginPlay();
-
-    GetWorldTimerManager().SetTimer(SpawnTimer, this, &AAISpawner::SpawnAI, 1.5f, false);
+    if (HasAuthority())
+    {
+        GetWorldTimerManager().SetTimer(SpawnTimer, this, &AAISpawner::SpawnAI, 1.5f, false);
+    }
 }
 
 void AAISpawner::SpawnAI()
@@ -51,12 +53,6 @@ void AAISpawner::SpawnAI()
                 SpawnedAI->SpawnerOwner = this;
                 SpawnedAI->RandomItemEquip();
             }
-
-            // else if (ABossCharacter* SpawnedBoss = Cast<ABossCharacter>(SpawnedPawn))
-            // {
-            //     // 보스 관련 로직
-            // }
-
             ++CurrentSpawnCount;
         }
     }

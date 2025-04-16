@@ -12,15 +12,15 @@
 void UIndividualMatchStatusWidget::NativeConstruct()
 {
     Super::NativeConstruct();
+
     
-    ClearPlayerWidgets();
 }
 
 void UIndividualMatchStatusWidget::InitializePlayerStatus()
 {
     if (!PlayerContainer || !PlayerStatusWidgetClass) return;
 
-    ClearPlayerWidgets();
+    //ClearPlayerWidgets();
 }
 
 void UIndividualMatchStatusWidget::ClearPlayerWidgets()
@@ -76,23 +76,21 @@ void UIndividualMatchStatusWidget::UpdateMatchTitle(const EMapType Map) const
     }
 }
 
-void UIndividualMatchStatusWidget::UpdatePlayerDeaths(const int32 PlayerID, const int32 Deaths) const
-{
-    if (UPlayerStatusWidgetExtended* PlayerWidget = PlayerWidgets.FindRef(PlayerID))
-    {
-        PlayerWidget->UpdateDeaths(Deaths);
-    }
-}
-
-void UIndividualMatchStatusWidget::UpdatePlayer(FString& PlayerName)
+void UIndividualMatchStatusWidget::UpdatePlayer(int32 PID, FString& PlayerName)
 {
     if (!PlayerContainer || !PlayerStatusWidgetClass) return;
+
+    if (PlayerWidgets.Contains(PID))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Player ID %d already exists in UI, skipping."), PID);
+        return;
+    }
     
     UPlayerStatusWidgetExtended* NewPlayerWidget = CreateWidget<UPlayerStatusWidgetExtended>(GetWorld(), PlayerStatusWidgetClass);
     if (!NewPlayerWidget) return;
 
     // 플레이어 ID 설정
-    const int32 PlayerID = PlayerIndex;
+    const int32 PlayerID = PID;
     NewPlayerWidget->SetID(PlayerID);
         
     // 플레이어 이름 설정 (자신인 경우 표시)
@@ -116,6 +114,7 @@ void UIndividualMatchStatusWidget::UpdatePlayer(FString& PlayerName)
     
     // 맵에 저장
     PlayerWidgets.Add(PlayerID, NewPlayerWidget);
+    
     ++PlayerIndex;
 }
 
@@ -140,5 +139,13 @@ void UIndividualMatchStatusWidget::UpdatePlayerKills(int32 PlayerID, int32 Kills
     if (UPlayerStatusWidgetExtended* PlayerWidget = PlayerWidgets.FindRef(PlayerID))
     {
         PlayerWidget->UpdateKills(Kills);
+    }
+}
+
+void UIndividualMatchStatusWidget::UpdatePlayerDeaths(const int32 PlayerID, const int32 Deaths) const
+{
+    if (UPlayerStatusWidgetExtended* PlayerWidget = PlayerWidgets.FindRef(PlayerID))
+    {
+        PlayerWidget->UpdateDeaths(Deaths);
     }
 }

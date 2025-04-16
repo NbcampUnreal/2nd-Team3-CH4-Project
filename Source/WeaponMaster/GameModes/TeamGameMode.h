@@ -18,10 +18,14 @@ public:
 	{
 		return Cast<UWeaponMasterGameInstance>(GetGameInstance());
 	}
-	
+
+	UFUNCTION()
+	void BroadcastGameResultsToClients(int32 Results);
+
+	void OnBossDefeated();
 private:
 	UPROPERTY()
-	int32 TimerCountDown = 300;
+	int32 TimerCountDown = 30;
 
 	UFUNCTION()
 	void SetTimer();

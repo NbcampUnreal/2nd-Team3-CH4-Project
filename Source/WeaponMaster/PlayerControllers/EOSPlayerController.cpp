@@ -4,6 +4,7 @@
 #include "GameState/WeaponMasterGameState.h"
 #include "Instance/WeaponMasterGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "PlayerState/WeaponMasterPlayerState.h"
 #include "UI/MultiUI/DeathMatchHUD.h"
 #include "UI/MultiUI/IndividualMatchStatusWidget.h"
 #include "UI/MultiUI/MultiGameHUD.h"
@@ -218,16 +219,32 @@ void AEOSPlayerController::HandleTimerAction()
     GetWorldTimerManager().ClearTimer(HUDTimerHandle);
 }
 
-void AEOSPlayerController::Client_UpdatePlayers_Implementation(const FString& PlayerName)
+void AEOSPlayerController::Client_UpdatePlayers_Implementation()
+{
+    GetWorld()->GetTimerManager().SetTimer(PlayerStatusTimerHandle, this, &AEOSPlayerController::SetPlayerStatus, 1.0f, false);
+}
+
+void AEOSPlayerController::SetPlayerStatus()
 {
     if (!IsRunningDedicatedServer())
     {
-        if (const ADeathMatchHUD* DeathMatchHUD = Cast<ADeathMatchHUD>(GetHUD()))
+        if (AGameStateBase* GS = GetWorld()->GetGameState())
         {
-            FString PN = PlayerName;
-            DeathMatchHUD->IndividualMatchStatusWidget->UpdatePlayer(PN);
+            for (APlayerState* PS : GS->PlayerArray)
+            {
+                if (const AWeaponMasterPlayerState* WMPS = Cast<AWeaponMasterPlayerState>(PS))
+                {
+                    FString PlayerName = WMPS->GetPlayerName();
+                    if (const ADeathMatchHUD* DeathMatchHUD = Cast<ADeathMatchHUD>(GetHUD()))
+                    {
+                        DeathMatchHUD->IndividualMatchStatusWidget->UpdatePlayer(WMPS->GetPlayerId(), PlayerName);
+                    }
+                }
+            }
         }
     }
+
+    GetWorld()->GetTimerManager().ClearTimer(PlayerStatusTimerHandle);
 }
 
 void AEOSPlayerController::OnNetCleanup(class UNetConnection* Connection)
@@ -276,5 +293,29 @@ void AEOSPlayerController::HandleProcessResult(EPlayerEOSStateType State, ESessi
             }
         }
     default: break;
+    }
+}
+
+void AEOSPlayerController::Client_ShowGameResult_Implementation(const TArray<FPlayerResultData>& ResultList)
+{
+    if (GameResultWidgetClass)
+    {
+        GameResultWidgetInstance = CreateWidget<UGameResultWidget>(this, GameResultWidgetClass);
+
+        if (GameResultWidgetInstance)
+        {
+            GameResultWidgetInstance->AddToViewport();
+            GameResultWidgetInstance->PopulatePlayerEntries(ResultList);
+
+            UE_LOG(LogTemp, Warning, TEXT("게임 결과 위젯 생성 및 데이터 표시 완료"));
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("위젯 인스턴스 생성 실패"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("GameResultWidgetClass가 설정되지 않음"));
     }
 }
