@@ -35,7 +35,7 @@ void AEOSPlayerController::BeginPlay()
     {
         CurrentMap = EMapType::SessionMap;
     }
-    else if (MapName.Contains("PVPMap"))
+    else if (MapName.Contains("VSMap"))
     {
         CurrentMap = EMapType::PVPMap;
     }
@@ -46,7 +46,7 @@ void AEOSPlayerController::BeginPlay()
 
     UE_LOG(LogTemp, Warning, TEXT("Map Name ==> [%d]"), CurrentMap);
     
-    if (MapName == "MainSessionMap" || MapName == "PVPMap" || MapName == "PVEMap")
+    if (MapName == "MainSessionMap" || MapName == "VSMap" || MapName == "PVEMap")
     {
         Login();
     }
