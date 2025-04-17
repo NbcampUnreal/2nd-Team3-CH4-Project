@@ -18,6 +18,9 @@ public:
 
 	virtual void SetupInputComponent() override;
 
+	UFUNCTION(Server, Reliable)
+	void Server_SendChatMessage(const FText& Message);
+
 	UFUNCTION(Client, Reliable)
 	void SetCurrentCharacterAtGI(TSubclassOf<ACharacter> CurrentCharacterClass);
 
@@ -68,5 +71,15 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY()
+	bool bIsChatBound = false;
+	
+	UFUNCTION()
+	void HandleChatMessage(const FText& Message);
+	
+	UFUNCTION()
 	void Chat();
+
+	UFUNCTION()
+	bool IsChatWidgetValid() const;
 };

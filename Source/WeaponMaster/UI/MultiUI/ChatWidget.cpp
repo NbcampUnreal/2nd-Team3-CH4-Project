@@ -15,8 +15,8 @@ void UChatWidget::OnChatTextCommitted(const FText& Text, ETextCommit::Type Commi
 {
     if (CommitMethod == ETextCommit::OnEnter && !Text.IsEmpty())
     {
+        OnChatMessageCommitted.Broadcast(Text);
         ChatEditableTextBox->SetText(FText::GetEmpty());
+        SetVisibility(ESlateVisibility::Hidden);
     }
-
-    
 }

@@ -12,6 +12,10 @@ class WEAPONMASTER_API AWeaponMasterGameState : public AGameStateBase
 public:
 	AWeaponMasterGameState();
 
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ChatMessage(const FText& Message);
+
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite)
 	bool bIsPVP;
 	
