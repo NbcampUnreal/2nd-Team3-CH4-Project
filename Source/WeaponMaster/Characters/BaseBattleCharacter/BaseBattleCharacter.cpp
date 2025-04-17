@@ -426,7 +426,6 @@ void ABaseBattleCharacter::SetHP(float NewHP)
 
 void ABaseBattleCharacter::ServerSetHP_Implementation(float NewHP)
 {
-	// ㅈㅍㅈㅍ
 	UE_LOG(LogTemp, Display, TEXT("ServerSetHP : NewHP : %f"), NewHP);
 	float ClampedHP = FMath::Clamp(NewHP, 0.f, MaxHP);
 
@@ -437,11 +436,6 @@ void ABaseBattleCharacter::ServerSetHP_Implementation(float NewHP)
 		UE_LOG(LogTemp, Display, TEXT("Die!"));
 		OnDeath();
 	}
-
-	// for (auto Debuff : EffectComponent->GetActiveBehaviorEffects())
-	// {
-	// 	UE_LOG(LogTemp, Display, TEXT("Debuff name: %s"), *StaticEnum<EBehaviorEffect>()->GetNameStringByValue((uint8)Debuff))
-	// }
 }
 
 void ABaseBattleCharacter::OnDeath()
