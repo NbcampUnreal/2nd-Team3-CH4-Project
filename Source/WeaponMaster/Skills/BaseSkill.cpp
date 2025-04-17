@@ -324,6 +324,16 @@ bool UBaseSkill::ApplyEffectToTarget(AActor* Target, float Damage)
     return false;
 }
 
+void UBaseSkill::SetSkillDamage(float NewDamage)
+{
+    SkillDamage = NewDamage;
+}
+
+float UBaseSkill::GetSkillDamage() const
+{
+    return SkillDamage;
+}
+
 void UBaseSkill::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     UObject::GetLifetimeReplicatedProps(OutLifetimeProps);
