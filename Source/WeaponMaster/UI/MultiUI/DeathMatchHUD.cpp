@@ -2,8 +2,6 @@
 #include "IndividualMatchStatusWidget.h"
 #include "KillLogWidget.h"
 #include "Blueprint/UserWidget.h"
-#include "Characters/WeaponMasterCharacter.h"
-#include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
@@ -21,6 +19,17 @@ ADeathMatchHUD::ADeathMatchHUD()
 void ADeathMatchHUD::BeginPlay()
 {
     Super::BeginPlay();
+
+    // 채팅 (PVP, PVE)
+    if (ChatWidgetClass)
+    {
+        ChatWidget = CreateWidget<UChatWidget>(GetOwningPlayerController(), ChatWidgetClass);
+        if (ChatWidget)
+        {
+            ChatWidget->SetVisibility(ESlateVisibility::Hidden);
+            ChatWidget->AddToViewport();
+        }
+    }
     
     InitializeHUD();
 }

@@ -107,6 +107,9 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastOnDeath();
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Death")
+	void PlayDeathSound();
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -184,7 +187,7 @@ public:
 
 	// WidgetComponent의 상태이상 위젯 컨트롤 함수들
 	virtual void UpdateDebuffWidget() override;
-
+	
 	UFUNCTION()
 	void SetDebuffWidgetPlayerName();
 
