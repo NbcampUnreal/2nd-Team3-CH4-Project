@@ -8,7 +8,7 @@ class FBaseBufferedInput
 protected:
 	bool bIsValidInput = true;
 	FTimerHandle ValidTimerHandle;
-	TObjectPtr<ACharacter> OwnerCharacter = nullptr;
+	TWeakObjectPtr<ACharacter> OwnerCharacter = nullptr;
 	
 public:
 	virtual ~FBaseBufferedInput() = default;
@@ -16,7 +16,7 @@ public:
 	virtual void Initialize(ACharacter* InitialOwnerCharacter)
 	{
 		OwnerCharacter = InitialOwnerCharacter;
-		if (IsValid(OwnerCharacter))
+		if (OwnerCharacter.IsValid())
 		{
 			OwnerCharacter->GetWorldTimerManager().SetTimer(
 			ValidTimerHandle,

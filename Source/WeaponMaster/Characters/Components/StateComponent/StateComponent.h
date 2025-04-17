@@ -25,7 +25,7 @@ public:
 	FOnStateComponentReady OnStateComponentReady;
 	bool bIsComponentReady;
 	
-	// TQueue<TUniquePtr<FBaseBufferedInput>> BufferedInputQueue;
+	TQueue<TUniquePtr<FBaseBufferedInput>> BufferedInputQueue;
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = "true"))

@@ -16,13 +16,19 @@ public:
 	
 	virtual void Operate() override
 	{
-		if (bIsValidInput)
+		if (bIsValidInput && OwnerCharacter.IsValid())
 		{
 			if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 			{
-				TScriptInterface<UBehaviorState> BehaviorState = IBattleSystemUser::Execute_GetBehaviorState(OwnerCharacter);
-				Cast<IBehaviorState>(BehaviorState.GetObject())->WeakAttack();
-				UE_LOG(LogTemp, Display, TEXT("Buffered WeakAttack Operate"));
+				TScriptInterface<UBehaviorState> BehaviorState = IBattleSystemUser::Execute_GetBehaviorState(OwnerCharacter.Get());
+				if (auto CastedInputState = Cast<IBehaviorState>(BehaviorState.GetObject()))
+				{
+					CastedInputState->WeakAttack();
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("Buffered WeakAttack Error"));
+				}
 			}
 		}
 		else
