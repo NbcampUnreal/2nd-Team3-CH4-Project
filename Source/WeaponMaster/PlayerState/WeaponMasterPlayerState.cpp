@@ -1,8 +1,5 @@
 #include "WeaponMasterPlayerState.h"
 
-#include "Characters/BaseBattleCharacter/BaseBattleCharacter.h"
-#include "GameModes/TeamGameMode.h"
-#include "Instance/WeaponMasterGameInstance.h"
 #include "Net/UnrealNetwork.h"
 
 AWeaponMasterPlayerState::AWeaponMasterPlayerState()
@@ -16,8 +13,6 @@ AWeaponMasterPlayerState::AWeaponMasterPlayerState()
 	DeathCount = 0;
 	TotalDamageDealt = 0.0f;
 }
-
-
 
 void AWeaponMasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
