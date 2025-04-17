@@ -31,6 +31,7 @@
 // #include "UI/CommonUI/PlayerStatusWidget.h"
 #include "UI/SingleUI/SingleGameHUD.h"
 #include "Components/WidgetComponent.h"
+#include "GameState/WeaponMasterGameState.h"
 #include "UI/CommonUI/DebuffWidget.h"
 
 // Sets default values
@@ -197,15 +198,19 @@ void ABaseBattleCharacter::OnRep_HP()
             // HUD를 통해 플레이어 상태 업데이트
             CastedHUD->UpdatePlayerStatus(StatusInfo.CharacterID, StatusInfo);
         }
+        else
+        {
+        	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnRep_HP : Now SingleGame"));
+        }
         // 싱글 게임 HUD 확인
-        else if (auto SingleHUD = Cast<ASingleGameHUD>(PlayerController->GetHUD()))
+        if (auto SingleHUD = Cast<ASingleGameHUD>(PlayerController->GetHUD()))
         {
             // 싱글 게임 HUD 업데이트
             SingleHUD->UpdatePlayerStatus(StatusInfo);
         }
         else
         {
-            UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::OnRep_HP : HUD Cast Failed"));
+            UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnRep_HP : Now MultiGame"));
         }
     }
     else
@@ -635,6 +640,15 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 		if (EffectComponent->GetActiveBehaviorEffects().Contains(EBehaviorEffect::Death))
 		{
 			return;
+		}
+
+		// PVP 모드가 아닌데 사람한테 맞으면 피격당하지 않도록
+		if (auto WMGS = Cast<AWeaponMasterGameState>(GetWorld()->GetGameState()); !WMGS->bIsPVP)
+		{
+			if (AttackData.Attacker->IsA<ABaseBattleCharacter>())
+			{
+				return;
+			}
 		}
 		
 		if (GetActorForwardVector().X * AttackData.LaunchVector.X > 0.f)

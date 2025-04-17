@@ -11,6 +11,9 @@ class WEAPONMASTER_API AWeaponMasterGameState : public AGameStateBase
 
 public:
 	AWeaponMasterGameState();
+
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite)
+	bool bIsPVP;
 	
 	FORCEINLINE_DEBUGGABLE void SetCooperateVotedPlayerNum(const bool IsVoted)
 	{
