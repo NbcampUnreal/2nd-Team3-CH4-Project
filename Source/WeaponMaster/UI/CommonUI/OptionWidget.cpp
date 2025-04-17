@@ -42,5 +42,6 @@ void UOptionWidget::OnVolumeChanged(float Value)
 
 void UOptionWidget::OnBackClicked()
 {
-	OptionComplete.Broadcast();
+	//OptionComplete.Broadcast();
+    RemoveFromParent();
 }

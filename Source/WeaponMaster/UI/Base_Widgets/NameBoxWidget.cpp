@@ -26,7 +26,11 @@ void UNameBoxWidget::UpdateDisplayName()
 	FString ItemName = ObjectName.ToString();
 	// DA_ 접두사 제거
 	ItemName.ReplaceInline(TEXT("DA_"), TEXT(""));
-    
+	if (ItemName.EndsWith(TEXT("_C")))
+	{
+		ItemName = ItemName.LeftChop(2); // 마지막 2개 문자(_C) 제거
+	}
+	
 	TextBlock->SetText(FText::FromString(ItemName));
     
 	// 디버깅용 로그
