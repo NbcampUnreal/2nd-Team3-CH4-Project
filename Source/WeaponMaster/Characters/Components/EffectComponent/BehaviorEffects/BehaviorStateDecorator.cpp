@@ -15,7 +15,7 @@ void UBehaviorStateDecorator::Activate()
 		return;
 	}
 
-	auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
+	auto OwnerCharacter = IsValid(GetOuter()) ? Cast<ACharacter>(GetOuter()->GetOuter()) : nullptr;
 	if (!IsValid(OwnerCharacter))
 	{
 		UE_LOG(LogTemp, Display, TEXT("UBehaviorStateDecorator::Activate : Outer Character is Null"));
@@ -62,7 +62,7 @@ void UBehaviorStateDecorator::Activate(float Duration)
 		return;
 	}
 	
-	auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
+	auto OwnerCharacter = IsValid(GetOuter()) ? Cast<ACharacter>(GetOuter()->GetOuter()) : nullptr; 
 	if (!IsValid(OwnerCharacter))
 	{
 		UE_LOG(LogTemp, Display, TEXT("UBehaviorStateDecorator::Activate : Outer Character is Null"));
