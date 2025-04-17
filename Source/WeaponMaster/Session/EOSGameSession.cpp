@@ -344,6 +344,7 @@ void AEOSGameSession::HandleDestroySessionCompleted(FName EOSSessionName, bool b
     if (bWasSuccesful)
     {
         bSessionExists = false;
+        CreateSession();
         UE_LOG(LogTemp, Log, TEXT("Destroyed session succesfully.")); 
     }
     else

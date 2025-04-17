@@ -1,6 +1,6 @@
 #include "SingleGameHUD.h"
 #include "../CommonUI/PlayerStatusWidget.h"
-#include "../CommonUI/OptionMenuWidget.h"
+#include "../CommonUI/OptionWidget.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "../../Characters/BaseBattleCharacter/BaseBattleCharacter.h"
@@ -21,7 +21,7 @@ void ASingleGameHUD::BeginPlay()
     // 옵션 메뉴 위젯 생성
     if (OptionMenuWidgetClass)
     {
-        OptionMenuWidget = CreateWidget<UOptionMenuWidget>(GetOwningPlayerController(), OptionMenuWidgetClass);
+        OptionMenuWidget = CreateWidget<UOptionWidget>(GetOwningPlayerController(), OptionMenuWidgetClass);
         if (OptionMenuWidget)
         {
             OptionMenuWidget->SetVisibility(ESlateVisibility::Hidden);
@@ -30,14 +30,14 @@ void ASingleGameHUD::BeginPlay()
     }
     
     // 입력 모드 설정
-    if (APlayerController* PC = GetOwningPlayerController())
-    {
-        FInputModeGameAndUI InputMode;
-        InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-        PC->SetInputMode(InputMode);
-        PC->bShowMouseCursor = true;
-    }
-    
+    //if (APlayerController* PC = GetOwningPlayerController())
+    //{
+    //    FInputModeGameAndUI InputMode;
+    //    InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+    //    PC->SetInputMode(InputMode);
+    //    PC->bShowMouseCursor = true;
+    //}
+    //
     // 싱글 플레이어 위젯 초기화
     OpenSingleWidget();
 }
