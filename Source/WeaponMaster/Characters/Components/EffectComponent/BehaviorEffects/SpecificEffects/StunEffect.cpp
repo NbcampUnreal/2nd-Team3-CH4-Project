@@ -36,7 +36,6 @@ void UStunEffect::Move(const FInputActionValue& Value)
 
 void UStunEffect::CrouchDrop()
 {
-	UE_LOG(LogTemp, Display, TEXT("UStunEffect::CrouchDrop"));
 }
 
 void UStunEffect::StopCrouchDrop()
