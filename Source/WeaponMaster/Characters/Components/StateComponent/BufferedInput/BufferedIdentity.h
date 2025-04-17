@@ -16,12 +16,19 @@ public:
 	
 	virtual void Operate() override
 	{
-		if (bIsValidInput)
+		if (bIsValidInput && OwnerCharacter.IsValid())
 		{
 			if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 			{
-				TScriptInterface<UBehaviorState> BehaviorState = IBattleSystemUser::Execute_GetBehaviorState(OwnerCharacter);
-				UE_LOG(LogTemp, Display, TEXT("Buffered Identity Operate"));
+				TScriptInterface<UBehaviorState> BehaviorState = IBattleSystemUser::Execute_GetBehaviorState(OwnerCharacter.Get());
+				if (auto CastedInputState = Cast<IBehaviorState>(BehaviorState.GetObject()))
+				{
+					CastedInputState->Identity();
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("Buffered Identity Error"));
+				}
 			}
 		}
 		else
