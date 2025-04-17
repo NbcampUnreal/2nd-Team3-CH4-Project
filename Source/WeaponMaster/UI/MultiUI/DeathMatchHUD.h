@@ -10,7 +10,7 @@ class UKillLogWidget;
 class UIndividualMatchStatusWidget;
 class UTextBlock;
 class UUserWidget;
-
+class UOptionMenuWidget;
 /**
  * 개인전 모드를 위한 HUD 클래스
  */
@@ -123,4 +123,11 @@ private:
 	/** PS 바인딩 */
 	UFUNCTION()
 	void TryBindPlayerState();
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<UUserWidget> MenuWidgetClass;
+
+	UPROPERTY()
+	UUserWidget* MenuWidget;
 };

@@ -1,4 +1,4 @@
-﻿#include "WeaponMasterController.h"
+#include "WeaponMasterController.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -7,6 +7,9 @@
 #include "UI/MultiUI/ChatWidget.h"
 #include "UI/MultiUI/DeathMatchHUD.h"
 #include "UI/MultiUI/MultiGameHUD.h"
+#include "UI/CommonUI/OptionMenuWidget.h"
+#include "UI/CommonUI/OptionWidget.h"
+#include "UI/SingleUI/SingleGameHUD.h"
 
 AWeaponMasterController::AWeaponMasterController()
 {
@@ -21,6 +24,7 @@ AWeaponMasterController::AWeaponMasterController()
 	PickingItemAction = nullptr;
 	MenuOnOffAction = nullptr;
 	ChatAction = nullptr;
+	MenuAction = nullptr;
 }
 
 void AWeaponMasterController::BeginPlay()
@@ -57,6 +61,8 @@ void AWeaponMasterController::SetupInputComponent()
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 	EnhancedInputComponent->BindAction(ChatAction, ETriggerEvent::Started,
 										   this, &AWeaponMasterController::Chat);
+	EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Started,
+		this, &AWeaponMasterController::Menu);
 }
 
 void AWeaponMasterController::SetCurrentCharacterAtGI_Implementation(TSubclassOf<ACharacter> CurrentCharacterClass)
@@ -123,3 +129,18 @@ void AWeaponMasterController::Server_SendChatMessage_Implementation(const FText&
 	}
 }
 
+void AWeaponMasterController::Menu()
+{
+	ADeathMatchHUD* DMHUD = Cast<ADeathMatchHUD>(GetHUD());
+	if (DMHUD && IsValid(DMHUD->MenuWidget)) 
+	{
+
+		if (DMHUD->MenuWidget->IsInViewport())
+		{
+			const ESlateVisibility CurrentVisibility = DMHUD->MenuWidget->GetVisibility();
+			DMHUD->MenuWidget->SetVisibility(
+				(CurrentVisibility == ESlateVisibility::Hidden) ? ESlateVisibility::Visible : ESlateVisibility::Hidden
+			);
+		}
+	}
+}
