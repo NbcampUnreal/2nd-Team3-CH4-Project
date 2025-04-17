@@ -244,6 +244,12 @@ public:
         RemainingCooldown = NewRemainingCooldown;
         bIsActive = bNewIsActive;
     }
+
+    UFUNCTION()
+    void SetSkillDamage(float NewDamage);
+
+    UFUNCTION()
+    float GetSkillDamage() const;
     
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     // 스킬 시작 델리게이트

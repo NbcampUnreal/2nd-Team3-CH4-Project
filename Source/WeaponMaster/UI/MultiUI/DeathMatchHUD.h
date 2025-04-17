@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ChatWidget.h"
 #include "GameFramework/HUD.h"
 #include "DeathMatchHUD.generated.h"
 
@@ -27,6 +28,12 @@ public:
 	/** 개인전 상태 위젯 인스턴스 */
 	UPROPERTY()
 	UIndividualMatchStatusWidget* IndividualMatchStatusWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UChatWidget> ChatWidgetClass;
+	
+	UPROPERTY()
+	TObjectPtr<UChatWidget> ChatWidget;
 	
 	/** HUD 초기화 */
 	UFUNCTION(BlueprintCallable, Category = "DeathMatch HUD")

@@ -24,10 +24,13 @@ void UCharacterBoxWidget::UpdateDisplayName()
     
 	// 캐릭터 클래스 이름 표시
 	FString ClassName = CharacterClass->GetName();
-	// BP_ 또는 다른 접두사 제거 (선택적)
 	ClassName.ReplaceInline(TEXT("BP_"), TEXT(""));
 	ClassName.ReplaceInline(TEXT("Character"), TEXT(""));
-    
+	ClassName.ReplaceInline(TEXT("Paragon"), TEXT(""));
+    if (ClassName.EndsWith(TEXT("_C")))
+	{
+		ClassName = ClassName.LeftChop(2); // 마지막 2개 문자(_C) 제거
+	}
 	TextBlock->SetText(FText::FromString(ClassName));
     
 	// 디버깅용 로그

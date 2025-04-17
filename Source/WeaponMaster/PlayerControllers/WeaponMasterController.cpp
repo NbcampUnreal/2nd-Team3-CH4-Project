@@ -2,7 +2,10 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameState/WeaponMasterGameState.h"
+#include "PlayerState/WeaponMasterPlayerState.h"
 #include "UI/MultiUI/ChatWidget.h"
+#include "UI/MultiUI/DeathMatchHUD.h"
 #include "UI/MultiUI/MultiGameHUD.h"
 
 AWeaponMasterController::AWeaponMasterController()
@@ -66,15 +69,57 @@ void AWeaponMasterController::SetCurrentCharacterAtGI_Implementation(TSubclassOf
 
 void AWeaponMasterController::Chat()
 {
-	if (const AMultiGameHUD* MultiGameHUD = Cast<AMultiGameHUD>(GetHUD()))
+	ADeathMatchHUD* DMHUD = Cast<ADeathMatchHUD>(GetHUD());
+	if (!DMHUD || !IsValid(DMHUD->ChatWidget)) return;
+
+	if (!bIsChatBound)
 	{
-		if (MultiGameHUD->ChatWidget->GetVisibility() == ESlateVisibility::Hidden)
-		{
-			MultiGameHUD->ChatWidget->SetVisibility(ESlateVisibility::Visible);
-		}
-		else
-		{
-			MultiGameHUD->ChatWidget->SetVisibility(ESlateVisibility::Hidden);
-		}
+		DMHUD->ChatWidget->OnChatMessageCommitted.AddDynamic(this, &AWeaponMasterController::HandleChatMessage);
+		bIsChatBound = true;
+	}
+
+	if (DMHUD->ChatWidget->IsInViewport())
+	{
+		const ESlateVisibility CurrentVisibility = DMHUD->ChatWidget->GetVisibility();
+		DMHUD->ChatWidget->SetVisibility(
+			(CurrentVisibility == ESlateVisibility::Hidden) ? ESlateVisibility::Visible : ESlateVisibility::Hidden
+		);
+	}
+	else
+	{
+		DMHUD->ChatWidget->AddToViewport();
+		DMHUD->ChatWidget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
+
+bool AWeaponMasterController::IsChatWidgetValid() const
+{
+	if (const ADeathMatchHUD* DMHUD = Cast<ADeathMatchHUD>(GetHUD()))
+	{
+		return IsValid(DMHUD->ChatWidget) && DMHUD->ChatWidget->IsInViewport();
+	}
+	return false;
+}
+
+void AWeaponMasterController::HandleChatMessage(const FText& Message)
+{
+	FString PlayerName = TEXT("Unknown");
+	if (AWeaponMasterPlayerState* WMPS = GetPlayerState<AWeaponMasterPlayerState>())
+	{
+		PlayerName = WMPS->GetPlayerName();
+	}
+
+	const FText FormattedMessage = FText::FromString(FString::Printf(TEXT("%s: %s"), *PlayerName, *Message.ToString()));
+	Server_SendChatMessage(FormattedMessage);
+}
+
+void AWeaponMasterController::Server_SendChatMessage_Implementation(const FText& Message)
+{
+	UE_LOG(LogTemp, Display, TEXT("[서버] 클라로부터 받은 메시지: %s"), *Message.ToString());
+
+	if (AWeaponMasterGameState* GS = GetWorld()->GetGameState<AWeaponMasterGameState>())
+	{
+		GS->Multicast_ChatMessage(Message);
+	}
+}
+
