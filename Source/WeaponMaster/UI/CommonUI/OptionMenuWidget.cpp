@@ -49,14 +49,14 @@ void UOptionMenuWidget::OnOptionClicked()
         OptionWidget = CreateWidget<UOptionWidget>(GetOwningPlayer(), OptionWidgetClass);
         if (OptionWidget)
         {
-            OptionWidget->OptionComplete.AddDynamic(this, &UOptionMenuWidget::OnOptionCompleted);
+            //OptionWidget->OptionComplete.AddDynamic(this, &UOptionMenuWidget::OnOptionCompleted);
             OptionWidget->AddToViewport();
         }
     }
 }
 void UOptionMenuWidget::OnOptionCompleted()
 {
-    SetVisibility(ESlateVisibility::Visible);
+   /* SetVisibility(ESlateVisibility::Visible);
     OptionWidget->RemoveFromParent();
-    OptionWidget = nullptr;
+    OptionWidget = nullptr;*/
 }
