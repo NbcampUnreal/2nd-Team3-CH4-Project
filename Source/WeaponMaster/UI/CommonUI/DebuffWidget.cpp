@@ -2,7 +2,10 @@
 
 
 #include "DebuffWidget.h"
+#include "DebuffIconWidget.h"
 #include "Components/HorizontalBox.h"
+#include "Components/TextBlock.h"
+
 
 void UDebuffWidget::NativeConstruct()
 {
@@ -12,6 +15,11 @@ void UDebuffWidget::NativeConstruct()
 	ConfusedIconWidget->SetVisibility(ESlateVisibility::Collapsed);
 	SilenceIconWidget->SetVisibility(ESlateVisibility::Collapsed);
 	UE_LOG(LogTemp, Display, TEXT("UDebuffWidget::NativeConstruct : Created."));
+}
+
+void UDebuffWidget::SetPlayerNameBox(const FString& NewPlayerName)
+{
+	PlayerNameBox->SetText(FText::FromString(NewPlayerName));
 }
 
 void UDebuffWidget::UpdateWidget(const TArray<EBehaviorEffect>& ActiveBehaviorEffects)
