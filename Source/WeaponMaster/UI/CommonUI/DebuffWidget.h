@@ -5,10 +5,13 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Data/StatusTypes.h"
-#include "DebuffIconWidget.h"
+
 #include "DebuffWidget.generated.h"
 
+class UDebuffIconWidget;
 class UHorizontalBox;
+class UTextBlock;
+
 /**
  * 
  */
@@ -30,8 +33,12 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UHorizontalBox> DebuffIconWrapper;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> PlayerNameBox;
+	
 	virtual void NativeConstruct() override;
 	
 public:
+	void SetPlayerNameBox(const FString& NewPlayerName);
 	void UpdateWidget(const TArray<EBehaviorEffect>& ActiveBehaviorEffects);
 };
