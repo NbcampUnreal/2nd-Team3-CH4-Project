@@ -143,16 +143,4 @@ void AWeaponMasterController::Menu()
 			);
 		}
 	}
-	ASingleGameHUD* SGHUD = Cast<ASingleGameHUD>(GetHUD());
-	if (SGHUD &&SGHUD->OptionMenuWidget)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("SingleTest"));
-		if (SGHUD->OptionMenuWidget->IsInViewport())
-		{
-			const ESlateVisibility CurrentVisibility = SGHUD->OptionMenuWidget->GetVisibility();
-			SGHUD->OptionMenuWidget->SetVisibility(
-				(CurrentVisibility == ESlateVisibility::Hidden) ? ESlateVisibility::Visible : ESlateVisibility::Hidden
-			);
-		}
-	}
 }
