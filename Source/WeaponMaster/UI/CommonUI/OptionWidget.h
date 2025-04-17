@@ -9,7 +9,7 @@
 class USlider;
 class UButton;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOptionAction);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOptionAction);
 
 
 UCLASS()
@@ -18,7 +18,7 @@ class WEAPONMASTER_API UOptionWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	FOnOptionAction OptionComplete;
+	//FOnOptionAction OptionComplete;
 
     virtual void NativeConstruct() override;
 
@@ -32,11 +32,11 @@ protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> BackButton;
 	
-    UFUNCTION()
+   /* UFUNCTION()
     void OnBackgroundVolumeChanged(float Value);
 
     UFUNCTION()
-    void OnVolumeChanged(float Value);
+    void OnVolumeChanged(float Value);*/
 
     UFUNCTION()
     void OnBackClicked();

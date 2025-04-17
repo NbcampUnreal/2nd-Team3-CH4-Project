@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
 #include "EOSPlayerController.h"
@@ -66,6 +66,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> ChatAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> MenuAction;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -82,4 +85,7 @@ private:
 
 	UFUNCTION()
 	bool IsChatWidgetValid() const;
+
+	UFUNCTION()
+	void Menu();
 };
