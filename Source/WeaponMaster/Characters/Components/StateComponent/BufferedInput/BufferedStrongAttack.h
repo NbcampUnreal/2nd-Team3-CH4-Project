@@ -16,13 +16,24 @@ public:
 	
 	virtual void Operate() override
 	{
-		if (bIsValidInput)
+		if (bIsValidInput && OwnerCharacter.IsValid())
 		{
 			if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 			{
-				TScriptInterface<UBehaviorState> BehaviorState = IBattleSystemUser::Execute_GetBehaviorState(OwnerCharacter);
-				UE_LOG(LogTemp, Display, TEXT("Buffered StrongAttack Operate"));
+				TScriptInterface<UBehaviorState> BehaviorState = IBattleSystemUser::Execute_GetBehaviorState(OwnerCharacter.Get());
+				if (auto CastedInputState = Cast<IBehaviorState>(BehaviorState.GetObject()))
+				{
+					CastedInputState->StrongAttack();
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("Buffered StrongAttack Error"));
+				}
 			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Display, TEXT("Buffered StrongAttack Expired"));
 		}
 	}
 };

@@ -11,7 +11,7 @@
 ABossCharacter::ABossCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	MaxHP = 1000;
+	MaxHP = 2000;
 
 	BossStateComponent = CreateDefaultSubobject<UBossStateComponent>(TEXT("BossStateComponent"));
 	GetCharacterMovement()->bConstrainToPlane = true;
