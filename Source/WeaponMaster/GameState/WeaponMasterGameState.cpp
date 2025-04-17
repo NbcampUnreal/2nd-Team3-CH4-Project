@@ -10,6 +10,7 @@
 
 AWeaponMasterGameState::AWeaponMasterGameState()
 {
+	bIsPVP = true;
 	CooperateVotedPlayerNum = 0;
 	DeathMatchVotedPlayerNum = 0;
 }
@@ -43,6 +44,7 @@ void AWeaponMasterGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(AWeaponMasterGameState, bIsPVP);
 	DOREPLIFETIME(AWeaponMasterGameState, CooperateVotedPlayerNum);
 	DOREPLIFETIME(AWeaponMasterGameState, DeathMatchVotedPlayerNum);
 }
