@@ -1,9 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UsingSkillEffect.h"
-#include "Characters/Components/StateComponent/BufferedInput/BufferedWeakAttack.h"
-#include "Characters/Components/StateComponent/BufferedInput/BufferedStrongAttack.h"
-#include "Characters/Components/StateComponent/BufferedInput/BufferedIdentity.h"
+// #include "Characters/Components/StateComponent/BufferedInput/BufferedWeakAttack.h"
+// #include "Characters/Components/StateComponent/BufferedInput/BufferedStrongAttack.h"
+// #include "Characters/Components/StateComponent/BufferedInput/BufferedIdentity.h"
 
 
 UUsingSkillEffect::UUsingSkillEffect()
@@ -27,7 +27,14 @@ void UUsingSkillEffect::Activate(float Duration)
 void UUsingSkillEffect::Deactivate()
 {
 	Super::Deactivate();
-	auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
+	// 봉인된 선입력 로직
+	// auto OwnerCharacter = IsValid(GetOuter()) ? Cast<ACharacter>(GetOuter()->GetOuter()) : nullptr;
+	// if (!IsValid(OwnerCharacter))
+	// {
+	// 	UE_LOG(LogTemp, Display, TEXT("UUsingSkillEffect::Deactivate : Outer Character is Null"));
+	// 	return;
+	// }
+	//
 	// if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	// {
 	// 	UStateComponent* StateComponent = IBattleSystemUser::Execute_GetStateComponent(OwnerCharacter);
@@ -82,7 +89,14 @@ void UUsingSkillEffect::Dash()
 void UUsingSkillEffect::WeakAttack()
 {
 	// Super::WeakAttack();
-	// auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
+	// 봉인된 선입력 로직
+	// auto OwnerCharacter = IsValid(GetOuter()) ? Cast<ACharacter>(GetOuter()->GetOuter()) : nullptr;
+	// if (!IsValid(OwnerCharacter))
+	// {
+	// 	UE_LOG(LogTemp, Display, TEXT("UUsingSkillEffect::WeakAttack : Outer Character is Null"));
+	// 	return;
+	// }
+	//
 	// if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	// {
 	// 	UStateComponent* StateComponent = IBattleSystemUser::Execute_GetStateComponent(OwnerCharacter);
@@ -98,7 +112,14 @@ void UUsingSkillEffect::WeakAttack()
 void UUsingSkillEffect::StrongAttack()
 {
 	// Super::StrongAttack();
-	// auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
+	// 봉인된 선입력 로직
+	// auto OwnerCharacter = IsValid(GetOuter()) ? Cast<ACharacter>(GetOuter()->GetOuter()) : nullptr;
+	// if (!IsValid(OwnerCharacter))
+	// {
+	// 	UE_LOG(LogTemp, Display, TEXT("UUsingSkillEffect::StrongAttack : Outer Character is Null"));
+	// 	return;
+	// }
+	//
 	// if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	// {
 	// 	UStateComponent* StateComponent = IBattleSystemUser::Execute_GetStateComponent(OwnerCharacter);
@@ -113,7 +134,14 @@ void UUsingSkillEffect::StrongAttack()
 void UUsingSkillEffect::Identity()
 {
 	// Super::Identity();
-	// auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
+	// 봉인된 선입력 로직
+	// auto OwnerCharacter = IsValid(GetOuter()) ? Cast<ACharacter>(GetOuter()->GetOuter()) : nullptr;
+	// if (!IsValid(OwnerCharacter))
+	// {
+	// 	UE_LOG(LogTemp, Display, TEXT("UUsingSkillEffect::Identity : Outer Character is Null"));
+	// 	return;
+	// }
+	//
 	// if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	// {
 	// 	UStateComponent* StateComponent = IBattleSystemUser::Execute_GetStateComponent(OwnerCharacter);
