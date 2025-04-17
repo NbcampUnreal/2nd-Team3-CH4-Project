@@ -22,18 +22,14 @@ FString TruncateName(const FString& Name, int32 MaxLength)
 
 void UKillLogEntryWidget::Setup(const FText& KillerName, const FText& VictimName) const
 {
-	UE_LOG(LogTemp, Warning, TEXT("KillLog Setup called"));
-	UE_LOG(LogTemp, Warning, TEXT("DefaultKillIcon is %s"), DefaultKillIcon ? *DefaultKillIcon->GetName() : TEXT("NULL"));
 
 	if (KillerText)
 	{
-		FString TruncatedKiller = TruncateName(KillerName.ToString(), 7);
-		KillerText->SetText(FText::FromString(TruncatedKiller));
+		KillerText->SetText(KillerName);
 	}
 	if (VictimText)
 	{
-		FString TruncatedVictim = TruncateName(VictimName.ToString(), 10);
-		VictimText->SetText(FText::FromString(TruncatedVictim));
+		VictimText->SetText(VictimName);
 	}
 
 	if (SkullIcon)
