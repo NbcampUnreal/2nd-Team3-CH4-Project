@@ -43,7 +43,6 @@ void UConfusedEffect::CrouchDrop()
 
 void UConfusedEffect::StopCrouchDrop()
 {
-	UE_LOG(LogTemp, Display, TEXT("UConfusedEffect::CrouchDrop"));
 	Super::StopCrouchDrop();
 }
 

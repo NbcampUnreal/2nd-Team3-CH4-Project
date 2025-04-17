@@ -106,11 +106,11 @@ void ABaseBattleCharacter::BeginPlay()
 		{
 			WMPS->OnHealthChangeBroadcast(HP, MaxHP);
 			SetDebuffWidgetPlayerName();
-			UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::Beginplay : Initialize Charcter Widget"));
+			// UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::Beginplay : Initialize Charcter Widget"));
 		}
 		else
 		{
-			UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::Beginplay : PlayerState Cast Failed"));
+			UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::Beginplay : PlayerState Cast Failed"));
 		}
 	}
 }
@@ -125,7 +125,7 @@ void ABaseBattleCharacter::OnRep_PlayerState()
 		{
 			WMPS->OnHealthChangeBroadcast(HP, MaxHP);
 			SetDebuffWidgetPlayerName();
-			UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnRep_PlayerState : Initialize Charcter Widget After PlayerState Setting "));
+			// UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnRep_PlayerState : Initialize Charcter Widget After PlayerState Setting "));
 		}
 		else
 		{
@@ -200,7 +200,7 @@ void ABaseBattleCharacter::OnRep_HP()
         }
         else
         {
-        	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnRep_HP : Now SingleGame"));
+        	// UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnRep_HP : Now SingleGame"));
         }
         // 싱글 게임 HUD 확인
         if (auto SingleHUD = Cast<ASingleGameHUD>(PlayerController->GetHUD()))
@@ -210,13 +210,13 @@ void ABaseBattleCharacter::OnRep_HP()
         }
         else
         {
-            UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnRep_HP : Now MultiGame"));
+            // UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnRep_HP : Now MultiGame"));
         }
     }
     else
     {
         // 컨트롤러가 없는 경우 (AI 또는 리플리케이션된 캐릭터)
-        UE_LOG(LogTemp, Warning, TEXT("컨트롤러가 없거나 PlayerController가 아닙니다. HP 업데이트만 처리합니다."));
+        // UE_LOG(LogTemp, Warning, TEXT("컨트롤러가 없거나 PlayerController가 아닙니다. HP 업데이트만 처리합니다."));
     }
 }
 
@@ -248,8 +248,6 @@ void ABaseBattleCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 void ABaseBattleCharacter::BindInputFunctions()
 {
 	AWeaponMasterController* WeaponMasterController = Cast<AWeaponMasterController>(GetController());
-
-	UE_LOG(LogTemp, Display, TEXT("BindInputFunctions: Call"));
 
 	if (!IsValid(WeaponMasterController))
 	{
@@ -426,14 +424,14 @@ void ABaseBattleCharacter::SetHP(float NewHP)
 
 void ABaseBattleCharacter::ServerSetHP_Implementation(float NewHP)
 {
-	UE_LOG(LogTemp, Display, TEXT("ServerSetHP : NewHP : %f"), NewHP);
+	// UE_LOG(LogTemp, Display, TEXT("ServerSetHP : NewHP : %f"), NewHP);
 	float ClampedHP = FMath::Clamp(NewHP, 0.f, MaxHP);
 
 	HP = ClampedHP;
 
 	if (HP <= 0.f)
 	{
-		UE_LOG(LogTemp, Display, TEXT("Die!"));
+		// UE_LOG(LogTemp, Display, TEXT("Die!"));
 		OnDeath();
 	}
 }
@@ -640,17 +638,24 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 		}
 
 		// PVP 모드가 아닌데 사람한테 맞으면 피격당하지 않도록
-		if (auto WMGS = Cast<AWeaponMasterGameState>(GetWorld()->GetGameState()); !WMGS->bIsPVP)
+		if (UWorld* World = GetWorld())
 		{
-			if (AttackData.Attacker->IsA<ABaseBattleCharacter>())
+			if (auto WMGS = Cast<AWeaponMasterGameState>(World->GetGameState()))
 			{
-				return;
+				if (!WMGS->bIsPVP && IsValid(AttackData.Attacker) && !AttackData.Attacker->IsPendingKillPending())
+				{
+					if (AttackData.Attacker->IsA<ABaseBattleCharacter>())
+					{
+						return;
+					}
+				}
 			}
 		}
 		
+		
 		if (GetActorForwardVector().X * AttackData.LaunchVector.X > 0.f)
 		{
-			UE_LOG(LogTemp, Display, TEXT("OnAttacked : 180 Rotate"));
+			// UE_LOG(LogTemp, Display, TEXT("OnAttacked : 180 Rotate"));
 			SSTCharacterMovementComponent->RequestTurnAround();
 		}
 
@@ -710,19 +715,19 @@ void ABaseBattleCharacter::OnAttacked(const FAttackData& AttackData)
 				{
 					AttackerPS->AddKill();
 				}
-				UE_LOG(LogTemp, Warning, TEXT("[%s]의 현재 전투 통계 - 킬: %d, 총 데미지: %.2f"),
-				       *AttackerPS->GetPlayerName(), AttackerPS->GetKillCount(), AttackerPS->GetTotalDamageDealt());
+				// UE_LOG(LogTemp, Warning, TEXT("[%s]의 현재 전투 통계 - 킬: %d, 총 데미지: %.2f"),
+				//        *AttackerPS->GetPlayerName(), AttackerPS->GetKillCount(), AttackerPS->GetTotalDamageDealt());
 			}
 		}
 
-		// 현재 디버프 목록
-		for (auto Debuff : EffectComponent->GetActiveBehaviorEffects())
-		{
-			UE_LOG(LogTemp, Display, TEXT("Current Debuff name: %s"),
-				   *StaticEnum<EBehaviorEffect>()->GetNameStringByValue((uint8)Debuff))
-		}
-		// 현재 HP
-		UE_LOG(LogTemp, Display, TEXT("Current HP: %f"), HP);
+		// // 현재 디버프 목록
+		// for (auto Debuff : EffectComponent->GetActiveBehaviorEffects())
+		// {
+		// 	UE_LOG(LogTemp, Display, TEXT("Current Debuff name: %s"),
+		// 		   *StaticEnum<EBehaviorEffect>()->GetNameStringByValue((uint8)Debuff))
+		// }
+		// // 현재 HP
+		// UE_LOG(LogTemp, Display, TEXT("Current HP: %f"), HP);
 	}
 }
 
@@ -759,7 +764,7 @@ UTexture2D* ABaseBattleCharacter::GetCharacterThumbnail() const
 
 void ABaseBattleCharacter::UpdateDebuffWidget()
 {
-	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::UpdateDebuffWidget : Called."));
+	// UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::UpdateDebuffWidget : Called."));
 	if (auto DebuffWidget = Cast<UDebuffWidget>(WidgetComponent->GetUserWidgetObject()))
 	{
 		if (IsValid(EffectComponent))
@@ -776,7 +781,7 @@ void ABaseBattleCharacter::UpdateDebuffWidget()
 
 void ABaseBattleCharacter::SetDebuffWidgetPlayerName()
 {
-	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::SetDebuffWidgetPlayerName : Call"));
+	// UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::SetDebuffWidgetPlayerName : Call"));
 	ClientSetDebuffWidgetPlayerName();
 }
 
@@ -798,37 +803,37 @@ void ABaseBattleCharacter::Server_RequestItemPickup_Implementation(AActor* ItemA
 
 void ABaseBattleCharacter::WeakAttack()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::WeakAttack !"));
+	// UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::WeakAttack !"));
 	IBattleSystemUser::Execute_ExecuteSkill(this, 0);
 }
 
 void ABaseBattleCharacter::StrongAttack()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::StrongAttack !"));
+	// UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::StrongAttack !"));
 	IBattleSystemUser::Execute_ExecuteSkill(this, 1);
 }
 
 void ABaseBattleCharacter::Identity()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Identity !"));
+	// UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Identity !"));
 	IBattleSystemUser::Execute_ExecuteSkill(this, 2);
 }
 
 void ABaseBattleCharacter::Defence()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Defence !"));
+	// UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::Defence !"));
 }
 
 void ABaseBattleCharacter::PickingItem()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::PickingItem !"));
+	// UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::PickingItem !"));
 
 	if (GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	{
 		AActor* interactableActor = IBattleSystemUser::Execute_GetInteractableActor(this);
 		if (interactableActor)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("상호작용 가능한 아이템 찾음: %s"), *interactableActor->GetName());
+			// UE_LOG(LogTemp, Warning, TEXT("상호작용 가능한 아이템 찾음: %s"), *interactableActor->GetName());
 
 			UInteractionComponent* InteractionComp = interactableActor->FindComponentByClass<UInteractionComponent>();
 			if (InteractionComp)
@@ -841,30 +846,30 @@ void ABaseBattleCharacter::PickingItem()
 
 void ABaseBattleCharacter::OnSkillStarted(UBaseSkill* Skill)
 {
-	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnSkillStarted : Call."));
+	// UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnSkillStarted : Call."));
 	EffectComponent->ActivateBehaviorEffect(EBehaviorEffect::UsingSkill);
 }
 
 void ABaseBattleCharacter::OnSkillEnded(UBaseSkill* Skill)
 {
-	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnSkillEnded : Call."));
+	// UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnSkillEnded : Call."));
 	EffectComponent->DeactivateBehaviorEffect(EBehaviorEffect::UsingSkill);
 }
 
 void ABaseBattleCharacter::MenuOnOff()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::MenuOnOff !"));
-	
-	for (auto Debuff : EffectComponent->GetActiveBehaviorEffects())
-	{
-		UE_LOG(LogTemp, Display, TEXT("Current Debuff name: %s"),
-		       *StaticEnum<EBehaviorEffect>()->GetNameStringByValue((uint8)Debuff))
-	}
-
-	auto KillCount = Cast<AWeaponMasterPlayerState>(GetPlayerState())->GetKillCount();
-	auto DeathCount = Cast<AWeaponMasterPlayerState>(GetPlayerState())->GetDeathCount();
-
-	UE_LOG(LogTemp, Display, TEXT("Kill/Death Count : %d, %d"), KillCount, DeathCount);
+	// UE_LOG(LogTemp, Warning, TEXT("ABaseBattleCharacter::MenuOnOff !"));
+	//
+	// for (auto Debuff : EffectComponent->GetActiveBehaviorEffects())
+	// {
+	// 	UE_LOG(LogTemp, Display, TEXT("Current Debuff name: %s"),
+	// 	       *StaticEnum<EBehaviorEffect>()->GetNameStringByValue((uint8)Debuff))
+	// }
+	//
+	// auto KillCount = Cast<AWeaponMasterPlayerState>(GetPlayerState())->GetKillCount();
+	// auto DeathCount = Cast<AWeaponMasterPlayerState>(GetPlayerState())->GetDeathCount();
+	//
+	// UE_LOG(LogTemp, Display, TEXT("Kill/Death Count : %d, %d"), KillCount, DeathCount);
 }
 
 
@@ -874,11 +879,11 @@ void ABaseBattleCharacter::Multicast_PlayMontage_Implementation(UAnimMontage* Mo
 	{
 		return;
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("[%s] 몽타주 %s 재생 시작 (재생속도: %.2f)"),
-	       HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
-	       *Montage->GetName(),
-	       PlayRate);
+	//
+	// UE_LOG(LogTemp, Warning, TEXT("[%s] 몽타주 %s 재생 시작 (재생속도: %.2f)"),
+	//        HasAuthority() ? TEXT("서버") : TEXT("클라이언트"),
+	//        *Montage->GetName(),
+	//        PlayRate);
 
 	// 모든 클라이언트(및 서버)에서 몽타주 재생
 	GetMesh()->GetAnimInstance()->Montage_Play(Montage, PlayRate);
@@ -894,19 +899,19 @@ void ABaseBattleCharacter::SetupMontageEndedDelegate_Implementation()
 
 void ABaseBattleCharacter::RequestItemPickup_Implementation(AActor* ItemActor)
 {
-	UE_LOG(LogTemp, Warning, TEXT("RequestItemPickup: %s가 아이템 %s 획득 요청 (권한: %d)"),
-	       *GetName(), ItemActor ? *ItemActor->GetName() : TEXT("Unknown"),
-	       (int32)GetLocalRole());
+	// UE_LOG(LogTemp, Warning, TEXT("RequestItemPickup: %s가 아이템 %s 획득 요청 (권한: %d)"),
+	//        *GetName(), ItemActor ? *ItemActor->GetName() : TEXT("Unknown"),
+	//        (int32)GetLocalRole());
 
 	if (!HasAuthority())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("RequestItemPickup: 클라이언트에서 Server_RequestItemPickup 호출"));
+		// UE_LOG(LogTemp, Warning, TEXT("RequestItemPickup: 클라이언트에서 Server_RequestItemPickup 호출"));
 		Server_RequestItemPickup(ItemActor);
 	}
 	else
 	{
 		// 서버에서 직접 처리
-		UE_LOG(LogTemp, Warning, TEXT("RequestItemPickup: 서버에서 직접 ProcessPickup 호출"));
+		// UE_LOG(LogTemp, Warning, TEXT("RequestItemPickup: 서버에서 직접 ProcessPickup 호출"));
 		APickupableItem* PickupItem = Cast<APickupableItem>(ItemActor);
 		if (PickupItem)
 		{
