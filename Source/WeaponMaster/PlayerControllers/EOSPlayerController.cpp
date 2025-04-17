@@ -292,14 +292,8 @@ void AEOSPlayerController::HandleProcessResult(EPlayerEOSStateType State, ESessi
                 {
                     if (const UWeaponMasterGameInstance* WMGI = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
                     {
-                        FString PlayerName = WMGI->GetPlayerName();
-                        UE_LOG(LogTemp, Warning, TEXT("PlayerName!! [%s]"), *PlayerName);
+                        const FString PlayerName = WMGI->GetPlayerName();
                         WMPS->SetPlayerName(PlayerName);
-
-                        if (const ADeathMatchHUD* DeathMatchHUD = Cast<ADeathMatchHUD>(GetHUD()))
-                        {
-                            DeathMatchHUD->IndividualMatchStatusWidget->UpdatePlayerName(WMPS->GetPlayerId(), PlayerName);
-                        }
                     }
                 }
                 Server_RegisterPlayer(this);

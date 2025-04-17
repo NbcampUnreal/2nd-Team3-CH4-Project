@@ -17,38 +17,14 @@ ABaseGameMode::ABaseGameMode()
 void ABaseGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void ABaseGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 	
-	FString PlayerName = "Player";
 	if (const auto CastedGameInstance = Cast<UWeaponMasterGameInstance>(GetGameInstance()))
 	{
-		PlayerName = CastedGameInstance->GetPlayerName();
-		
-		if (PlayerName.IsEmpty())
-		{
-			PlayerName = FString::Printf(TEXT("Player_%d"), NewPlayer->GetUniqueID());
-		}
-		
-		// Set player name in PlayerState
-		if (AWeaponMasterPlayerState* PlayerState = Cast<AWeaponMasterPlayerState>(NewPlayer->PlayerState))
-		{
-			PlayerState->SetPlayerName(PlayerName);
-			UE_LOG(LogTemp, Display, TEXT("Player name set from GameInstance: %s"), *PlayerName);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Display, TEXT("ABaseGameMode::PostLogin : PlayerState Cast Failed"));
-		}
-		
-		
-		TSubclassOf<ACharacter> CharacterClass = CastedGameInstance->CharacterClass;
-		FName ItemName = CastedGameInstance->ItemName;
-	
 		SpawnPlayerCharacter(NewPlayer);
 
 		for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
