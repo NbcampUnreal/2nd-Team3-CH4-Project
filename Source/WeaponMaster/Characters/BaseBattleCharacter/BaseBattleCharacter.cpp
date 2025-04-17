@@ -509,6 +509,9 @@ void ABaseBattleCharacter::MulticastOnDeath_Implementation()
 {
 	// Pawn과 충돌 무시
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+
+	// 죽는 음성 재생
+	PlayDeathSound();
 }
 
 UItemComponent* ABaseBattleCharacter::GetItemComponent_Implementation() const
