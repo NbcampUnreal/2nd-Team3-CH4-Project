@@ -40,6 +40,11 @@ void ABaseGameMode::PostLogin(APlayerController* NewPlayer)
 			PlayerState->SetPlayerName(PlayerName);
 			UE_LOG(LogTemp, Display, TEXT("Player name set from GameInstance: %s"), *PlayerName);
 		}
+		else
+		{
+			UE_LOG(LogTemp, Display, TEXT("ABaseGameMode::PostLogin : PlayerState Cast Failed"));
+		}
+		
 		
 		TSubclassOf<ACharacter> CharacterClass = CastedGameInstance->CharacterClass;
 		FName ItemName = CastedGameInstance->ItemName;

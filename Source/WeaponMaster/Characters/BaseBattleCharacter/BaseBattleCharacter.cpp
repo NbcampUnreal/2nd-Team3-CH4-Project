@@ -98,12 +98,37 @@ void ABaseBattleCharacter::BeginPlay()
 	{
 		SetupMontageEndedDelegate_Implementation();
 	}
-	
+
 	if (GetNetMode() != ENetMode::NM_DedicatedServer)
 	{
 		if (AWeaponMasterPlayerState* WMPS = GetPlayerState<AWeaponMasterPlayerState>())
 		{
 			WMPS->OnHealthChangeBroadcast(HP, MaxHP);
+			SetDebuffWidgetPlayerName();
+			UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::Beginplay : Initialize Charcter Widget"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::Beginplay : PlayerState Cast Failed"));
+		}
+	}
+}
+
+void ABaseBattleCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	if (GetNetMode() != ENetMode::NM_DedicatedServer)
+	{
+		if (AWeaponMasterPlayerState* WMPS = GetPlayerState<AWeaponMasterPlayerState>())
+		{
+			WMPS->OnHealthChangeBroadcast(HP, MaxHP);
+			SetDebuffWidgetPlayerName();
+			UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnRep_PlayerState : Initialize Charcter Widget After PlayerState Setting "));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::OnRep_PlayerState : PlayerState Cast Failed"));
 		}
 	}
 }
@@ -735,6 +760,23 @@ void ABaseBattleCharacter::UpdateDebuffWidget()
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("ABaseBattleCharacter::UpdateDebuffWidget : DebuffWidget Cast Failed."));
+	}
+}
+
+void ABaseBattleCharacter::SetDebuffWidgetPlayerName()
+{
+	UE_LOG(LogTemp, Display, TEXT("ABaseBattleCharacter::SetDebuffWidgetPlayerName : Call"));
+	ClientSetDebuffWidgetPlayerName();
+}
+
+void ABaseBattleCharacter::ClientSetDebuffWidgetPlayerName_Implementation()
+{
+	if (auto DebuffWidget = Cast<UDebuffWidget>(WidgetComponent->GetUserWidgetObject()))
+	{
+		if (auto PS = GetPlayerState())
+		{
+			DebuffWidget->SetPlayerNameBox(PS->GetPlayerName());
+		}
 	}
 }
 

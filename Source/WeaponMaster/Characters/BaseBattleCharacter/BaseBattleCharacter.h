@@ -71,6 +71,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// PlayerState Setting Timing
+	virtual void OnRep_PlayerState() override;
+
 	// Replicate Setting
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -179,5 +182,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Stats")
 	float GetMaxHP() const { return MaxHP; }
 
+	// WidgetComponent의 상태이상 위젯 컨트롤 함수들
 	virtual void UpdateDebuffWidget() override;
+
+	UFUNCTION()
+	void SetDebuffWidgetPlayerName();
+
+	UFUNCTION(Client, Reliable)
+	void ClientSetDebuffWidgetPlayerName();
 };
