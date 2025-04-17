@@ -11,6 +11,9 @@ class WEAPONMASTER_API AWeaponMasterGameState : public AGameStateBase
 
 public:
 	AWeaponMasterGameState();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ChatMessage(const FText& Message);
 	
 	FORCEINLINE_DEBUGGABLE void SetCooperateVotedPlayerNum(const bool IsVoted)
 	{

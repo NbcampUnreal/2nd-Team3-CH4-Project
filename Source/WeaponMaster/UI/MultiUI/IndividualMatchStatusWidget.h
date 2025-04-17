@@ -5,6 +5,7 @@
 #include "PlayerControllers/EOSPlayerController.h"
 #include "IndividualMatchStatusWidget.generated.h"
 
+class UChatMessageWidget;
 class UPlayerStatusWidgetExtended;
 class UKillLogWidget;
 class UCanvasPanel;
@@ -61,9 +62,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void SetRemainTimer(int32 TimeRemain) const;
 
+	/** 남은 시간 설정 */
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void AddChatMessage(const FText& NewMessage);
+
 	/** 킬로그 위젯 */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UKillLogWidget> KillLogContainer;
+
+	/** 채팅로그 위젯 */
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UChatMessageWidget> ChatMessageWidgetClass;
 
 protected:
 	virtual void NativeConstruct() override;
@@ -79,6 +88,10 @@ protected:
 	/** 매치 이름 표시 텍스트 */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> MatchTitleTextBlock;
+
+	/** 채팅 스크롤 박스 */
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UScrollBox> ChattingScrollBox;
 
 	/** 플레이어 상태 위젯 클래스 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")

@@ -1,5 +1,6 @@
 #include "IndividualMatchStatusWidget.h"
 
+#include "ChatMessageWidget.h"
 #include "KillLogWidget.h"
 #include "PlayerStatusWidgetExtended.h"
 #include "Components/ScrollBox.h"
@@ -12,8 +13,6 @@
 void UIndividualMatchStatusWidget::NativeConstruct()
 {
     Super::NativeConstruct();
-
-    
 }
 
 void UIndividualMatchStatusWidget::InitializePlayerStatus()
@@ -73,6 +72,18 @@ void UIndividualMatchStatusWidget::UpdateMatchTitle(const EMapType Map) const
     if (MatchTitleTextBlock)
     {
         MatchTitleTextBlock->SetText(Title);
+    }
+}
+
+void UIndividualMatchStatusWidget::AddChatMessage(const FText& NewMessage)
+{
+    if (!ChattingScrollBox || !ChatMessageWidgetClass) return;
+
+    if (UChatMessageWidget* NewChatItem = CreateWidget<UChatMessageWidget>(this, ChatMessageWidgetClass))
+    {
+        NewChatItem->SetMessageText(NewMessage);
+        ChattingScrollBox->AddChild(NewChatItem);
+        ChattingScrollBox->ScrollToEnd();
     }
 }
 
