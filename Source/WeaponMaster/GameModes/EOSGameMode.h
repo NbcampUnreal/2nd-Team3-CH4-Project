@@ -80,7 +80,7 @@ private:
 	FString MapURL = "";
 
 	UPROPERTY()
-	int32 TimerCountDown = 77;
+	int32 TimerCountDown = 50;
 
 	UFUNCTION()
 	void SetTimer();
