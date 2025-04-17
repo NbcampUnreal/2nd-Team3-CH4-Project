@@ -28,25 +28,25 @@ void UUsingSkillEffect::Deactivate()
 {
 	Super::Deactivate();
 	auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
-	if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
-	{
-		UStateComponent* StateComponent = IBattleSystemUser::Execute_GetStateComponent(OwnerCharacter);
-		TQueue<TUniquePtr<FBaseBufferedInput>>& BufferedInputQueue = StateComponent->BufferedInputQueue;
-
-		TUniquePtr<FBaseBufferedInput> BufferedInput;
-		while (BufferedInputQueue.Dequeue(BufferedInput))
-		{
-			if (BufferedInput->IsValidInput())
-			{
-				BufferedInput->Operate();
-				break;
-			}
-			else
-			{
-				UE_LOG(LogTemp, Display, TEXT("Buffered Input Expired"));
-			}
-		}
-	}
+	// if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
+	// {
+	// 	UStateComponent* StateComponent = IBattleSystemUser::Execute_GetStateComponent(OwnerCharacter);
+	// 	TQueue<TUniquePtr<FBaseBufferedInput>>& BufferedInputQueue = StateComponent->BufferedInputQueue;
+	//
+	// 	TUniquePtr<FBaseBufferedInput> BufferedInput;
+	// 	while (BufferedInputQueue.Dequeue(BufferedInput))
+	// 	{
+	// 		if (BufferedInput->IsValidInput())
+	// 		{
+	// 			BufferedInput->Operate();
+	// 			break;
+	// 		}
+	// 		else
+	// 		{
+	// 			UE_LOG(LogTemp, Display, TEXT("Buffered Input Expired"));
+	// 		}
+	// 	}
+	// }
 }
 
 void UUsingSkillEffect::Move(const FInputActionValue& Value)
@@ -82,47 +82,47 @@ void UUsingSkillEffect::Dash()
 void UUsingSkillEffect::WeakAttack()
 {
 	// Super::WeakAttack();
-	auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
-	if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
-	{
-		UStateComponent* StateComponent = IBattleSystemUser::Execute_GetStateComponent(OwnerCharacter);
-		TQueue<TUniquePtr<FBaseBufferedInput>>& BufferedInputQueue = StateComponent->BufferedInputQueue;
-
-		auto BufferedWeakAttack = MakeUnique<FBufferedWeakAttack>();
-		BufferedWeakAttack->Initialize(OwnerCharacter);
-		BufferedInputQueue.Enqueue(std::move(BufferedWeakAttack));
-		UE_LOG(LogTemp, Display, TEXT("EnQueue"));
-	}
+	// auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
+	// if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
+	// {
+	// 	UStateComponent* StateComponent = IBattleSystemUser::Execute_GetStateComponent(OwnerCharacter);
+	// 	TQueue<TUniquePtr<FBaseBufferedInput>>& BufferedInputQueue = StateComponent->BufferedInputQueue;
+	//
+	// 	auto BufferedWeakAttack = MakeUnique<FBufferedWeakAttack>();
+	// 	BufferedWeakAttack->Initialize(OwnerCharacter);
+	// 	BufferedInputQueue.Enqueue(std::move(BufferedWeakAttack));
+	// 	UE_LOG(LogTemp, Display, TEXT("EnQueue"));
+	// }
 }
 
 void UUsingSkillEffect::StrongAttack()
 {
 	// Super::StrongAttack();
-	auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
-	if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
-	{
-		UStateComponent* StateComponent = IBattleSystemUser::Execute_GetStateComponent(OwnerCharacter);
-		TQueue<TUniquePtr<FBaseBufferedInput>>& BufferedInputQueue = StateComponent->BufferedInputQueue;
-
-		auto BufferedStrongAttack = MakeUnique<FBufferedStrongAttack>();
-		BufferedStrongAttack->Initialize(OwnerCharacter);
-		BufferedInputQueue.Enqueue(std::move(BufferedStrongAttack));
-	}
+	// auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
+	// if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
+	// {
+	// 	UStateComponent* StateComponent = IBattleSystemUser::Execute_GetStateComponent(OwnerCharacter);
+	// 	TQueue<TUniquePtr<FBaseBufferedInput>>& BufferedInputQueue = StateComponent->BufferedInputQueue;
+	//
+	// 	auto BufferedStrongAttack = MakeUnique<FBufferedStrongAttack>();
+	// 	BufferedStrongAttack->Initialize(OwnerCharacter);
+	// 	BufferedInputQueue.Enqueue(std::move(BufferedStrongAttack));
+	// }
 }
 
 void UUsingSkillEffect::Identity()
 {
 	// Super::Identity();
-	auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
-	if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
-	{
-		UStateComponent* StateComponent = IBattleSystemUser::Execute_GetStateComponent(OwnerCharacter);
-		TQueue<TUniquePtr<FBaseBufferedInput>>& BufferedInputQueue = StateComponent->BufferedInputQueue;
-
-		auto BufferedIdentity = MakeUnique<FBufferedIdentity>();
-		BufferedIdentity->Initialize(OwnerCharacter);
-		BufferedInputQueue.Enqueue(std::move(BufferedIdentity));
-	}
+	// auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
+	// if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
+	// {
+	// 	UStateComponent* StateComponent = IBattleSystemUser::Execute_GetStateComponent(OwnerCharacter);
+	// 	TQueue<TUniquePtr<FBaseBufferedInput>>& BufferedInputQueue = StateComponent->BufferedInputQueue;
+	//
+	// 	auto BufferedIdentity = MakeUnique<FBufferedIdentity>();
+	// 	BufferedIdentity->Initialize(OwnerCharacter);
+	// 	BufferedInputQueue.Enqueue(std::move(BufferedIdentity));
+	// }
 }
 
 void UUsingSkillEffect::Defence()
