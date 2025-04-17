@@ -227,6 +227,7 @@ void APortalActor::OrientCharacterAfterTeleport(ACharacter* Character, const FTr
 void APortalActor::Multicast_OnTeleportEffect_Implementation()
 {
     FVector EffectLocation = GetActorLocation();
+    FVector DesEffectLocation = DestinationPortal->GetActorLocation();
     if (NiagaraComponent)
     {
         NiagaraComponent->Activate(true);
@@ -235,6 +236,7 @@ void APortalActor::Multicast_OnTeleportEffect_Implementation()
     if (TeleportSound)
     {
         UGameplayStatics::PlaySoundAtLocation(GetWorld(), TeleportSound, EffectLocation);
+        UGameplayStatics::PlaySoundAtLocation(GetWorld(), TeleportSound, DesEffectLocation);
     }
 
 }

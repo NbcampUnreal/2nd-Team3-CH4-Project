@@ -31,8 +31,7 @@ void UResultPlayerEntryWidget::SetPlayerResultInfo(UTexture2D* InIcon, const FTe
 
 	if (NicknameText)
 	{
-		FString PlayerNickname = TruncateNicName(InNickname.ToString(), 7);
-		NicknameText->SetText(FText::FromString(PlayerNickname));
+		NicknameText->SetText(InNickname);
 	}
 
 	if (KillCountText)

@@ -8,6 +8,7 @@
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerController.h"
 #include "PlayerState/WeaponMasterPlayerState.h"
+#include "../CommonUI/OptionWidget.h"
 
 ADeathMatchHUD::ADeathMatchHUD()
 {
@@ -30,7 +31,17 @@ void ADeathMatchHUD::BeginPlay()
             ChatWidget->AddToViewport();
         }
     }
-    
+
+    if (MenuWidgetClass)
+    {
+        MenuWidget = CreateWidget<UOptionWidget>(GetOwningPlayerController(), MenuWidgetClass);
+        if (MenuWidget)
+        {
+            MenuWidget->SetVisibility(ESlateVisibility::Hidden);
+            MenuWidget->AddToViewport();
+        }
+    }
+
     InitializeHUD();
 }
 

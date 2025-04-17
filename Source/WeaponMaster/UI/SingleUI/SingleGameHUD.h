@@ -6,7 +6,7 @@
 #include "SingleGameHUD.generated.h"
 
 class UPlayerStatusWidget;
-class UOptionMenuWidget;
+class UOptionWidget;
 
 UCLASS()
 class WEAPONMASTER_API ASingleGameHUD : public AHUD
@@ -59,11 +59,12 @@ protected:
 
     /** 옵션 메뉴 위젯 클래스 */
     UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-    TSubclassOf<UOptionMenuWidget> OptionMenuWidgetClass;
+    TSubclassOf<UOptionWidget> OptionMenuWidgetClass;
 
+public:
     /** 옵션 메뉴 위젯 인스턴스 */
     UPROPERTY()
-    UOptionMenuWidget* OptionMenuWidget;
+    UOptionWidget* OptionMenuWidget;
 
     /** 옵션 메뉴 표시 여부 */
     bool bIsOptionMenuVisible = false;

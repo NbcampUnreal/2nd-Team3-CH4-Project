@@ -15,7 +15,7 @@ void UBehaviorStateDecorator::Activate()
 		return;
 	}
 
-	auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
+	auto OwnerCharacter = IsValid(GetOuter()) ? Cast<ACharacter>(GetOuter()->GetOuter()) : nullptr;
 	if (!IsValid(OwnerCharacter))
 	{
 		UE_LOG(LogTemp, Display, TEXT("UBehaviorStateDecorator::Activate : Outer Character is Null"));
@@ -25,11 +25,11 @@ void UBehaviorStateDecorator::Activate()
 	if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	{
 		bIsActive = true;
-		SetInnerState(IBattleSystemUser::Execute_GetBehaviorState(GetOuter()->GetOuter()));
+		SetInnerState(IBattleSystemUser::Execute_GetBehaviorState(OwnerCharacter));
 		
 		Cast<IBehaviorState>(InnerState.GetObject())->SetOuterState(this);
 		
-		IBattleSystemUser::Execute_SetBehaviorState(GetOuter()->GetOuter(), this);
+		IBattleSystemUser::Execute_SetBehaviorState(OwnerCharacter, this);
 	}
 	else
 	{
@@ -62,7 +62,7 @@ void UBehaviorStateDecorator::Activate(float Duration)
 		return;
 	}
 	
-	auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
+	auto OwnerCharacter = IsValid(GetOuter()) ? Cast<ACharacter>(GetOuter()->GetOuter()) : nullptr; 
 	if (!IsValid(OwnerCharacter))
 	{
 		UE_LOG(LogTemp, Display, TEXT("UBehaviorStateDecorator::Activate : Outer Character is Null"));
@@ -72,11 +72,11 @@ void UBehaviorStateDecorator::Activate(float Duration)
 	if (OwnerCharacter->GetClass()->ImplementsInterface(UBattleSystemUser::StaticClass()))
 	{
 		bIsActive = true;
-		SetInnerState(IBattleSystemUser::Execute_GetBehaviorState(GetOuter()->GetOuter()));
+		SetInnerState(IBattleSystemUser::Execute_GetBehaviorState(OwnerCharacter));
 		
 		Cast<IBehaviorState>(InnerState.GetObject())->SetOuterState(this);
 		
-		IBattleSystemUser::Execute_SetBehaviorState(GetOuter()->GetOuter(), this);
+		IBattleSystemUser::Execute_SetBehaviorState(OwnerCharacter, this);
 		
 		GetOuter()->GetWorld()->GetTimerManager().SetTimer(
 			DurationTimer,
@@ -120,7 +120,7 @@ void UBehaviorStateDecorator::Deactivate()
 		return;
 	}
 	
-	auto OwnerCharacter = Cast<ACharacter>(GetOuter()->GetOuter());
+	auto OwnerCharacter = IsValid(GetOuter()) ? Cast<ACharacter>(GetOuter()->GetOuter()) : nullptr;
 	if (!IsValid(OwnerCharacter))
 	{
 		UE_LOG(LogTemp, Display, TEXT("UBehaviorStateDecorator::Deactivate : Outer Character is Null"));
@@ -178,57 +178,134 @@ void UBehaviorStateDecorator::Tick(float DeltaTime)
 
 void UBehaviorStateDecorator::Move(const FInputActionValue& Value)
 {
-	Cast<IBehaviorState>(InnerState.GetObject())->Move(Value);
+	if (IsValid(InnerState.GetObject()))
+	{
+		Cast<IBehaviorState>(InnerState.GetObject())->Move(Value);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UBehaviorStateDecorator::Move : InnerState Invalid"));
+	}
 }
 
 void UBehaviorStateDecorator::CrouchDrop()
 {
-	Cast<IBehaviorState>(InnerState.GetObject())->CrouchDrop();
+	if (IsValid(InnerState.GetObject()))
+	{
+		Cast<IBehaviorState>(InnerState.GetObject())->CrouchDrop();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UBehaviorStateDecorator::CrouchDrop : InnerState Invalid"));
+	}
 }
 
 void UBehaviorStateDecorator::StopCrouchDrop()
 {
-	Cast<IBehaviorState>(InnerState.GetObject())->StopCrouchDrop();
+	if (IsValid(InnerState.GetObject()))
+	{
+		Cast<IBehaviorState>(InnerState.GetObject())->StopCrouchDrop();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UBehaviorStateDecorator::StopCrouchDrop : InnerState Invalid"));
+	}
 }
 
 void UBehaviorStateDecorator::JumpOrDrop()
 {
-	Cast<IBehaviorState>(InnerState.GetObject())->JumpOrDrop();
+	if (IsValid(InnerState.GetObject()))
+	{
+		Cast<IBehaviorState>(InnerState.GetObject())->JumpOrDrop();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UBehaviorStateDecorator::JumpOrDrop : InnerState Invalid"));
+	}
 }
 
 void UBehaviorStateDecorator::ReleaseJump()
 {
-	Cast<IBehaviorState>(InnerState.GetObject())->ReleaseJump();
+	if (IsValid(InnerState.GetObject()))
+	{
+		Cast<IBehaviorState>(InnerState.GetObject())->ReleaseJump();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UBehaviorStateDecorator::ReleaseJump : InnerState Invalid"));
+	}
 }
 
 void UBehaviorStateDecorator::Dash()
 {
-	Cast<IBehaviorState>(InnerState.GetObject())->Dash();
+	if (IsValid(InnerState.GetObject()))
+	{
+		Cast<IBehaviorState>(InnerState.GetObject())->Dash();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UBehaviorStateDecorator::Dash : InnerState Invalid"));
+	}
 }
 
 void UBehaviorStateDecorator::WeakAttack()
 {
-	Cast<IBehaviorState>(InnerState.GetObject())->WeakAttack();
+	if (IsValid(InnerState.GetObject()))
+	{
+		Cast<IBehaviorState>(InnerState.GetObject())->WeakAttack();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UBehaviorStateDecorator::WeakAttack : InnerState Invalid"));
+	}
 }
 
 void UBehaviorStateDecorator::StrongAttack()
 {
-	Cast<IBehaviorState>(InnerState.GetObject())->StrongAttack();
+	if (IsValid(InnerState.GetObject()))
+	{
+		Cast<IBehaviorState>(InnerState.GetObject())->StrongAttack();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UBehaviorStateDecorator::StrongAttack : InnerState Invalid"));
+	}
 }
 
 void UBehaviorStateDecorator::Identity()
 {
-	Cast<IBehaviorState>(InnerState.GetObject())->Identity();
+	if (IsValid(InnerState.GetObject()))
+	{
+		Cast<IBehaviorState>(InnerState.GetObject())->Identity();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UBehaviorStateDecorator::Identity : InnerState Invalid"));
+	}
 }
 
 void UBehaviorStateDecorator::Defence()
 {
-	Cast<IBehaviorState>(InnerState.GetObject())->Defence();
+	if (IsValid(InnerState.GetObject()))
+	{
+		Cast<IBehaviorState>(InnerState.GetObject())->Defence();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UBehaviorStateDecorator::Defence : InnerState Invalid"));
+	}
 }
 
 void UBehaviorStateDecorator::PickingItem()
 {
-	Cast<IBehaviorState>(InnerState.GetObject())->PickingItem();
+	if (IsValid(InnerState.GetObject()))
+	{
+		Cast<IBehaviorState>(InnerState.GetObject())->PickingItem();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UBehaviorStateDecorator::PickingItem : InnerState Invalid"));
+	}
 }
 
 TScriptInterface<UBehaviorState> UBehaviorStateDecorator::GetInnerState() const
