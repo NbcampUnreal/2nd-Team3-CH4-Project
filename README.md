@@ -36,7 +36,6 @@
 
 ## 📽️ 시연 영상
 
-[▶️ WeaponMaster 플레이 영상](https://youtu.be/myb5Tn-WQPU)
 [![WeaponMaster 시연 영상](https://img.youtube.com/vi/myb5Tn-WQPU/hqdefault.jpg)](https://youtu.be/myb5Tn-WQPU)
 
 ---
